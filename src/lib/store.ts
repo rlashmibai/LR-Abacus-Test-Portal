@@ -1,6 +1,22 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { Student, TestSession, TestResult } from "./types";
+import {
+  isDbConfigured,
+  dbGetStudents,
+  dbGetStudent,
+  dbSaveStudents,
+  dbSaveSession,
+  dbGetSession,
+  dbGetResults,
+  dbGetResult,
+  dbSaveResult,
+} from "./db";
+
+// Local JSON files are used when no database is configured (e.g. local
+// dev). On a deployment like Vercel, DATABASE_URL is set and everything
+// routes to Postgres instead - see db.ts - since serverless hosts don't
+// keep a writable, persistent filesystem between requests.
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const SESSIONS_DIR = path.join(DATA_DIR, "sessions");
@@ -24,30 +40,28 @@ async function writeJson(file: string, data: unknown) {
   await fs.writeFile(file, JSON.stringify(data, null, 2), "utf-8");
 }
 
-export async function getStudents(): Promise<Student[]> {
+async function fileGetStudents(): Promise<Student[]> {
   await ensureDirs();
   return readJson<Student[]>(STUDENTS_FILE, []);
 }
 
-export async function getStudent(id: string): Promise<Student | undefined> {
-  const students = await getStudents();
+async function fileGetStudent(id: string): Promise<Student | undefined> {
+  const students = await fileGetStudents();
   const needle = id.toLowerCase();
-  return students.find(
-    (s) => s.id === id || s.userId.toLowerCase() === needle
-  );
+  return students.find((s) => s.id === id || s.userId.toLowerCase() === needle);
 }
 
-export async function saveStudents(students: Student[]): Promise<void> {
+async function fileSaveStudents(students: Student[]): Promise<void> {
   await ensureDirs();
   await writeJson(STUDENTS_FILE, students);
 }
 
-export async function saveSession(session: TestSession): Promise<void> {
+async function fileSaveSession(session: TestSession): Promise<void> {
   await ensureDirs();
   await writeJson(path.join(SESSIONS_DIR, `${session.id}.json`), session);
 }
 
-export async function getSession(id: string): Promise<TestSession | undefined> {
+async function fileGetSession(id: string): Promise<TestSession | undefined> {
   await ensureDirs();
   return readJson<TestSession | undefined>(
     path.join(SESSIONS_DIR, `${id}.json`),
@@ -55,20 +69,52 @@ export async function getSession(id: string): Promise<TestSession | undefined> {
   );
 }
 
-export async function getResults(): Promise<TestResult[]> {
+async function fileGetResults(): Promise<TestResult[]> {
   await ensureDirs();
   return readJson<TestResult[]>(RESULTS_FILE, []);
 }
 
-export async function getResult(id: string): Promise<TestResult | undefined> {
-  const results = await getResults();
+async function fileGetResult(id: string): Promise<TestResult | undefined> {
+  const results = await fileGetResults();
   return results.find((r) => r.id === id);
 }
 
-export async function saveResult(result: TestResult): Promise<void> {
-  const results = await getResults();
+async function fileSaveResult(result: TestResult): Promise<void> {
+  const results = await fileGetResults();
   results.unshift(result);
   await writeJson(RESULTS_FILE, results);
+}
+
+export async function getStudents(): Promise<Student[]> {
+  return isDbConfigured() ? dbGetStudents() : fileGetStudents();
+}
+
+export async function getStudent(id: string): Promise<Student | undefined> {
+  return isDbConfigured() ? dbGetStudent(id) : fileGetStudent(id);
+}
+
+export async function saveStudents(students: Student[]): Promise<void> {
+  return isDbConfigured() ? dbSaveStudents(students) : fileSaveStudents(students);
+}
+
+export async function saveSession(session: TestSession): Promise<void> {
+  return isDbConfigured() ? dbSaveSession(session) : fileSaveSession(session);
+}
+
+export async function getSession(id: string): Promise<TestSession | undefined> {
+  return isDbConfigured() ? dbGetSession(id) : fileGetSession(id);
+}
+
+export async function getResults(): Promise<TestResult[]> {
+  return isDbConfigured() ? dbGetResults() : fileGetResults();
+}
+
+export async function getResult(id: string): Promise<TestResult | undefined> {
+  return isDbConfigured() ? dbGetResult(id) : fileGetResult(id);
+}
+
+export async function saveResult(result: TestResult): Promise<void> {
+  return isDbConfigured() ? dbSaveResult(result) : fileSaveResult(result);
 }
 
 export function newId(prefix = ""): string {
