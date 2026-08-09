@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, Bell, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Menu, Bell, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import type { AnswerMap, PublicTestSession } from "@/lib/types";
 
 const STORAGE_PREFIX = "abacus-test-";
@@ -72,6 +72,7 @@ export default function TestRunner({ testId }: { testId: string }) {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<{ resultId: string } | null>(null);
   const submitLock = useRef(false);
@@ -168,6 +169,11 @@ export default function TestRunner({ testId }: { testId: string }) {
     });
   }
 
+  function handleCancelTest() {
+    clearProgress(testId);
+    router.push("/dashboard");
+  }
+
   function focusNext(qNo: number) {
     const el = document.getElementById(`ans-${qNo + 1}`) as HTMLInputElement | null;
     el?.focus();
@@ -254,11 +260,17 @@ export default function TestRunner({ testId }: { testId: string }) {
               {answeredCount} of {totalQuestions} answered
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600">
               <AlertTriangle size={14} />
               Do not refresh this page
             </span>
+            <button
+              onClick={() => setShowCancelConfirm(true)}
+              className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 shadow-sm hover:bg-slate-50"
+            >
+              Cancel Test
+            </button>
             <button
               onClick={() => setShowConfirm(true)}
               className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-indigo-700"
@@ -320,6 +332,13 @@ export default function TestRunner({ testId }: { testId: string }) {
           onConfirm={() => submitTest(false)}
         />
       )}
+
+      {showCancelConfirm && (
+        <CancelConfirmModal
+          onBack={() => setShowCancelConfirm(false)}
+          onConfirm={handleCancelTest}
+        />
+      )}
     </div>
   );
 }
@@ -368,6 +387,43 @@ function SubmitConfirmModal({
             className="flex-1 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-70"
           >
             {submitting ? "Submitting…" : "Yes, Submit ✓"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CancelConfirmModal({
+  onBack,
+  onConfirm,
+}: {
+  onBack: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+          <XCircle className="text-red-500" size={22} />
+        </div>
+        <h3 className="text-lg font-bold text-slate-900">Cancel This Test?</h3>
+        <p className="mt-1 text-sm text-slate-500">
+          Your answers won&apos;t be saved and no result will be recorded. This
+          can&apos;t be undone.
+        </p>
+        <div className="mt-5 flex gap-3">
+          <button
+            onClick={onBack}
+            className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+          >
+            Keep Testing
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+          >
+            Yes, Cancel Test
           </button>
         </div>
       </div>
