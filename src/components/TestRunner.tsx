@@ -56,6 +56,14 @@ function parseAnswer(raw: string | undefined): number | null {
   return parseInt(trimmed, 10);
 }
 
+/** How to render one operand row, depending on the test's operation. */
+function formatRow(operation: string, value: number, index: number, sign: number): string {
+  if (index === 0) return String(value);
+  if (operation === "multiplication") return `x ${value}`;
+  if (operation === "division") return `/ ${value}`;
+  return sign < 0 ? `- ${value}` : String(value);
+}
+
 export default function TestRunner({ testId }: { testId: string }) {
   const router = useRouter();
   const [session, setSession] = useState<PublicTestSession | null>(null);
@@ -274,7 +282,7 @@ export default function TestRunner({ testId }: { testId: string }) {
                 <div className="mb-2 space-y-1 text-right font-mono text-sm text-slate-700">
                   {q.values.map((v, i) => (
                     <div key={i} className="rounded-md bg-slate-50 px-2 py-1">
-                      {i > 0 && q.signs[i] < 0 ? `- ${v}` : v}
+                      {formatRow(session.operation, v, i, q.signs[i])}
                     </div>
                   ))}
                 </div>

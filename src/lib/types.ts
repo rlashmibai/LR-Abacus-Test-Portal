@@ -1,3 +1,5 @@
+import type { OperationType } from "./testTypes";
+
 export interface Student {
   id: string; // e.g. "5506" (Student ID shown on portal)
   userId: string; // login id, e.g. "XGDEMOL3001"
@@ -10,8 +12,8 @@ export interface Student {
 
 export interface AbacusQuestion {
   qNo: number;
-  values: number[]; // magnitudes, e.g. [58, 27, 16]
-  signs: number[]; // 1 | -1 per value, values[0]'s sign is always 1
+  values: number[]; // operands, e.g. [58, 27, 16] for add/sub, [45, 3] for x or /
+  signs: number[]; // 1 | -1 per value; only meaningful for addition_subtraction
 }
 
 export interface AbacusQuestionWithAnswer extends AbacusQuestion {
@@ -26,6 +28,9 @@ export interface TestSession {
   studentIdNumber: string;
   centerName: string;
   level: string;
+  operation: OperationType;
+  operationLabel: string; // e.g. "Addition & Subtraction (2-Digit)"
+  variant: string; // e.g. "2-digit", "3x1"
   durationMinutes: number;
   totalQuestions: number;
   totalMarks: number;
@@ -43,6 +48,9 @@ export interface PublicTestSession {
   studentIdNumber: string;
   centerName: string;
   level: string;
+  operation: OperationType;
+  operationLabel: string;
+  variant: string;
   durationMinutes: number;
   totalQuestions: number;
   totalMarks: number;
@@ -72,6 +80,9 @@ export interface TestResult {
   studentIdNumber: string;
   centerName: string;
   level: string;
+  operation: OperationType;
+  operationLabel: string;
+  variant: string;
   totalQuestions: number;
   totalMarks: number;
   answered: number;

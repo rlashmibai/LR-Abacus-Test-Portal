@@ -44,10 +44,10 @@ export default async function ResultDetailPage({
               RESULT DETAILS
             </span>
             <h2 className="mt-3 text-3xl font-extrabold text-slate-900">
-              Result #{result.id}
+              Test Result
             </h2>
             <p className="mt-1 text-slate-600">
-              {result.studentName} · {result.level}
+              {result.studentName} · {result.operationLabel ?? result.level}
             </p>
           </div>
 
@@ -91,11 +91,10 @@ export default async function ResultDetailPage({
         </InfoCard>
 
         <InfoCard icon={<FileText size={18} />} title="Test Information">
-          <Row label="Test ID" value={result.testId} />
-          <Row label="Level" value={result.level} />
+          <Row label="Test Type" value={result.operationLabel ?? result.level} />
           <Row label="Status" value={result.status} />
           <Row label="Total Marks" value={String(result.totalMarks)} />
-          <Row label="Marks Taken" value={result.answered > 0 ? String(result.score) : "—"} />
+          <Row label="Marks Taken" value={result.answered > 0 ? String(result.score) : "-"} />
           <Row label="Submitted" value={formatDate(result.submittedAt)} />
         </InfoCard>
       </section>
@@ -113,10 +112,10 @@ export default async function ResultDetailPage({
               <div key={b.qNo} className={`rounded-xl border p-2.5 text-center text-xs ${tone}`}>
                 <p className="font-semibold">Q{b.qNo}</p>
                 <p className="mt-1 font-bold">
-                  {b.givenAnswer === null ? "—" : b.givenAnswer}
+                  {b.givenAnswer === null ? "-" : b.givenAnswer}
                 </p>
                 {!b.isCorrect && (
-                  <p className="mt-0.5 text-[10px] opacity-70">✓ {b.correctAnswer}</p>
+                  <p className="mt-0.5 text-[10px] opacity-70">✗ {b.correctAnswer}</p>
                 )}
               </div>
             );

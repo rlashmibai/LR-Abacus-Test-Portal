@@ -79,7 +79,7 @@ export default function LoginForm() {
                 <input
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
-                  placeholder="e.g. XGDEMOL3001"
+                  placeholder="Enter your User ID"
                   autoComplete="username"
                   className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
                 />
@@ -88,7 +88,7 @@ export default function LoginForm() {
 
             <div>
               <label className="mb-1.5 block text-sm font-semibold text-slate-700">
-                Password <span className="font-normal text-slate-400">(Date of Birth)</span>
+                Password
               </label>
               <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100">
                 <Lock size={16} className="text-slate-400" />
@@ -96,7 +96,7 @@ export default function LoginForm() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="DDMMYYYY"
+                  placeholder="Enter your password"
                   autoComplete="current-password"
                   className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
                 />
@@ -109,9 +109,7 @@ export default function LoginForm() {
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <p className="mt-1.5 text-xs text-slate-400">
-                Example: 15052002 for May 15, 2002
-              </p>
+              <p className="mt-1.5 text-xs text-slate-400">Minimum 4 characters</p>
             </div>
 
             {error && (
@@ -162,16 +160,16 @@ export default function LoginForm() {
                 Setting up demo...
               </>
             ) : (
-              "⚡ Instant Access — Try as Guest"
+              "⚡ Instant Access - Try as Guest"
             )}
           </button>
           <p className="mt-2 text-center text-xs text-slate-400">
-            No sign-up needed — jump straight into a practice test.
+            No sign-up needed - jump straight into a practice test.
           </p>
 
           <p className="mt-6 rounded-xl bg-slate-50 px-4 py-3 text-center text-xs text-slate-400">
-            Demo login — User ID <span className="font-semibold text-slate-600">XGDEMOL3001</span>{" "}
-            · Password <span className="font-semibold text-slate-600">01012015</span>
+            Demo login - User ID <span className="font-semibold text-slate-600">XGDEMOL3001</span>{" "}
+            · Password <span className="font-semibold text-slate-600">demo1234</span>
           </p>
         </div>
 

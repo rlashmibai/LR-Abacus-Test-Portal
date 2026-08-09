@@ -1,4 +1,5 @@
 import type { AbacusQuestionWithAnswer } from "./types";
+import type { OperationType } from "./testTypes";
 
 // Simple deterministic PRNG (mulberry32) so a given testId always
 // regenerates the same question set (survives a page refresh).
@@ -20,53 +21,71 @@ function hashSeed(str: string): number {
   return h;
 }
 
-const ROWS_BY_LEVEL: Record<string, number> = {
-  "LEVEL 1": 2,
-  "LEVEL 2": 3,
-  "LEVEL 3": 3,
-  "LEVEL 4": 4,
-  "LEVEL 5": 5,
-};
+interface GenerateParams {
+  testId: string;
+  operation: OperationType;
+  variant: string;
+  totalQuestions: number;
+}
 
-const MAX_BY_LEVEL: Record<string, number> = {
-  "LEVEL 1": 20,
-  "LEVEL 2": 50,
-  "LEVEL 3": 99,
-  "LEVEL 4": 999,
-  "LEVEL 5": 9999,
-};
+function digitRange(digits: 2 | 3): [number, number] {
+  return digits === 3 ? [100, 999] : [10, 99];
+}
 
-export function generateQuestions(
-  testId: string,
-  level: string,
-  totalQuestions: number
-): AbacusQuestionWithAnswer[] {
+export function generateQuestions({
+  testId,
+  operation,
+  variant,
+  totalQuestions,
+}: GenerateParams): AbacusQuestionWithAnswer[] {
   const rand = mulberry32(hashSeed(testId));
-  const rows = ROWS_BY_LEVEL[level] ?? 3;
-  const max = MAX_BY_LEVEL[level] ?? 99;
-  const min = Math.max(1, Math.floor(max * 0.1));
-
   const questions: AbacusQuestionWithAnswer[] = [];
+
   for (let qNo = 1; qNo <= totalQuestions; qNo++) {
-    const values: number[] = [];
-    const signs: number[] = [];
-    let running = 0;
+    if (operation === "multiplication") {
+      const [min, max] = digitRange(variant === "3x1" ? 3 : 2);
+      const a = min + Math.floor(rand() * (max - min + 1));
+      const b = 2 + Math.floor(rand() * 8); // 2-9, avoids trivial x0/x1
+      questions.push({ qNo, values: [a, b], signs: [1, 1], answer: a * b });
+    } else if (operation === "division") {
+      // "2x1": a 2-digit dividend split evenly by a single-digit divisor.
+      const divisor = 2 + Math.floor(rand() * 8); // 2-9
+      const minQuotient = Math.max(2, Math.ceil(10 / divisor));
+      const maxQuotient = Math.floor(99 / divisor);
+      const quotient =
+        minQuotient + Math.floor(rand() * (maxQuotient - minQuotient + 1));
+      const dividend = divisor * quotient;
+      questions.push({
+        qNo,
+        values: [dividend, divisor],
+        signs: [1, 1],
+        answer: quotient,
+      });
+    } else {
+      // addition_subtraction: a running total across 3 rows.
+      const [min, max] = digitRange(variant === "3-digit" ? 3 : 2);
+      const rows = 3;
+      const values: number[] = [];
+      const signs: number[] = [];
+      let running = 0;
 
-    for (let r = 0; r < rows; r++) {
-      const v = min + Math.floor(rand() * (max - min + 1));
-      // First row always positive (it's the starting number).
-      // Later rows are randomly added or subtracted, but never let the
-      // running total drop below zero (matches real abacus drills).
-      let sign = 1;
-      if (r > 0) {
-        sign = rand() < 0.5 && running - v >= -Math.floor(max / 2) ? -1 : 1;
+      for (let r = 0; r < rows; r++) {
+        const v = min + Math.floor(rand() * (max - min + 1));
+        // First row is always positive (the starting number). Later rows
+        // are randomly added or subtracted, but never let the running
+        // total drop too far negative.
+        let sign = 1;
+        if (r > 0) {
+          sign = rand() < 0.5 && running - v >= -Math.floor(max / 2) ? -1 : 1;
+        }
+        values.push(v);
+        signs.push(sign);
+        running += sign * v;
       }
-      values.push(v);
-      signs.push(sign);
-      running += sign * v;
-    }
 
-    questions.push({ qNo, values, signs, answer: running });
+      questions.push({ qNo, values, signs, answer: running });
+    }
   }
+
   return questions;
 }

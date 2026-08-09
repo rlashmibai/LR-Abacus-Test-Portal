@@ -43,8 +43,8 @@ export default async function ResultsPage() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
               <tr>
-                <th className="px-5 py-3 font-semibold">Result</th>
                 <th className="px-5 py-3 font-semibold">Submitted</th>
+                <th className="px-5 py-3 font-semibold">Type</th>
                 <th className="px-5 py-3 font-semibold">Score</th>
                 <th className="px-5 py-3 font-semibold">Status</th>
                 <th className="px-5 py-3" />
@@ -54,10 +54,10 @@ export default async function ResultsPage() {
               {results.map((r) => (
                 <tr key={r.id} className="hover:bg-slate-50">
                   <td className="px-5 py-4 font-semibold text-slate-900">
-                    #{r.id}
+                    {formatDate(r.submittedAt)}
                   </td>
                   <td className="px-5 py-4 text-slate-500">
-                    {formatDate(r.submittedAt)}
+                    {r.operationLabel ?? r.level}
                   </td>
                   <td className="px-5 py-4">
                     <span className="font-bold text-indigo-600">

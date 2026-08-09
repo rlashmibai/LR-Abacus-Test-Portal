@@ -29,10 +29,10 @@ export default async function DashboardPage() {
             adventure!
           </p>
           <p className="mt-4 font-semibold text-indigo-700">
-            Hi {student?.name ?? "there"} 👋 — you&apos;re all set!
+            Hi {student?.name ?? "there"} 👋 - you&apos;re all set!
           </p>
           <Link
-            href="/instructions"
+            href="/test-setup"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-300 transition hover:bg-indigo-700"
           >
             Start Practice Test
@@ -69,10 +69,10 @@ export default async function DashboardPage() {
         </div>
 
         <dl className="divide-y divide-slate-100">
-          <Row label="Student ID" value={student?.id ?? "—"} />
-          <Row label="Name" value={student?.name ?? "—"} />
-          <Row label="Center Name" value={student?.centerName ?? "—"} />
-          <Row label="Level" value={student?.level ?? "—"} />
+          <Row label="Student ID" value={student?.id ?? "-"} />
+          <Row label="Name" value={student?.name ?? "-"} />
+          <Row label="Center Name" value={student?.centerName ?? "-"} />
+          <Row label="Level" value={student?.level ?? "-"} />
           <Row label="Duration" value={`${DURATION_MINUTES} Mins`} />
           <Row label="Questions" value={`${TOTAL_QUESTIONS}`} />
           <Row label="Total Marks" value={`${TOTAL_MARKS}`} />
@@ -95,7 +95,7 @@ export default async function DashboardPage() {
           icon={<Award size={18} />}
           label="Last Score"
           value={
-            lastResult ? `${lastResult.score}/${lastResult.totalMarks}` : "—"
+            lastResult ? `${lastResult.score}/${lastResult.totalMarks}` : "-"
           }
         />
       </section>

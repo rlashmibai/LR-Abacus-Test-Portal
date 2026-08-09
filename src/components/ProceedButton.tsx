@@ -4,7 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, ArrowRight } from "lucide-react";
 
-export default function ProceedButton() {
+export default function ProceedButton({
+  operation,
+  variant,
+}: {
+  operation: string;
+  variant: string;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +19,11 @@ export default function ProceedButton() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/tests", { method: "POST" });
+      const res = await fetch("/api/tests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ operation, variant }),
+      });
       if (!res.ok) throw new Error("Could not start the test");
       const session = await res.json();
       router.push(`/test/${session.id}`);

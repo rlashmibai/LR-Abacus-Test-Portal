@@ -1,5 +1,6 @@
-import { Clock, ListChecks, Award, GraduationCap, Timer } from "lucide-react";
+import { Clock, ListChecks, Award, Calculator, Timer } from "lucide-react";
 import { requireSessionOrRedirect } from "@/lib/auth";
+import { isValidOperation, isValidVariant, DEFAULT_OPERATION, DEFAULT_VARIANT, operationLabel } from "@/lib/testTypes";
 import ProceedButton from "@/components/ProceedButton";
 
 const RULES = [
@@ -12,8 +13,16 @@ const RULES = [
   "If you finish early, click the Submit button to end the test.",
 ];
 
-export default async function InstructionsPage() {
-  const student = await requireSessionOrRedirect();
+export default async function InstructionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ operation?: string; variant?: string }>;
+}) {
+  await requireSessionOrRedirect();
+  const params = await searchParams;
+  const operation = isValidOperation(params.operation) ? params.operation : DEFAULT_OPERATION;
+  const variant = isValidVariant(operation, params.variant) ? params.variant! : DEFAULT_VARIANT;
+  const typeLabel = operationLabel(operation, variant);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -22,13 +31,13 @@ export default async function InstructionsPage() {
           Instructions
         </h2>
         <p className="mt-2 text-slate-500">
-          Read Before You Begin — take a moment to review the rules and get
+          Read Before You Begin - take a moment to review the rules and get
           ready for your test!
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <InfoCard icon={<GraduationCap size={18} />} label="Student" value={student?.name ?? "—"} />
+        <InfoCard icon={<Calculator size={18} />} label="Test Type" value={typeLabel} />
         <InfoCard icon={<Timer size={18} />} label="Duration" value="10 Mins" />
         <InfoCard icon={<ListChecks size={18} />} label="Questions" value="100" />
         <InfoCard icon={<Award size={18} />} label="Total Marks" value="100" />
@@ -49,7 +58,7 @@ export default async function InstructionsPage() {
           <span aria-hidden>⏱</span>
           <p>
             The countdown timer in the top-right corner shows remaining
-            time. When it reaches zero, the exam ends automatically — no
+            time. When it reaches zero, the exam ends automatically - no
             manual submit needed.
           </p>
         </div>
@@ -67,7 +76,7 @@ export default async function InstructionsPage() {
       </div>
 
       <div className="flex justify-center pb-4">
-        <ProceedButton />
+        <ProceedButton operation={operation} variant={variant} />
       </div>
     </div>
   );

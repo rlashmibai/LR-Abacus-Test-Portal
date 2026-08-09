@@ -95,7 +95,9 @@ export default function Sidebar({
       </nav>
 
       <div className="mx-4 mb-4 rounded-2xl bg-gradient-to-b from-indigo-50 to-violet-50 p-4">
-        <div className="mx-auto mb-3 h-16 w-16 rounded-full bg-white/60" />
+        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white text-3xl shadow-sm">
+          🧮
+        </div>
         <ul className="space-y-2 text-xs text-slate-600">
           <li>⏱ Manage your time wisely</li>
           <li>🎯 Read each question carefully</li>
@@ -104,10 +106,15 @@ export default function Sidebar({
       </div>
 
       <div className="px-4 pb-6">
-        <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-100">
+        <a
+          href="https://lrvirtualclassroom.co.in/contact/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-100"
+        >
           <HelpCircle size={18} />
           Need Help?
-        </button>
+        </a>
       </div>
     </div>
   );
