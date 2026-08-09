@@ -166,11 +166,6 @@ export default function LoginForm() {
           <p className="mt-2 text-center text-xs text-slate-400">
             No sign-up needed - jump straight into a practice test.
           </p>
-
-          <p className="mt-6 rounded-xl bg-slate-50 px-4 py-3 text-center text-xs text-slate-400">
-            Demo login - User ID <span className="font-semibold text-slate-600">XGDEMOL3001</span>{" "}
-            · Password <span className="font-semibold text-slate-600">demo1234</span>
-          </p>
         </div>
 
         {/* Illustration */}
