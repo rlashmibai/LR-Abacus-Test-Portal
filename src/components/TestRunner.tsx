@@ -222,9 +222,9 @@ export default function TestRunner({ testId }: { testId: string }) {
       <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur md:px-8">
         <div className="flex items-center gap-3">
           <button
-            className="rounded-lg bg-slate-100 p-2 text-slate-600"
-            aria-label="Menu"
-            disabled
+            onClick={() => router.push("/dashboard")}
+            className="rounded-lg bg-slate-100 p-2 text-slate-600 hover:bg-slate-200"
+            aria-label="Back to dashboard"
           >
             <Menu size={18} />
           </button>
@@ -280,7 +280,7 @@ export default function TestRunner({ testId }: { testId: string }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 xl:grid-cols-10">
           {session.questions.map((q) => {
             const isAnswered = parseAnswer(answers[q.qNo]) !== null;
             return (

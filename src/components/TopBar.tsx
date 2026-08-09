@@ -48,7 +48,7 @@ export default function TopBar({
   }
 
   return (
-    <header className="relative flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur md:px-8">
+    <header className="relative z-30 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur md:px-8">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
@@ -91,8 +91,8 @@ export default function TopBar({
 
           {menuOpen && (
             <>
-              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 z-20 mt-2 w-56 rounded-xl bg-white p-1.5 shadow-lg ring-1 ring-slate-100">
+              <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 z-40 mt-2 w-56 rounded-xl bg-white p-1.5 shadow-lg ring-1 ring-slate-100">
                 <div className="px-3 py-2">
                   <p className="text-sm font-semibold text-slate-900">{studentName}</p>
                   <p className="text-xs text-slate-500">
