@@ -8,19 +8,22 @@ export default function PortalChrome({
   studentName,
   userId,
   isGuest,
+  quote,
   children,
 }: {
   studentName: string;
   userId: string;
   isGuest: boolean;
+  quote: string;
   children: ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-paper">
       <Sidebar
         studentName={studentName}
+        quote={quote}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />

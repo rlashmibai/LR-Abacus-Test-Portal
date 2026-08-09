@@ -1,20 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --background: #eef0fb;
-  --foreground: #1e1b2e;
+  --paper: #faf8f4;
+  --surface: #ffffff;
+  --ink: #221f1a;
+  --ink-soft: #6b6459;
+  --ink-faint: #a39c8f;
+  --line: #e8e2d6;
+  --brand: #3d3a7a;
+  --brand-dark: #2a285a;
+  --brand-soft: #eeecf9;
+  --gold: #b5842c;
+  --gold-soft: #f7ecd9;
+  --good: #2f7a5c;
+  --good-soft: #e7f3ee;
+  --bad: #b6462f;
+  --bad-soft: #fbeae5;
+
+  --background: var(--paper);
+  --foreground: var(--ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-soft: var(--brand-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 

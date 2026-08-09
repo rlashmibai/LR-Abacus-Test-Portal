@@ -25,8 +25,8 @@ export default function TestSetupForm() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 md:p-8">
-        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-400">
+      <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
+        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-ink-faint">
           1. Operation
         </h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -38,32 +38,32 @@ export default function TestSetupForm() {
                 onClick={() => selectOperation(op.value)}
                 className={`rounded-2xl border-2 p-4 text-left transition ${
                   active
-                    ? "border-indigo-500 bg-indigo-50"
-                    : "border-slate-200 hover:border-indigo-200 hover:bg-slate-50"
+                    ? "border-brand bg-brand-soft"
+                    : "border-line hover:border-brand/40 hover:bg-paper"
                 }`}
               >
                 <div className="text-2xl">{op.icon}</div>
-                <p className="mt-2 text-sm font-bold text-slate-900">{op.label}</p>
-                <p className="mt-1 text-xs text-slate-500">{op.description}</p>
+                <p className="mt-2 text-sm font-bold text-ink">{op.label}</p>
+                <p className="mt-1 text-xs text-ink-soft">{op.description}</p>
               </button>
             );
           })}
         </div>
       </section>
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 md:p-8">
-        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-400">
+      <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
+        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-ink-faint">
           2. Digit Size
         </h3>
         {activeOperation.variants.length === 1 ? (
-          <div className="rounded-2xl border-2 border-indigo-500 bg-indigo-50 p-4">
-            <p className="text-sm font-bold text-slate-900">
+          <div className="rounded-2xl border-2 border-brand bg-brand-soft p-4">
+            <p className="text-sm font-bold text-ink">
               {activeOperation.variants[0].label}
             </p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-ink-soft">
               Example: {activeOperation.variants[0].example}
             </p>
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-ink-faint">
               This is the only digit size available for {activeOperation.label.toLowerCase()}.
             </p>
           </div>
@@ -77,12 +77,12 @@ export default function TestSetupForm() {
                   onClick={() => setVariant(v.value)}
                   className={`rounded-2xl border-2 p-4 text-left transition ${
                     active
-                      ? "border-indigo-500 bg-indigo-50"
-                      : "border-slate-200 hover:border-indigo-200 hover:bg-slate-50"
+                      ? "border-brand bg-brand-soft"
+                      : "border-line hover:border-brand/40 hover:bg-paper"
                   }`}
                 >
-                  <p className="text-sm font-bold text-slate-900">{v.label}</p>
-                  <p className="mt-1 text-xs text-slate-500">Example: {v.example}</p>
+                  <p className="text-sm font-bold text-ink">{v.label}</p>
+                  <p className="mt-1 text-xs text-ink-soft">Example: {v.example}</p>
                 </button>
               );
             })}
@@ -93,7 +93,7 @@ export default function TestSetupForm() {
       <div className="flex justify-center pb-4">
         <button
           onClick={handleCreateTest}
-          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-bold text-white shadow-sm shadow-indigo-200 transition hover:bg-indigo-700"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
         >
           Create Test
           <ArrowRight size={16} />

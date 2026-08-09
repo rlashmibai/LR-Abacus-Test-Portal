@@ -49,35 +49,35 @@ export default function ChangePasswordForm({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#eef0fb] p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-xl md:p-10">
-        <div className="mb-6 flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white">
+    <div className="flex min-h-screen items-center justify-center bg-paper p-4">
+      <div className="w-full max-w-md rounded-[28px] bg-surface p-8 shadow-xl ring-1 ring-line md:p-10">
+        <div className="mb-6 flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
             <GraduationCap size={18} />
           </div>
-          <span className="text-lg font-bold text-indigo-600">Student Portal</span>
+          <span className="font-display text-lg font-semibold text-brand">Student Portal</span>
         </div>
 
         {done ? (
           <div className="py-4 text-center">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
-              <CheckCircle2 className="text-emerald-500" size={28} />
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-good-soft">
+              <CheckCircle2 className="text-good" size={28} />
             </div>
-            <h1 className="text-xl font-bold text-slate-900">Password Updated</h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <h1 className="font-display text-xl font-semibold text-ink">Password Updated</h1>
+            <p className="mt-2 text-sm text-ink-soft">
               Your password has been changed successfully.
             </p>
             <button
               onClick={() => router.push("/login")}
-              className="mt-6 w-full rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-700"
+              className="mt-6 w-full rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white hover:bg-brand-dark"
             >
               Back to Sign In
             </button>
           </div>
         ) : (
           <>
-            <h1 className="text-2xl font-extrabold text-slate-900">Change Password</h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <h1 className="font-display text-2xl font-semibold text-ink">Change Password</h1>
+            <p className="mt-2 text-sm text-ink-soft">
               Enter your User ID and current password to set a new one.
             </p>
 
@@ -88,7 +88,7 @@ export default function ChangePasswordForm({
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
                   placeholder="e.g. XGDEMOL3001"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
                 />
               </Field>
 
@@ -99,7 +99,7 @@ export default function ChangePasswordForm({
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Enter current password"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
                 />
               </Field>
 
@@ -110,7 +110,7 @@ export default function ChangePasswordForm({
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="At least 4 characters"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
                 />
               </Field>
 
@@ -121,12 +121,12 @@ export default function ChangePasswordForm({
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   placeholder="Re-enter new password"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                  className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
                 />
               </Field>
 
               {error && (
-                <p className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600">
+                <p className="rounded-lg bg-bad-soft px-3 py-2 text-sm font-medium text-bad">
                   {error}
                 </p>
               )}
@@ -134,7 +134,7 @@ export default function ChangePasswordForm({
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-sm shadow-indigo-200 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {loading ? (
                   <>
@@ -147,8 +147,8 @@ export default function ChangePasswordForm({
               </button>
             </form>
 
-            <p className="mt-5 text-center text-sm text-slate-500">
-              <Link href="/login" className="font-semibold text-indigo-600 hover:underline">
+            <p className="mt-5 text-center text-sm text-ink-soft">
+              <Link href="/login" className="font-medium text-brand hover:underline">
                 Back to Sign In
               </Link>
             </p>
@@ -162,7 +162,7 @@ export default function ChangePasswordForm({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1.5 block text-sm font-semibold text-slate-700">{label}</label>
+      <label className="mb-1.5 block text-sm font-medium text-ink">{label}</label>
       {children}
     </div>
   );

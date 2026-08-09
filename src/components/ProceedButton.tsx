@@ -38,7 +38,7 @@ export default function ProceedButton({
       <button
         onClick={handleClick}
         disabled={loading}
-        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-bold text-white shadow-sm shadow-indigo-300 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex items-center gap-2 rounded-xl bg-brand px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-70"
       >
         {loading ? (
           <>
@@ -52,7 +52,7 @@ export default function ProceedButton({
           </>
         )}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-bad">{error}</p>}
     </div>
   );
 }

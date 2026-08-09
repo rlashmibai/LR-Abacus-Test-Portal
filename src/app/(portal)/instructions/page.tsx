@@ -1,6 +1,7 @@
 import { Clock, ListChecks, Award, Calculator, Timer } from "lucide-react";
 import { requireSessionOrRedirect } from "@/lib/auth";
 import { isValidOperation, isValidVariant, DEFAULT_OPERATION, DEFAULT_VARIANT, operationLabel } from "@/lib/testTypes";
+import { pickQuote, todaySeed } from "@/lib/quotes";
 import ProceedButton from "@/components/ProceedButton";
 
 const RULES = [
@@ -27,10 +28,10 @@ export default async function InstructionsPage({
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-extrabold text-slate-900 md:text-3xl">
+        <h2 className="font-display text-2xl font-semibold text-ink md:text-3xl">
           Instructions
         </h2>
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-ink-soft">
           Read Before You Begin - take a moment to review the rules and get
           ready for your test!
         </p>
@@ -43,18 +44,18 @@ export default async function InstructionsPage({
         <InfoCard icon={<Award size={18} />} label="Total Marks" value="100" />
       </div>
 
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 md:p-8">
+      <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
         <div className="mb-5 flex items-center gap-3">
-          <div className="rounded-xl bg-indigo-50 p-2 text-indigo-600">
+          <div className="rounded-xl bg-brand-soft p-2 text-brand">
             <Clock size={20} />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900">Test Rules</h3>
-            <p className="text-sm text-slate-500">Please read carefully</p>
+            <h3 className="font-display text-lg font-semibold text-ink">Test Rules</h3>
+            <p className="text-sm text-ink-soft">Please read carefully</p>
           </div>
         </div>
 
-        <div className="mb-5 flex items-start gap-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="mb-5 flex items-start gap-3 rounded-xl bg-gold-soft p-4 text-sm text-ink">
           <span aria-hidden>⏱</span>
           <p>
             The countdown timer in the top-right corner shows remaining
@@ -65,8 +66,8 @@ export default async function InstructionsPage({
 
         <ol className="space-y-3">
           {RULES.map((rule, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+            <li key={i} className="flex items-start gap-3 text-sm text-ink-soft">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-bold text-brand">
                 {i + 1}
               </span>
               <span className="pt-0.5">{rule}</span>
@@ -74,6 +75,10 @@ export default async function InstructionsPage({
           ))}
         </ol>
       </div>
+
+      <p className="text-center font-display text-base italic text-ink-soft">
+        &ldquo;{pickQuote(todaySeed())}&rdquo;
+      </p>
 
       <div className="flex justify-center pb-4">
         <ProceedButton operation={operation} variant={variant} />
@@ -92,14 +97,14 @@ function InfoCard({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-100">
-      <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+    <div className="rounded-2xl bg-surface p-4 text-center shadow-sm ring-1 ring-line">
+      <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-brand-soft text-brand">
         {icon}
       </div>
-      <p className="text-[11px] uppercase tracking-wide text-slate-400">
+      <p className="text-[11px] uppercase tracking-wide text-ink-faint">
         {label}
       </p>
-      <p className="mt-0.5 text-sm font-bold text-slate-900">{value}</p>
+      <p className="mt-0.5 text-sm font-bold text-ink">{value}</p>
     </div>
   );
 }

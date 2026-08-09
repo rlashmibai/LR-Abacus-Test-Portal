@@ -18,30 +18,30 @@ export default async function ResultsPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h2 className="text-2xl font-extrabold text-slate-900">Your Results</h2>
-        <p className="mt-1 text-slate-500">
+        <h2 className="font-display text-2xl font-semibold text-ink">Your Results</h2>
+        <p className="mt-1 text-ink-soft">
           Every test you&apos;ve submitted, most recent first.
         </p>
       </div>
 
       {results.length === 0 ? (
-        <div className="rounded-2xl bg-white p-10 text-center shadow-sm ring-1 ring-slate-100">
-          <FileText className="mx-auto mb-3 text-slate-300" size={36} />
-          <p className="font-semibold text-slate-700">No results yet</p>
-          <p className="mt-1 text-sm text-slate-500">
+        <div className="rounded-2xl bg-surface p-10 text-center shadow-sm ring-1 ring-line">
+          <FileText className="mx-auto mb-3 text-ink-faint" size={36} />
+          <p className="font-semibold text-ink">No results yet</p>
+          <p className="mt-1 text-sm text-ink-soft">
             Take a practice test from the dashboard to see your results here.
           </p>
           <Link
             href="/dashboard"
-            className="mt-4 inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+            className="mt-4 inline-flex items-center gap-1 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
           >
             Go to Dashboard
           </Link>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+        <div className="overflow-hidden rounded-2xl bg-surface shadow-sm ring-1 ring-line">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
+            <thead className="bg-paper text-xs uppercase tracking-wide text-ink-faint">
               <tr>
                 <th className="px-5 py-3 font-semibold">Submitted</th>
                 <th className="px-5 py-3 font-semibold">Type</th>
@@ -50,20 +50,20 @@ export default async function ResultsPage() {
                 <th className="px-5 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-line">
               {results.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-50">
-                  <td className="px-5 py-4 font-semibold text-slate-900">
+                <tr key={r.id} className="hover:bg-paper">
+                  <td className="px-5 py-4 font-semibold text-ink">
                     {formatDate(r.submittedAt)}
                   </td>
-                  <td className="px-5 py-4 text-slate-500">
+                  <td className="px-5 py-4 text-ink-soft">
                     {r.operationLabel ?? r.level}
                   </td>
                   <td className="px-5 py-4">
-                    <span className="font-bold text-indigo-600">
+                    <span className="font-bold text-brand">
                       {r.score}/{r.totalMarks}
                     </span>
-                    <span className="ml-1 text-xs text-slate-400">
+                    <span className="ml-1 text-xs text-ink-faint">
                       ({r.scorePercent}%)
                     </span>
                   </td>
@@ -71,8 +71,8 @@ export default async function ResultsPage() {
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                         r.status === "Completed"
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-amber-50 text-amber-600"
+                          ? "bg-good-soft text-good"
+                          : "bg-gold-soft text-ink"
                       }`}
                     >
                       {r.status}
@@ -81,7 +81,7 @@ export default async function ResultsPage() {
                   <td className="px-5 py-4 text-right">
                     <Link
                       href={`/results/${r.id}`}
-                      className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 hover:underline"
+                      className="inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline"
                     >
                       View
                       <ArrowRight size={14} />

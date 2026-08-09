@@ -30,23 +30,23 @@ export default async function ResultDetailPage({
 
   const ringColor =
     result.scorePercent >= 70
-      ? "#10b981"
+      ? "var(--good)"
       : result.scorePercent >= 40
-      ? "#f59e0b"
-      : "#ef4444";
+      ? "var(--gold)"
+      : "var(--bad)";
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-50 via-indigo-50 to-violet-100 p-8">
+      <section className="relative overflow-hidden rounded-3xl bg-brand-soft p-8">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div>
-            <span className="inline-block rounded-full bg-indigo-200/70 px-3 py-1 text-xs font-bold tracking-wide text-indigo-700">
+            <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-bold tracking-wide text-brand">
               RESULT DETAILS
             </span>
-            <h2 className="mt-3 text-3xl font-extrabold text-slate-900">
+            <h2 className="mt-3 font-display text-3xl font-semibold text-ink">
               Test Result
             </h2>
-            <p className="mt-1 text-slate-600">
+            <p className="mt-1 text-ink-soft">
               {result.studentName} · {result.operationLabel ?? result.level}
             </p>
           </div>
@@ -55,14 +55,14 @@ export default async function ResultDetailPage({
             <div
               className="flex h-28 w-28 items-center justify-center rounded-full"
               style={{
-                background: `conic-gradient(${ringColor} ${result.scorePercent * 3.6}deg, #e2e8f0 0deg)`,
+                background: `conic-gradient(${ringColor} ${result.scorePercent * 3.6}deg, var(--line) 0deg)`,
               }}
             >
-              <div className="flex h-[88px] w-[88px] flex-col items-center justify-center rounded-full bg-white">
-                <span className="text-2xl font-extrabold text-slate-900">
+              <div className="flex h-[88px] w-[88px] flex-col items-center justify-center rounded-full bg-surface">
+                <span className="text-2xl font-extrabold text-ink">
                   {result.score}
                 </span>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-ink-faint">
                   /{result.totalMarks}
                 </span>
               </div>
@@ -75,11 +75,11 @@ export default async function ResultDetailPage({
       </section>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <Stat label="Total Questions" value={result.totalQuestions} tone="indigo" />
-        <Stat label="Answered" value={result.answered} tone="emerald" />
-        <Stat label="Unanswered" value={result.unanswered} tone="amber" />
-        <Stat label="Correct" value={result.correct} tone="violet" />
-        <Stat label="Time Taken" value={formatClock(result.timeTakenSeconds)} tone="sky" />
+        <Stat label="Total Questions" value={result.totalQuestions} tone="brand" />
+        <Stat label="Answered" value={result.answered} tone="good" />
+        <Stat label="Unanswered" value={result.unanswered} tone="gold" />
+        <Stat label="Correct" value={result.correct} tone="brand" />
+        <Stat label="Time Taken" value={formatClock(result.timeTakenSeconds)} tone="good" />
       </section>
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -99,15 +99,15 @@ export default async function ResultDetailPage({
         </InfoCard>
       </section>
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 md:p-8">
-        <h3 className="mb-4 text-lg font-bold text-slate-900">Answer Review</h3>
+      <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
+        <h3 className="mb-4 font-display text-lg font-semibold text-ink">Answer Review</h3>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8">
           {result.breakdown.map((b) => {
             const tone = b.isCorrect
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              ? "border-good/30 bg-good-soft text-good"
               : b.givenAnswer === null
-              ? "border-slate-200 bg-slate-50 text-slate-500"
-              : "border-red-200 bg-red-50 text-red-700";
+              ? "border-line bg-paper text-ink-soft"
+              : "border-bad/30 bg-bad-soft text-bad";
             return (
               <div key={b.qNo} className={`rounded-xl border p-2.5 text-center text-xs ${tone}`}>
                 <p className="font-semibold">Q{b.qNo}</p>
@@ -126,7 +126,7 @@ export default async function ResultDetailPage({
       <div className="flex justify-center pb-6">
         <Link
           href="/results"
-          className="rounded-xl bg-slate-100 px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+          className="rounded-xl bg-paper px-6 py-2.5 text-sm font-semibold text-ink-soft hover:bg-brand-soft hover:text-brand"
         >
           Back to Results
         </Link>
@@ -136,11 +136,9 @@ export default async function ResultDetailPage({
 }
 
 const TONES: Record<string, string> = {
-  indigo: "bg-indigo-50 text-indigo-700",
-  emerald: "bg-emerald-50 text-emerald-700",
-  amber: "bg-amber-50 text-amber-700",
-  violet: "bg-violet-50 text-violet-700",
-  sky: "bg-sky-50 text-sky-700",
+  brand: "bg-brand-soft text-brand",
+  good: "bg-good-soft text-good",
+  gold: "bg-gold-soft text-ink",
 };
 
 function Stat({
@@ -153,7 +151,7 @@ function Stat({
   tone: keyof typeof TONES;
 }) {
   return (
-    <div className={`rounded-2xl p-4 text-center shadow-sm ring-1 ring-slate-100 ${TONES[tone]}`}>
+    <div className={`rounded-2xl p-4 text-center shadow-sm ring-1 ring-line ${TONES[tone]}`}>
       <p className="text-[11px] font-semibold uppercase tracking-wide opacity-70">
         {label}
       </p>
@@ -172,12 +170,12 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+    <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line">
       <div className="mb-4 flex items-center gap-3">
-        <div className="rounded-xl bg-indigo-50 p-2 text-indigo-600">{icon}</div>
-        <h3 className="text-base font-bold text-slate-900">{title}</h3>
+        <div className="rounded-xl bg-brand-soft p-2 text-brand">{icon}</div>
+        <h3 className="font-display text-base font-semibold text-ink">{title}</h3>
       </div>
-      <dl className="divide-y divide-slate-100">{children}</dl>
+      <dl className="divide-y divide-line">{children}</dl>
     </div>
   );
 }
@@ -185,8 +183,8 @@ function InfoCard({
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between py-3 text-sm">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="font-semibold text-slate-900">{value}</dd>
+      <dt className="text-ink-soft">{label}</dt>
+      <dd className="font-semibold text-ink">{value}</dd>
     </div>
   );
 }

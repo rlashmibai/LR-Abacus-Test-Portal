@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, Bell, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { Menu, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import type { AnswerMap, PublicTestSession } from "@/lib/types";
+import { pickQuote } from "@/lib/quotes";
 
 const STORAGE_PREFIX = "abacus-test-";
 
@@ -188,13 +189,13 @@ export default function TestRunner({ testId }: { testId: string }) {
 
   if (loadError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#eef0fb] p-6 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-paper p-6 text-center">
         <div>
-          <AlertTriangle className="mx-auto mb-3 text-amber-500" size={32} />
-          <p className="font-semibold text-slate-800">{loadError}</p>
+          <AlertTriangle className="mx-auto mb-3 text-gold" size={32} />
+          <p className="font-semibold text-ink">{loadError}</p>
           <button
             onClick={() => router.push("/dashboard")}
-            className="mt-4 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+            className="mt-4 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
           >
             Back to Dashboard
           </button>
@@ -209,8 +210,8 @@ export default function TestRunner({ testId }: { testId: string }) {
 
   if (!session || remainingSeconds === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#eef0fb]">
-        <p className="text-sm text-slate-500">Loading your test…</p>
+      <div className="flex min-h-screen items-center justify-center bg-paper">
+        <p className="text-sm text-ink-soft">Loading your test…</p>
       </div>
     );
   }
@@ -218,62 +219,54 @@ export default function TestRunner({ testId }: { testId: string }) {
   const isUrgent = remainingSeconds <= 60;
 
   return (
-    <div className="min-h-screen bg-[#eef0fb]">
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur md:px-8">
+    <div className="min-h-screen bg-paper">
+      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-surface/90 px-4 py-3 backdrop-blur md:px-8">
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/dashboard")}
-            className="rounded-lg bg-slate-100 p-2 text-slate-600 hover:bg-slate-200"
+            className="rounded-lg bg-paper p-2 text-ink-soft hover:bg-brand-soft"
             aria-label="Back to dashboard"
           >
             <Menu size={18} />
           </button>
-          <h1 className="text-lg font-semibold text-indigo-600">Online Test</h1>
+          <h1 className="font-display text-lg font-semibold text-brand">Online Test</h1>
         </div>
 
         <div
-          className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold text-white shadow-sm ${
-            isUrgent ? "bg-red-500 animate-pulse" : "bg-emerald-500"
+          className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold text-white ${
+            isUrgent ? "bg-bad animate-pulse" : "bg-good"
           }`}
         >
           🕐 {formatClock(remainingSeconds)}
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100" aria-label="Notifications">
-            <Bell size={18} />
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">
-              1
-            </span>
-          </button>
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white">
-            {session.studentName.slice(0, 1).toUpperCase()}
-          </div>
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">
+          {session.studentName.slice(0, 1).toUpperCase()}
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl p-4 md:p-8">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Questions</h2>
-            <p className="text-sm text-slate-500">
+            <h2 className="font-display text-xl font-semibold text-ink">Questions</h2>
+            <p className="text-sm text-ink-soft">
               {answeredCount} of {totalQuestions} answered
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600">
+            <span className="flex items-center gap-1.5 rounded-full bg-bad-soft px-3 py-1.5 text-xs font-semibold text-bad">
               <AlertTriangle size={14} />
               Do not refresh this page
             </span>
             <button
               onClick={() => setShowCancelConfirm(true)}
-              className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 shadow-sm hover:bg-slate-50"
+              className="rounded-xl border border-line bg-surface px-5 py-2.5 text-sm font-bold text-ink-soft hover:bg-paper"
             >
               Cancel Test
             </button>
             <button
               onClick={() => setShowConfirm(true)}
-              className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-indigo-700"
+              className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-dark"
             >
               Submit
             </button>
@@ -286,14 +279,14 @@ export default function TestRunner({ testId }: { testId: string }) {
             return (
               <div
                 key={q.qNo}
-                className="flex flex-col rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-100"
+                className="flex flex-col rounded-xl bg-surface p-3 shadow-sm ring-1 ring-line"
               >
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-faint">
                   Q.No {q.qNo}
                 </p>
-                <div className="mb-2 space-y-1 text-right font-mono text-sm text-slate-700">
+                <div className="mb-2 space-y-1 text-right font-mono text-sm text-ink-soft">
                   {q.values.map((v, i) => (
-                    <div key={i} className="rounded-md bg-slate-50 px-2 py-1">
+                    <div key={i} className="rounded-md bg-paper px-2 py-1">
                       {formatRow(session.operation, v, i, q.signs[i])}
                     </div>
                   ))}
@@ -313,8 +306,8 @@ export default function TestRunner({ testId }: { testId: string }) {
                   aria-label={`Answer for question ${q.qNo}`}
                   className={`mt-auto rounded-lg border px-2 py-1.5 text-center text-sm font-bold outline-none transition ${
                     isAnswered
-                      ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-                      : "border-slate-200 text-slate-900 placeholder:font-normal placeholder:text-slate-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                      ? "border-good bg-good-soft text-good"
+                      : "border-line text-ink placeholder:font-normal placeholder:text-ink-faint focus:border-brand focus:ring-2 focus:ring-brand-soft"
                   }`}
                 />
               </div>
@@ -358,18 +351,18 @@ function SubmitConfirmModal({
 }) {
   const unanswered = total - answered;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
-          <AlertTriangle className="text-amber-500" size={22} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-surface p-6 text-center shadow-xl">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gold-soft">
+          <AlertTriangle className="text-gold" size={22} />
         </div>
-        <h3 className="text-lg font-bold text-slate-900">Ready to Submit?</h3>
-        <p className="mt-1 text-sm text-slate-500">
-          You have answered <span className="font-semibold text-indigo-600">{answered}</span> out
+        <h3 className="font-display text-lg font-semibold text-ink">Ready to Submit?</h3>
+        <p className="mt-1 text-sm text-ink-soft">
+          You have answered <span className="font-semibold text-brand">{answered}</span> out
           of {total} questions.
         </p>
         {unanswered > 0 && (
-          <p className="mt-3 rounded-xl bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
+          <p className="mt-3 rounded-xl bg-gold-soft px-4 py-2 text-sm font-semibold text-ink">
             ⚠ {unanswered} questions left unanswered
           </p>
         )}
@@ -377,14 +370,14 @@ function SubmitConfirmModal({
           <button
             onClick={onCancel}
             disabled={submitting}
-            className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            className="flex-1 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink-soft hover:bg-paper"
           >
             Back To Exam
           </button>
           <button
             onClick={onConfirm}
             disabled={submitting}
-            className="flex-1 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-70"
+            className="flex-1 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-70"
           >
             {submitting ? "Submitting…" : "Yes, Submit ✓"}
           </button>
@@ -402,26 +395,26 @@ function CancelConfirmModal({
   onConfirm: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
-          <XCircle className="text-red-500" size={22} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-surface p-6 text-center shadow-xl">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-bad-soft">
+          <XCircle className="text-bad" size={22} />
         </div>
-        <h3 className="text-lg font-bold text-slate-900">Cancel This Test?</h3>
-        <p className="mt-1 text-sm text-slate-500">
+        <h3 className="font-display text-lg font-semibold text-ink">Cancel This Test?</h3>
+        <p className="mt-1 text-sm text-ink-soft">
           Your answers won&apos;t be saved and no result will be recorded. This
           can&apos;t be undone.
         </p>
         <div className="mt-5 flex gap-3">
           <button
             onClick={onBack}
-            className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            className="flex-1 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink-soft hover:bg-paper"
           >
             Keep Testing
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+            className="flex-1 rounded-xl bg-bad px-4 py-2.5 text-sm font-semibold text-white hover:bg-bad/90"
           >
             Yes, Cancel Test
           </button>
@@ -439,19 +432,20 @@ interface ConfettiPiece {
 }
 
 function SubmittedScreen({ resultId }: { resultId: string }) {
-  // Lazy initializer: React invokes this once on mount rather than on
+  // Lazy initializers: React invokes these once on mount rather than on
   // every render, so the randomness never leaks into the render body.
   const [confettiPieces] = useState<ConfettiPiece[]>(() =>
     Array.from({ length: 40 }, (_, i) => ({
       left: Math.random() * 100,
       delay: Math.random() * 1.2,
       duration: 2.2 + Math.random() * 1.6,
-      color: ["#6366f1", "#8b5cf6", "#f59e0b", "#10b981", "#ec4899"][i % 5],
+      color: ["#3d3a7a", "#b5842c", "#2f7a5c", "#6b5fb8", "#d9a13f"][i % 5],
     }))
   );
+  const [quote] = useState(() => pickQuote());
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#eef0fb] p-6">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-paper p-6">
       {confettiPieces.map((p, i) => (
         <span
           key={i}
@@ -463,17 +457,18 @@ function SubmittedScreen({ resultId }: { resultId: string }) {
           }}
         />
       ))}
-      <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
-          <CheckCircle2 className="text-emerald-500" size={36} />
+      <div className="relative z-10 w-full max-w-sm rounded-2xl bg-surface p-8 text-center shadow-xl">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-good-soft">
+          <CheckCircle2 className="text-good" size={36} />
         </div>
-        <h2 className="text-xl font-bold text-slate-900">Test Submitted!</h2>
-        <p className="mt-2 text-sm text-slate-500">
+        <h2 className="font-display text-xl font-semibold text-ink">Test Submitted!</h2>
+        <p className="mt-2 text-sm text-ink-soft">
           Your answers have been submitted successfully.
         </p>
+        <p className="mt-4 font-display text-sm italic text-brand">&ldquo;{quote}&rdquo;</p>
         <a
           href={`/results/${resultId}`}
-          className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-700"
+          className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-brand px-6 py-3 text-sm font-bold text-white hover:bg-brand-dark"
         >
           View My Result
         </a>
