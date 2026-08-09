@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, ChevronDown, KeyRound, LogOut, UserRound } from "lucide-react";
@@ -39,7 +40,17 @@ export default function TopBar({
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const [signingOut, setSigningOut] = useState(false);
+  const accountBtnRef = useRef<HTMLButtonElement>(null);
+
+  function toggleMenu() {
+    if (!menuOpen && accountBtnRef.current) {
+      const rect = accountBtnRef.current.getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+    setMenuOpen((v) => !v);
+  }
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -67,24 +78,32 @@ export default function TopBar({
 
       {center}
 
-      <div className="relative">
-        <button
-          onClick={() => setMenuOpen((v) => !v)}
-          className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-paper"
-        >
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white">
-            {initials(studentName)}
-          </div>
-          <span className="hidden text-sm font-semibold text-ink sm:inline">
-            {studentName}
-          </span>
-          <ChevronDown size={14} className="hidden text-ink-faint sm:inline" />
-        </button>
+      <button
+        ref={accountBtnRef}
+        onClick={toggleMenu}
+        className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-paper"
+      >
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white">
+          {initials(studentName)}
+        </div>
+        <span className="hidden text-sm font-semibold text-ink sm:inline">
+          {studentName}
+        </span>
+        <ChevronDown size={14} className="hidden text-ink-faint sm:inline" />
+      </button>
 
-        {menuOpen && (
+      {/* Portalled to <body> so the header's own stacking context
+          (backdrop-blur triggers one) can never cap it below other
+          page content, like the sidebar. */}
+      {menuOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
           <>
-            <div className="fixed inset-0 z-[45]" onClick={() => setMenuOpen(false)} />
-            <div className="absolute right-0 z-[46] mt-2 w-56 rounded-xl bg-surface p-1.5 shadow-lg ring-1 ring-line">
+            <div className="fixed inset-0 z-[100]" onClick={() => setMenuOpen(false)} />
+            <div
+              style={{ top: menuPos.top, right: menuPos.right }}
+              className="fixed z-[101] w-56 rounded-xl bg-surface p-1.5 shadow-lg ring-1 ring-line"
+            >
               <div className="px-3 py-2">
                 <p className="text-sm font-semibold text-ink">{studentName}</p>
                 <p className="text-xs text-ink-soft">
@@ -121,9 +140,9 @@ export default function TopBar({
                 {signingOut ? "Signing out..." : "Sign Out"}
               </button>
             </div>
-          </>
+          </>,
+          document.body
         )}
-      </div>
     </header>
   );
 }
