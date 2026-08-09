@@ -120,8 +120,10 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Desktop */}
-      <aside className="hidden w-72 shrink-0 border-r border-line md:block">
+      {/* Desktop - sticky + its own viewport height, so it never stretches
+          to match a taller main-content column and push the quote card
+          below the fold. */}
+      <aside className="sticky top-0 hidden h-screen w-72 shrink-0 overflow-y-auto border-r border-line md:block">
         {content}
       </aside>
 

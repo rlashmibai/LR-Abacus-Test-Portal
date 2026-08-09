@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, ChevronDown, KeyRound, LogOut } from "lucide-react";
+import { Menu, ChevronDown, KeyRound, LogOut, UserRound } from "lucide-react";
 
 const TITLES: Record<string, string> = {
   "/dashboard": "Student Portal",
   "/instructions": "Instructions",
   "/results": "Results",
+  "/profile": "Edit Profile",
 };
 
 function titleFor(pathname: string) {
@@ -92,14 +93,24 @@ export default function TopBar({
               </div>
               <div className="my-1 h-px bg-line" />
               {!isGuest && (
-                <Link
-                  href="/change-password"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-soft hover:bg-paper"
-                >
-                  <KeyRound size={15} />
-                  Change Password
-                </Link>
+                <>
+                  <Link
+                    href="/profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-soft hover:bg-paper"
+                  >
+                    <UserRound size={15} />
+                    Edit Profile
+                  </Link>
+                  <Link
+                    href="/change-password"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-soft hover:bg-paper"
+                  >
+                    <KeyRound size={15} />
+                    Change Password
+                  </Link>
+                </>
               )}
               <button
                 onClick={handleSignOut}

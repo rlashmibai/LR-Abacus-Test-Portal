@@ -43,6 +43,27 @@ export default async function DashboardPage() {
         <AbacusIllustration className="pointer-events-none absolute right-6 top-1/2 hidden h-40 w-40 -translate-y-1/2 md:block" />
       </section>
 
+      {/* Quick stats */}
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard
+          icon={<Clock size={18} />}
+          label="Duration"
+          value={`${DURATION_MINUTES} Mins`}
+        />
+        <StatCard
+          icon={<ListChecks size={18} />}
+          label="Questions"
+          value={`${TOTAL_QUESTIONS}`}
+        />
+        <StatCard
+          icon={<Award size={18} />}
+          label="Last Score"
+          value={
+            lastResult ? `${lastResult.score}/${lastResult.totalMarks}` : "-"
+          }
+        />
+      </section>
+
       {/* Test specifications */}
       <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
         <div className="mb-6 flex items-center justify-between">
@@ -68,27 +89,6 @@ export default async function DashboardPage() {
           <Row label="Questions" value={`${TOTAL_QUESTIONS}`} />
           <Row label="Total Marks" value={`${TOTAL_MARKS}`} />
         </dl>
-      </section>
-
-      {/* Quick stats */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard
-          icon={<Clock size={18} />}
-          label="Duration"
-          value={`${DURATION_MINUTES} Mins`}
-        />
-        <StatCard
-          icon={<ListChecks size={18} />}
-          label="Questions"
-          value={`${TOTAL_QUESTIONS}`}
-        />
-        <StatCard
-          icon={<Award size={18} />}
-          label="Last Score"
-          value={
-            lastResult ? `${lastResult.score}/${lastResult.totalMarks}` : "-"
-          }
-        />
       </section>
 
       {lastResult && (
