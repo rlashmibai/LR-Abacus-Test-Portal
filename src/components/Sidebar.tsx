@@ -123,7 +123,7 @@ export default function Sidebar({
       {/* Desktop - sticky + its own viewport height, so it never stretches
           to match a taller main-content column and push the quote card
           below the fold. */}
-      <aside className="sticky top-0 hidden h-screen w-72 shrink-0 overflow-y-auto border-r border-line md:block">
+      <aside className="sticky top-0 z-10 hidden h-screen w-72 shrink-0 overflow-y-auto border-r border-line md:block">
         {content}
       </aside>
 
