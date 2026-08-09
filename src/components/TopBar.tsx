@@ -1,7 +1,9 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Menu, Bell } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, Bell, ChevronDown, KeyRound, LogOut } from "lucide-react";
 
 const TITLES: Record<string, string> = {
   "/dashboard": "Student Portal",
@@ -22,17 +24,31 @@ function initials(name: string) {
 
 export default function TopBar({
   studentName,
+  userId,
+  isGuest,
   onMenuClick,
   center,
 }: {
   studentName: string;
+  userId: string;
+  isGuest: boolean;
   onMenuClick: () => void;
   center?: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
-    <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur md:px-8">
+    <header className="relative flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 px-4 py-3 backdrop-blur md:px-8">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
@@ -58,13 +74,53 @@ export default function TopBar({
             1
           </span>
         </button>
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white">
-            {initials(studentName)}
-          </div>
-          <span className="hidden text-sm font-semibold text-slate-700 sm:inline">
-            {studentName}
-          </span>
+
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-slate-100"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white">
+              {initials(studentName)}
+            </div>
+            <span className="hidden text-sm font-semibold text-slate-700 sm:inline">
+              {studentName}
+            </span>
+            <ChevronDown size={14} className="hidden text-slate-400 sm:inline" />
+          </button>
+
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 z-20 mt-2 w-56 rounded-xl bg-white p-1.5 shadow-lg ring-1 ring-slate-100">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-semibold text-slate-900">{studentName}</p>
+                  <p className="text-xs text-slate-500">
+                    {isGuest ? "Guest session" : userId}
+                  </p>
+                </div>
+                <div className="my-1 h-px bg-slate-100" />
+                {!isGuest && (
+                  <Link
+                    href="/change-password"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                  >
+                    <KeyRound size={15} />
+                    Change Password
+                  </Link>
+                )}
+                <button
+                  onClick={handleSignOut}
+                  disabled={signingOut}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
+                >
+                  <LogOut size={15} />
+                  {signingOut ? "Signing out..." : "Sign Out"}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </header>

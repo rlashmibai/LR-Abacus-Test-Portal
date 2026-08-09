@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { User, FileText } from "lucide-react";
 import { getResult } from "@/lib/store";
+import { requireSessionOrRedirect } from "@/lib/auth";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -22,9 +23,10 @@ export default async function ResultDetailPage({
 }: {
   params: Promise<{ resultId: string }>;
 }) {
+  const student = await requireSessionOrRedirect();
   const { resultId } = await params;
   const result = await getResult(resultId);
-  if (!result) notFound();
+  if (!result || result.studentId !== student.id) notFound();
 
   const ringColor =
     result.scorePercent >= 70

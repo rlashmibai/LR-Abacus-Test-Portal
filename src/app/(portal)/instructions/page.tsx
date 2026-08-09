@@ -1,5 +1,5 @@
 import { Clock, ListChecks, Award, GraduationCap, Timer } from "lucide-react";
-import { getStudent } from "@/lib/store";
+import { requireSessionOrRedirect } from "@/lib/auth";
 import ProceedButton from "@/components/ProceedButton";
 
 const RULES = [
@@ -13,7 +13,7 @@ const RULES = [
 ];
 
 export default async function InstructionsPage() {
-  const student = await getStudent("5506");
+  const student = await requireSessionOrRedirect();
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -67,7 +67,7 @@ export default async function InstructionsPage() {
       </div>
 
       <div className="flex justify-center pb-4">
-        <ProceedButton studentId={student?.id ?? "5506"} />
+        <ProceedButton />
       </div>
     </div>
   );

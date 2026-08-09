@@ -6,9 +6,13 @@ import TopBar from "./TopBar";
 
 export default function PortalChrome({
   studentName,
+  userId,
+  isGuest,
   children,
 }: {
   studentName: string;
+  userId: string;
+  isGuest: boolean;
   children: ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,6 +27,8 @@ export default function PortalChrome({
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
           studentName={studentName}
+          userId={userId}
+          isGuest={isGuest}
           onMenuClick={() => setSidebarOpen((v) => !v)}
         />
         <main className="flex-1 p-4 md:p-8">{children}</main>

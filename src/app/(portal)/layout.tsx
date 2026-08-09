@@ -1,4 +1,4 @@
-import { getStudent } from "@/lib/store";
+import { requireSessionOrRedirect } from "@/lib/auth";
 import PortalChrome from "@/components/PortalChrome";
 
 export default async function PortalLayout({
@@ -6,9 +6,13 @@ export default async function PortalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const student = await getStudent("5506");
+  const student = await requireSessionOrRedirect();
   return (
-    <PortalChrome studentName={student?.name ?? "Student"}>
+    <PortalChrome
+      studentName={student.name}
+      userId={student.userId}
+      isGuest={Boolean(student.isGuest)}
+    >
       {children}
     </PortalChrome>
   );

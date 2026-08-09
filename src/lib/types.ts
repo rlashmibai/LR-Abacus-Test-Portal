@@ -4,6 +4,8 @@ export interface Student {
   name: string; // display name, e.g. "XGDEMOL3"
   centerName: string;
   level: string; // "LEVEL 3"
+  passwordHash?: string; // "<salt>:<hash>", absent for guest sessions
+  isGuest?: boolean;
 }
 
 export interface AbacusQuestion {

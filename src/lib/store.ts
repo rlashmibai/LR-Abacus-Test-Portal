@@ -31,7 +31,15 @@ export async function getStudents(): Promise<Student[]> {
 
 export async function getStudent(id: string): Promise<Student | undefined> {
   const students = await getStudents();
-  return students.find((s) => s.id === id || s.userId === id);
+  const needle = id.toLowerCase();
+  return students.find(
+    (s) => s.id === id || s.userId.toLowerCase() === needle
+  );
+}
+
+export async function saveStudents(students: Student[]): Promise<void> {
+  await ensureDirs();
+  await writeJson(STUDENTS_FILE, students);
 }
 
 export async function saveSession(session: TestSession): Promise<void> {
@@ -64,6 +72,12 @@ export async function saveResult(result: TestResult): Promise<void> {
 }
 
 export function newId(prefix = ""): string {
-  const n = Math.floor(10000 + Math.random() * 90000);
-  return `${prefix}${n}`;
+  // Timestamp + random suffix: unique per call even across many tests in
+  // quick succession, which matters since each test's question set is
+  // seeded from this id.
+  const stamp = Date.now().toString(36);
+  const rand = Math.floor(Math.random() * 46656)
+    .toString(36)
+    .padStart(3, "0");
+  return `${prefix}${stamp}${rand}`;
 }

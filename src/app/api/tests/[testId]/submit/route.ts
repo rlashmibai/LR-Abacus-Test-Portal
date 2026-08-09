@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession, saveResult, newId } from "@/lib/store";
+import { getSessionStudent } from "@/lib/auth";
 import type { AnswerMap, QuestionBreakdown, TestResult } from "@/lib/types";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ testId: string }> }
 ) {
+  const student = await getSessionStudent();
+  if (!student) {
+    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  }
+
   const { testId } = await params;
   const session = await getSession(testId);
-  if (!session) {
+  if (!session || session.studentId !== student.id) {
     return NextResponse.json({ error: "Test not found" }, { status: 404 });
   }
 
@@ -18,7 +24,8 @@ export async function POST(
   const autoSubmitted: boolean = Boolean(body.autoSubmitted);
 
   const breakdown: QuestionBreakdown[] = session.questions.map((q) => {
-    const given = answers[q.qNo] ?? null;
+    const raw = answers[q.qNo];
+    const given = typeof raw === "number" && Number.isFinite(raw) ? raw : null;
     return {
       qNo: q.qNo,
       values: q.values,

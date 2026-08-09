@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getStudent, saveSession, newId } from "@/lib/store";
+import { NextResponse } from "next/server";
+import { getSessionStudent } from "@/lib/auth";
+import { saveSession, newId } from "@/lib/store";
 import { generateQuestions } from "@/lib/questions";
 import type { TestSession, PublicTestSession } from "@/lib/types";
 
@@ -18,15 +19,14 @@ function toPublic(session: TestSession): PublicTestSession {
   };
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => ({}));
-  const studentId: string = body.studentId ?? "5506";
-
-  const student = await getStudent(studentId);
+export async function POST() {
+  const student = await getSessionStudent();
   if (!student) {
-    return NextResponse.json({ error: "Student not found" }, { status: 404 });
+    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
 
+  // A fresh id (timestamp + random) per call means every test — even two
+  // started back to back by the same student — gets its own question set.
   const testId = newId();
   const questions = generateQuestions(testId, student.level, TOTAL_QUESTIONS);
 

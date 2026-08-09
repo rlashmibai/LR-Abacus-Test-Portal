@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getResults } from "@/lib/store";
+import { getSessionStudent } from "@/lib/auth";
 
-export async function GET(req: NextRequest) {
-  const studentId = req.nextUrl.searchParams.get("studentId");
+export async function GET() {
+  const student = await getSessionStudent();
+  if (!student) {
+    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  }
   const results = await getResults();
-  const filtered = studentId
-    ? results.filter((r) => r.studentId === studentId)
-    : results;
-  return NextResponse.json(filtered);
+  return NextResponse.json(results.filter((r) => r.studentId === student.id));
 }

@@ -2,22 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Menu,
-  Bell,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  AlertTriangle,
-  CheckCircle2,
-} from "lucide-react";
+import { Menu, Bell, AlertTriangle, CheckCircle2 } from "lucide-react";
 import type { AnswerMap, PublicTestSession } from "@/lib/types";
 
 const STORAGE_PREFIX = "abacus-test-";
 
+// Raw text per question, so a partial entry like "-" while typing a
+// negative number doesn't get rejected mid-keystroke.
+type DraftAnswers = Record<number, string>;
+
 interface StoredProgress {
   startedAt: number;
-  answers: AnswerMap;
+  answers: DraftAnswers;
 }
 
 function loadProgress(testId: string): StoredProgress | null {
@@ -52,14 +48,21 @@ function formatClock(totalSeconds: number) {
   return `${String(m).padStart(2, "0")}:${String(rem).padStart(2, "0")}`;
 }
 
+/** A fully-typed integer, or null while the box is empty/mid-edit (e.g. just "-"). */
+function parseAnswer(raw: string | undefined): number | null {
+  if (raw === undefined) return null;
+  const trimmed = raw.trim();
+  if (!/^-?\d+$/.test(trimmed)) return null;
+  return parseInt(trimmed, 10);
+}
+
 export default function TestRunner({ testId }: { testId: string }) {
   const router = useRouter();
   const [session, setSession] = useState<PublicTestSession | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [answers, setAnswers] = useState<AnswerMap>({});
+  const [answers, setAnswers] = useState<DraftAnswers>({});
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
-  const [activeQNo, setActiveQNo] = useState<number | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<{ resultId: string } | null>(null);
@@ -82,11 +85,9 @@ export default function TestRunner({ testId }: { testId: string }) {
           setStartedAt(stored.startedAt);
         } else {
           const now = Date.now();
-          const initial: AnswerMap = {};
-          data.questions.forEach((q) => (initial[q.qNo] = null));
-          setAnswers(initial);
+          setAnswers({});
           setStartedAt(now);
-          saveProgress(testId, { startedAt: now, answers: initial });
+          saveProgress(testId, { startedAt: now, answers: {} });
         }
       } catch {
         if (!cancelled) setLoadError("We couldn't load this test. It may have expired.");
@@ -105,12 +106,18 @@ export default function TestRunner({ testId }: { testId: string }) {
       submitLock.current = true;
       setSubmitting(true);
       const elapsed = startedAt ? (Date.now() - startedAt) / 1000 : 0;
+
+      const payload: AnswerMap = {};
+      session.questions.forEach((q) => {
+        payload[q.qNo] = parseAnswer(answers[q.qNo]);
+      });
+
       try {
         const res = await fetch(`/api/tests/${testId}/submit`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            answers,
+            answers: payload,
             timeTakenSeconds: Math.min(elapsed, durationSeconds),
             autoSubmitted,
           }),
@@ -142,16 +149,25 @@ export default function TestRunner({ testId }: { testId: string }) {
     return () => clearInterval(id);
   }, [startedAt, durationSeconds, submitted, submitTest]);
 
-  function setAnswer(qNo: number, value: number | null) {
+  function handleAnswerChange(qNo: number, raw: string) {
+    // Only allow an optional leading "-" followed by digits, so stray
+    // characters never sneak into the box.
+    if (raw !== "" && !/^-?\d*$/.test(raw)) return;
     setAnswers((prev) => {
-      const next = { ...prev, [qNo]: value };
+      const next = { ...prev, [qNo]: raw };
       if (startedAt) saveProgress(testId, { startedAt, answers: next });
       return next;
     });
   }
 
+  function focusNext(qNo: number) {
+    const el = document.getElementById(`ans-${qNo + 1}`) as HTMLInputElement | null;
+    el?.focus();
+    el?.select();
+  }
+
   const answeredCount = useMemo(
-    () => Object.values(answers).filter((v) => v !== null && v !== undefined).length,
+    () => Object.keys(answers).filter((qNo) => parseAnswer(answers[Number(qNo)]) !== null).length,
     [answers]
   );
   const totalQuestions = session?.totalQuestions ?? 100;
@@ -244,10 +260,9 @@ export default function TestRunner({ testId }: { testId: string }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
           {session.questions.map((q) => {
-            const given = answers[q.qNo];
-            const isAnswered = given !== null && given !== undefined;
+            const isAnswered = parseAnswer(answers[q.qNo]) !== null;
             return (
               <div
                 key={q.qNo}
@@ -263,32 +278,30 @@ export default function TestRunner({ testId }: { testId: string }) {
                     </div>
                   ))}
                 </div>
-                <button
-                  onClick={() => setActiveQNo(q.qNo)}
-                  className={`mt-auto rounded-lg border px-2 py-1.5 text-sm font-semibold transition ${
+                <input
+                  id={`ans-${q.qNo}`}
+                  value={answers[q.qNo] ?? ""}
+                  onChange={(e) => handleAnswerChange(q.qNo, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      focusNext(q.qNo);
+                    }
+                  }}
+                  inputMode="numeric"
+                  placeholder="Ans"
+                  aria-label={`Answer for question ${q.qNo}`}
+                  className={`mt-auto rounded-lg border px-2 py-1.5 text-center text-sm font-bold outline-none transition ${
                     isAnswered
-                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                      : "border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                      ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                      : "border-slate-200 text-slate-900 placeholder:font-normal placeholder:text-slate-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                   }`}
-                >
-                  {isAnswered ? given : "Answer"}
-                </button>
+                />
               </div>
             );
           })}
         </div>
       </main>
-
-      {activeQNo !== null && (
-        <AnswerModal
-          session={session}
-          qNo={activeQNo}
-          answers={answers}
-          onChange={setAnswer}
-          onNavigate={setActiveQNo}
-          onClose={() => setActiveQNo(null)}
-        />
-      )}
 
       {showConfirm && (
         <SubmitConfirmModal
@@ -299,137 +312,6 @@ export default function TestRunner({ testId }: { testId: string }) {
           onConfirm={() => submitTest(false)}
         />
       )}
-    </div>
-  );
-}
-
-function AnswerModal(props: {
-  session: PublicTestSession;
-  qNo: number;
-  answers: AnswerMap;
-  onChange: (qNo: number, value: number | null) => void;
-  onNavigate: (qNo: number) => void;
-  onClose: () => void;
-}) {
-  // Remounting on qNo change (via `key`) gives each question its own fresh
-  // draft state without needing an effect to resync it.
-  return <AnswerModalInner key={props.qNo} {...props} />;
-}
-
-function AnswerModalInner({
-  session,
-  qNo,
-  answers,
-  onChange,
-  onNavigate,
-  onClose,
-}: {
-  session: PublicTestSession;
-  qNo: number;
-  answers: AnswerMap;
-  onChange: (qNo: number, value: number | null) => void;
-  onNavigate: (qNo: number) => void;
-  onClose: () => void;
-}) {
-  const q = session.questions.find((item) => item.qNo === qNo)!;
-  const [draft, setDraft] = useState(
-    answers[qNo] !== null && answers[qNo] !== undefined ? String(answers[qNo]) : ""
-  );
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-    inputRef.current?.select();
-  }, []);
-
-  function commit() {
-    const trimmed = draft.trim();
-    if (trimmed === "" || trimmed === "-") {
-      onChange(qNo, null);
-    } else if (/^-?\d+$/.test(trimmed)) {
-      onChange(qNo, parseInt(trimmed, 10));
-    }
-  }
-
-  function goTo(next: number) {
-    commit();
-    if (next >= 1 && next <= session.totalQuestions) onNavigate(next);
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm font-semibold text-slate-500">
-            Question {qNo} of {session.totalQuestions}
-          </p>
-          <button
-            onClick={() => {
-              commit();
-              onClose();
-            }}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
-            aria-label="Close"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="mx-auto mb-5 w-32 space-y-1 text-right font-mono text-lg text-slate-800">
-          {q.values.map((v, i) => (
-            <div key={i} className={i === q.values.length - 1 ? "border-t border-slate-300 pt-1" : ""}>
-              {i > 0 && q.signs[i] < 0 ? `- ${v}` : v}
-            </div>
-          ))}
-        </div>
-
-        <input
-          ref={inputRef}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              commit();
-              if (qNo < session.totalQuestions) goTo(qNo + 1);
-              else onClose();
-            }
-          }}
-          inputMode="numeric"
-          placeholder="Your answer"
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 text-center text-xl font-bold text-slate-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-        />
-
-        <div className="mt-5 flex items-center justify-between gap-2">
-          <button
-            onClick={() => goTo(qNo - 1)}
-            disabled={qNo <= 1}
-            className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 disabled:opacity-30"
-          >
-            <ChevronLeft size={16} />
-            Prev
-          </button>
-          <button
-            onClick={() => {
-              onChange(qNo, null);
-              setDraft("");
-            }}
-            className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100"
-          >
-            Clear
-          </button>
-          <button
-            onClick={() => {
-              commit();
-              if (qNo < session.totalQuestions) goTo(qNo + 1);
-              else onClose();
-            }}
-            className="flex items-center gap-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-          >
-            {qNo < session.totalQuestions ? "Next" : "Done"}
-            <ChevronRight size={16} />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

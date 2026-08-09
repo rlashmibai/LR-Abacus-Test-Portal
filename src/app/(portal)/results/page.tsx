@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FileText, ArrowRight } from "lucide-react";
-import { getStudent, getResults } from "@/lib/store";
+import { getResults } from "@/lib/store";
+import { requireSessionOrRedirect } from "@/lib/auth";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -10,7 +11,7 @@ function formatDate(iso: string) {
 }
 
 export default async function ResultsPage() {
-  const student = await getStudent("5506");
+  const student = await requireSessionOrRedirect();
   const all = await getResults();
   const results = all.filter((r) => r.studentId === student?.id);
 

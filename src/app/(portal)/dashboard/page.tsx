@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { FileText, Clock, ListChecks, Award, ArrowRight } from "lucide-react";
-import { getStudent, getResults } from "@/lib/store";
+import { getResults } from "@/lib/store";
+import { requireSessionOrRedirect } from "@/lib/auth";
 
 const DURATION_MINUTES = 10;
 const TOTAL_QUESTIONS = 100;
 const TOTAL_MARKS = 100;
 
 export default async function DashboardPage() {
-  const student = await getStudent("5506");
-  const results = student ? await getResults() : [];
-  const studentResults = results.filter((r) => r.studentId === student?.id);
+  const student = await requireSessionOrRedirect();
+  const results = await getResults();
+  const studentResults = results.filter((r) => r.studentId === student.id);
   const lastResult = studentResults[0];
 
   return (
