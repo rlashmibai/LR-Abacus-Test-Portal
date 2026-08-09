@@ -44,3 +44,9 @@ next-env.d.ts
 /data/sessions/*.json
 /data/results.json
 !/data/results.json.example
+
+.vercel
+.env*
+
+# Local Netlify folder
+.netlify
