@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import AuthShell from "./AuthShell";
 
 export default function RegisterForm({ quote }: { quote: string }) {
@@ -54,13 +54,6 @@ export default function RegisterForm({ quote }: { quote: string }) {
 
   return (
     <AuthShell quote={quote}>
-      <div className="mb-6 flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
-          <GraduationCap size={18} />
-        </div>
-        <span className="font-display text-lg font-semibold text-brand">Student Portal</span>
-      </div>
-
       <h1 className="font-display text-2xl font-semibold text-ink">Create your account</h1>
       <p className="mt-2 text-sm text-ink-soft">
         Register to save your progress and results across tests.

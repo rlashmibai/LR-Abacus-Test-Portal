@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { Gauge, Target, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Gauge, Target, Sparkles, GraduationCap } from "lucide-react";
 import AbacusIllustration from "./AbacusIllustration";
 
 const HIGHLIGHTS = [
@@ -23,7 +24,17 @@ export default function AuthShell({
   return (
     <div className="grid min-h-screen md:grid-cols-2">
       <div className="flex items-center justify-center bg-surface p-6 py-12 md:p-12">
-        <div className="w-full max-w-md">{children}</div>
+        <div className="w-full max-w-md">
+          <Link href="/" className="mb-7 flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
+              <GraduationCap size={18} />
+            </div>
+            <span className="font-display text-lg font-semibold text-brand">
+              Student Portal
+            </span>
+          </Link>
+          {children}
+        </div>
       </div>
 
       <div className="relative hidden flex-col items-center justify-center overflow-hidden bg-brand-soft p-10 md:flex">
@@ -41,7 +52,7 @@ export default function AuthShell({
             ABACUS PRACTICE TEST
           </span>
 
-          <AbacusIllustration className="h-48 w-48" />
+          <AbacusIllustration className="h-60 w-60" />
 
           <p className="text-balance font-display text-xl italic leading-snug text-brand-dark">
             &ldquo;{quote}&rdquo;

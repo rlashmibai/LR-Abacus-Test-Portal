@@ -12,6 +12,11 @@ export const ABACUS_QUOTES: string[] = [
   "The quiet click of beads is the sound of a mind getting stronger.",
   "Great calculators were once beginners who kept practicing anyway.",
   "Confidence with numbers starts with ten patient fingers and one abacus.",
+  "The abacus teaches that great answers begin with small, deliberate steps.",
+  "Behind every quick calculation is a mind trained to see patterns.",
+  "The abacus is not just a tool for counting; it is a tool for thinking.",
+  "An abacus builds confidence one bead, one number, one step at a time.",
+  "Train the fingers, sharpen the mind, master the numbers.",
 ];
 
 export function pickQuote(seed?: number): string {

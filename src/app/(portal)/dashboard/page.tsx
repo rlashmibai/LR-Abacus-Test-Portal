@@ -3,6 +3,7 @@ import { FileText, Clock, ListChecks, Award, ArrowRight } from "lucide-react";
 import { getResults } from "@/lib/store";
 import { requireSessionOrRedirect } from "@/lib/auth";
 import AbacusIllustration from "@/components/AbacusIllustration";
+import { pickQuote, todaySeed } from "@/lib/quotes";
 
 const DURATION_MINUTES = 10;
 const TOTAL_QUESTIONS = 100;
@@ -32,6 +33,9 @@ export default async function DashboardPage() {
           <p className="mt-4 font-medium text-brand">
             Hi {student.name} 👋 - you&apos;re all set!
           </p>
+          <p className="mt-1 font-display text-sm italic text-ink-soft">
+            &ldquo;{pickQuote(todaySeed())}&rdquo;
+          </p>
           <Link
             href="/test-setup"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-dark"
@@ -40,7 +44,7 @@ export default async function DashboardPage() {
             <ArrowRight size={16} />
           </Link>
         </div>
-        <AbacusIllustration className="pointer-events-none absolute right-6 top-1/2 hidden h-40 w-40 -translate-y-1/2 md:block" />
+        <AbacusIllustration className="pointer-events-none absolute right-2 top-1/2 hidden h-56 w-56 -translate-y-1/2 lg:block" />
       </section>
 
       {/* Quick stats */}

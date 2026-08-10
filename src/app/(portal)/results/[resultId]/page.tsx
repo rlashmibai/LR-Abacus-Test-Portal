@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { User, FileText } from "lucide-react";
 import { getResult } from "@/lib/store";
 import { requireSessionOrRedirect } from "@/lib/auth";
+import AbacusIllustration from "@/components/AbacusIllustration";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -38,7 +39,8 @@ export default async function ResultDetailPage({
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <section className="relative overflow-hidden rounded-3xl bg-brand-soft p-8">
-        <div className="flex flex-wrap items-center justify-between gap-6">
+        <AbacusIllustration className="pointer-events-none absolute -bottom-6 -left-6 hidden h-32 w-32 opacity-40 lg:block" />
+        <div className="relative flex flex-wrap items-center justify-between gap-6">
           <div>
             <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-bold tracking-wide text-brand">
               RESULT DETAILS

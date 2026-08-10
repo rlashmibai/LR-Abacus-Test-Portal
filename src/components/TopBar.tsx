@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, ChevronDown, KeyRound, LogOut, UserRound } from "lucide-react";
+import { Menu, ChevronDown, KeyRound, LogOut, UserRound, Home } from "lucide-react";
 
 const TITLES: Record<string, string> = {
   "/dashboard": "Student Portal",
@@ -55,7 +55,7 @@ export default function TopBar({
   async function handleSignOut() {
     setSigningOut(true);
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push("/");
     router.refresh();
   }
 
@@ -71,6 +71,14 @@ export default function TopBar({
         >
           <Menu size={18} />
         </button>
+        <Link
+          href="/"
+          className="rounded-lg p-2 text-ink-soft hover:bg-paper hover:text-brand"
+          aria-label="Go to homepage"
+          title="Go to homepage"
+        >
+          <Home size={18} />
+        </Link>
         <h1 className="font-display text-lg font-semibold text-brand">
           {titleFor(pathname)}
         </h1>

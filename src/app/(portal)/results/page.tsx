@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { FileText, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getResults } from "@/lib/store";
 import { requireSessionOrRedirect } from "@/lib/auth";
+import AbacusIllustration from "@/components/AbacusIllustration";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -26,7 +27,7 @@ export default async function ResultsPage() {
 
       {results.length === 0 ? (
         <div className="rounded-2xl bg-surface p-10 text-center shadow-sm ring-1 ring-line">
-          <FileText className="mx-auto mb-3 text-ink-faint" size={36} />
+          <AbacusIllustration className="mx-auto mb-3 h-24 w-24" />
           <p className="font-semibold text-ink">No results yet</p>
           <p className="mt-1 text-sm text-ink-soft">
             Take a practice test from the dashboard to see your results here.

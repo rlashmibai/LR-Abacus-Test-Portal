@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import {
   GraduationCap,
   Timer,
@@ -72,8 +71,6 @@ const STEPS = [
 
 export default async function Home() {
   const student = await getSessionStudent();
-  if (student) redirect("/dashboard");
-
   const quote = pickQuote();
 
   return (
@@ -81,27 +78,38 @@ export default async function Home() {
       {/* Nav */}
       <header className="sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-8">
-          <div className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
               <GraduationCap size={18} />
             </div>
             <span className="font-display text-lg font-semibold text-brand">
               Abacus Test Portal
             </span>
-          </div>
+          </Link>
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm font-semibold text-ink-soft hover:text-brand"
-            >
-              Log In
-            </Link>
-            <Link
-              href="/register"
-              className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark"
-            >
-              Sign Up
-            </Link>
+            {student ? (
+              <Link
+                href="/dashboard"
+                className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-semibold text-ink-soft hover:text-brand"
+                >
+                  Log In
+                </Link>
+                <Link
+                  href="/register"
+                  className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -122,25 +130,37 @@ export default async function Home() {
             ready in seconds.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-            >
-              Create Free Account
-              <ArrowRight size={16} />
-            </Link>
-            <GuestCtaButton className="inline-flex items-center gap-2 rounded-xl border border-dashed border-brand/40 bg-brand-soft px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-brand-soft/70 disabled:cursor-not-allowed disabled:opacity-70" />
+            {student ? (
+              <Link
+                href="/test-setup"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+              >
+                Start a Practice Test
+                <ArrowRight size={16} />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                >
+                  Create Free Account
+                  <ArrowRight size={16} />
+                </Link>
+                <GuestCtaButton className="inline-flex items-center gap-2 rounded-xl border border-dashed border-brand/40 bg-brand-soft px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-brand-soft/70 disabled:cursor-not-allowed disabled:opacity-70" />
+              </>
+            )}
           </div>
         </div>
 
         <div className="relative flex items-center justify-center">
           <div
             aria-hidden
-            className="pointer-events-none absolute h-72 w-72 rounded-full bg-gold/15 blur-3xl"
+            className="pointer-events-none absolute h-80 w-80 rounded-full bg-gold/15 blur-3xl"
           />
           <div className="relative rounded-3xl bg-brand-soft p-10">
-            <AbacusIllustration className="h-56 w-56" />
-            <p className="mt-6 max-w-[220px] text-balance text-center font-display text-base italic text-brand-dark">
+            <AbacusIllustration className="h-72 w-72" />
+            <p className="mt-6 max-w-[260px] text-balance text-center font-display text-base italic text-brand-dark">
               &ldquo;{quote}&rdquo;
             </p>
           </div>
@@ -208,19 +228,31 @@ export default async function Home() {
           and numbers.
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-          >
-            Create Free Account
-            <ArrowRight size={16} />
-          </Link>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-6 py-3.5 text-sm font-semibold text-ink-soft transition hover:bg-paper"
-          >
-            Log In
-          </Link>
+          {student ? (
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+            >
+              Go to Dashboard
+              <ArrowRight size={16} />
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+              >
+                Create Free Account
+                <ArrowRight size={16} />
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-6 py-3.5 text-sm font-semibold text-ink-soft transition hover:bg-paper"
+              >
+                Log In
+              </Link>
+            </>
+          )}
         </div>
       </section>
 

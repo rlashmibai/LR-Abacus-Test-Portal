@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { GraduationCap, Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import AuthShell from "./AuthShell";
 
 export default function ChangePasswordForm({
@@ -53,13 +53,6 @@ export default function ChangePasswordForm({
 
   return (
     <AuthShell quote={quote}>
-      <div className="mb-6 flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
-          <GraduationCap size={18} />
-        </div>
-        <span className="font-display text-lg font-semibold text-brand">Student Portal</span>
-      </div>
-
       {done ? (
         <div className="py-4 text-center">
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-good-soft">

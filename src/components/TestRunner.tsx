@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { Menu, Home, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import type { AnswerMap, PublicTestSession } from "@/lib/types";
 import { pickQuote } from "@/lib/quotes";
 
@@ -228,6 +228,14 @@ export default function TestRunner({ testId }: { testId: string }) {
             aria-label="Back to dashboard"
           >
             <Menu size={18} />
+          </button>
+          <button
+            onClick={() => router.push("/")}
+            className="rounded-lg p-2 text-ink-soft hover:bg-paper hover:text-brand"
+            aria-label="Go to homepage"
+            title="Go to homepage"
+          >
+            <Home size={18} />
           </button>
           <h1 className="font-display text-lg font-semibold text-brand">Online Test</h1>
         </div>

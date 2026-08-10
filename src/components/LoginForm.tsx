@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { GraduationCap, User, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { User, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import AuthShell from "./AuthShell";
 
 export default function LoginForm({ quote }: { quote: string }) {
@@ -55,15 +55,6 @@ export default function LoginForm({ quote }: { quote: string }) {
 
   return (
     <AuthShell quote={quote}>
-      <div className="mb-7 flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
-          <GraduationCap size={18} />
-        </div>
-        <span className="font-display text-lg font-semibold text-brand">
-          Student Portal
-        </span>
-      </div>
-
       <h1 className="font-display text-3xl font-semibold text-ink">Welcome back</h1>
       <p className="mt-2 text-sm text-ink-soft">
         Sign in to continue sharpening your speed and accuracy.
