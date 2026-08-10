@@ -9,8 +9,12 @@ import { Menu, ChevronDown, KeyRound, LogOut, UserRound, Home } from "lucide-rea
 const TITLES: Record<string, string> = {
   "/dashboard": "Student Portal",
   "/instructions": "Instructions",
+  "/test-setup": "Choose Your Test",
   "/results": "Results",
   "/profile": "Edit Profile",
+  "/progress": "Your Progress",
+  "/achievements": "Achievements",
+  "/certificate": "Your Certificate",
 };
 
 function titleFor(pathname: string) {
