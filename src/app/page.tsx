@@ -84,6 +84,16 @@ const STEPS = [
   },
 ];
 
+const BADGES = [
+  { icon: "🏆", label: "First Perfect Score" },
+  { icon: "⚡", label: "Speed Star" },
+  { icon: "🥉", label: "10 Tests Completed" },
+  { icon: "🥈", label: "25 Tests Completed" },
+  { icon: "🥇", label: "50 Tests Completed" },
+  { icon: "🥇", label: "75 Tests Completed" },
+  { icon: "👑", label: "100 Tests Completed" },
+];
+
 export default async function Home() {
   const student = await getSessionStudent();
   const quote = pickQuote();
@@ -92,7 +102,7 @@ export default async function Home() {
     <div className="min-h-screen bg-paper">
       {/* Nav */}
       <header className="sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-y-3 px-4 py-4 md:px-8">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
               <GraduationCap size={18} />
@@ -101,17 +111,17 @@ export default async function Home() {
               {BRAND_SHORT}
             </span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 sm:gap-5">
             <Link
               href="/about"
-              className="hidden text-sm font-semibold text-ink-soft hover:text-brand sm:inline"
+              className="rounded-xl bg-paper px-4 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
             >
-              About
+              About Me
             </Link>
             {student ? (
               <Link
                 href="/dashboard"
-                className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark sm:px-5 sm:py-3 sm:text-base"
               >
                 Go to Dashboard
               </Link>
@@ -119,13 +129,13 @@ export default async function Home() {
               <>
                 <Link
                   href="/login"
-                  className="text-sm font-semibold text-ink-soft hover:text-brand"
+                  className="rounded-xl bg-paper px-4 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
                 >
                   Log In
                 </Link>
                 <Link
                   href="/register"
-                  className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                  className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark sm:px-5 sm:py-3 sm:text-base"
                 >
                   Sign Up
                 </Link>
@@ -240,6 +250,31 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Badges */}
+      <section className="mx-auto max-w-6xl px-4 py-16 md:px-8">
+        <div className="text-center">
+          <h2 className="font-display text-3xl font-semibold text-ink">
+            7 Badges Waiting to Be Earned
+          </h2>
+          <p className="mt-3 text-ink-soft">
+            Every practice test brings you closer to your next badge.
+          </p>
+        </div>
+        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
+          {BADGES.map(({ icon, label }) => (
+            <div
+              key={label}
+              className="rounded-2xl bg-surface p-4 text-center shadow-sm ring-1 ring-line"
+            >
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gold-soft text-2xl">
+                {icon}
+              </div>
+              <p className="mt-3 text-xs font-semibold text-ink">{label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="mx-auto max-w-4xl px-4 py-16 text-center md:px-8">
         <h2 className="font-display text-3xl font-semibold text-ink">
@@ -278,10 +313,13 @@ export default async function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-line py-8 text-center text-xs text-ink-faint">
+      <footer className="border-t border-line py-10 text-center text-xs text-ink-faint">
         <p>{BRAND_NAME} - practice built for speed, accuracy, and confidence.</p>
-        <Link href="/about" className="mt-2 inline-block font-semibold text-brand hover:underline">
-          About this site
+        <Link
+          href="/about"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+        >
+          About Me
         </Link>
       </footer>
     </div>

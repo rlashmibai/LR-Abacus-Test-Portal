@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { GraduationCap, Heart, ExternalLink, ArrowLeft } from "lucide-react";
-import { BRAND_SHORT } from "@/lib/brand";
+import { BRAND_SHORT, BRAND_NAME } from "@/lib/brand";
 import AbacusIllustration from "@/components/AbacusIllustration";
+
+export const metadata: Metadata = {
+  title: `About Me | ${BRAND_NAME}`,
+};
 
 export default function AboutPage() {
   return (
@@ -28,7 +34,15 @@ export default function AboutPage() {
 
       <main className="mx-auto max-w-3xl px-4 py-16 md:px-8">
         <div className="text-center">
-          <AbacusIllustration className="mx-auto h-40 w-40" />
+          {/* Photo of the site's creator. Drop the file at
+              public/images/lashmi.jpg to have it appear here. */}
+          <Image
+            src="/images/lashmi.jpg"
+            alt="Lashmi Bai Ravindrapandian"
+            width={160}
+            height={160}
+            className="mx-auto rounded-full object-cover shadow-md ring-4 ring-brand-soft"
+          />
           <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-gold-soft px-3 py-1 text-xs font-semibold text-ink">
             <Heart size={13} />
             WHY I BUILT THIS
@@ -78,7 +92,8 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="mt-10 text-center">
+        <div className="mt-10 flex flex-col items-center gap-3 text-center">
+          <AbacusIllustration className="h-20 w-20" />
           <p className="text-sm text-ink-soft">
             Curious what else I&apos;ve been building?
           </p>
@@ -86,7 +101,7 @@ export default function AboutPage() {
             href="https://lrvirtualclassroom.co.in/"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+            className="mt-1 inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
           >
             Visit My Portfolio
             <ExternalLink size={16} />
