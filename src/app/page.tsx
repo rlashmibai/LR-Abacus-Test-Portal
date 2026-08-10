@@ -257,70 +257,75 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Badges */}
-      <section className="mx-auto max-w-6xl px-4 py-16 md:px-8">
-        <div className="text-center">
-          <h2 className="font-display text-3xl font-semibold text-ink">
-            {BADGES.length} Badges Waiting to Be Earned
-          </h2>
-          <p className="mt-3 text-ink-soft">
-            Every practice test brings you closer to your next badge.
-          </p>
-        </div>
-        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
-          {BADGES.map(({ icon, label }) => (
-            <div
-              key={label}
-              className="rounded-2xl bg-surface p-4 text-center shadow-sm ring-1 ring-line"
-            >
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gold-soft text-2xl">
-                {icon}
+      {/* Badges - gold band, distinct from the lavender "How it works"
+          section above and the solid brand CTA below. */}
+      <section className="bg-gold-soft py-16">
+        <div className="mx-auto max-w-6xl px-4 md:px-8">
+          <div className="text-center">
+            <h2 className="font-display text-3xl font-semibold text-ink">
+              {BADGES.length} Badges Waiting to Be Earned
+            </h2>
+            <p className="mt-3 text-ink-soft">
+              Every practice test brings you closer to your next badge.
+            </p>
+          </div>
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
+            {BADGES.map(({ icon, label }) => (
+              <div
+                key={label}
+                className="rounded-2xl bg-surface p-4 text-center shadow-sm ring-1 ring-line"
+              >
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gold-soft text-2xl">
+                  {icon}
+                </div>
+                <p className="mt-3 text-xs font-semibold text-ink">{label}</p>
               </div>
-              <p className="mt-3 text-xs font-semibold text-ink">{label}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="mx-auto max-w-4xl px-4 py-16 text-center md:px-8">
-        <h2 className="font-display text-3xl font-semibold text-ink">
-          Ready to test your speed?
-        </h2>
-        <p className="mt-3 text-ink-soft">
-          It takes ten seconds to start - always free, no card, no
-          commitment, just beads and numbers.
-        </p>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          {student ? (
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-            >
-              Go to Dashboard
-              <ArrowRight size={16} />
-            </Link>
-          ) : (
-            <>
+      {/* Final CTA - solid brand band so it reads as the closing statement. */}
+      <section className="bg-brand py-16 text-center">
+        <div className="mx-auto max-w-4xl px-4 md:px-8">
+          <h2 className="font-display text-3xl font-semibold text-white">
+            Ready to test your speed?
+          </h2>
+          <p className="mt-3 text-white/80">
+            It takes ten seconds to start - always free, no card, no
+            commitment, just beads and numbers.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            {student ? (
               <Link
-                href="/register"
-                className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-gold-soft"
               >
-                Create Free Account
+                Go to Dashboard
                 <ArrowRight size={16} />
               </Link>
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-6 py-3.5 text-sm font-semibold text-ink-soft transition hover:bg-paper"
-              >
-                Log In
-              </Link>
-            </>
-          )}
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-gold-soft"
+                >
+                  Create Free Account
+                  <ArrowRight size={16} />
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/40 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Log In
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-line py-10 text-center text-xs text-ink-faint">
+      <footer className="border-t border-line bg-surface py-10 text-center text-xs text-ink-faint">
         <p>{BRAND_NAME} - practice built for speed, accuracy, and confidence.</p>
         <Link
           href="/about"

@@ -48,7 +48,8 @@ export default function AboutPage() {
             WHY I BUILT THIS
           </span>
           <h1 className="mt-4 text-balance font-display text-3xl font-semibold text-ink md:text-4xl">
-            A mom, a son, and one very stubborn abacus
+            A &ldquo;Non-Technical&rdquo; Mom, A Loving Son and one very
+            stubborn Abacus
           </h1>
         </div>
 
@@ -97,15 +98,26 @@ export default function AboutPage() {
           <p className="text-sm text-ink-soft">
             Curious what else I&apos;ve been building?
           </p>
-          <a
-            href="https://lrvirtualclassroom.co.in/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1 inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-          >
-            Visit My Portfolio
-            <ExternalLink size={16} />
-          </a>
+          <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
+            <a
+              href="https://lrvirtualclassroom.co.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+            >
+              Visit My Portfolio
+              <ExternalLink size={16} />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/lashmibairavindrapandian/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-6 py-3.5 text-sm font-semibold text-ink-soft transition hover:bg-paper hover:text-brand"
+            >
+              Connect on LinkedIn
+              <ExternalLink size={16} />
+            </a>
+          </div>
         </div>
       </main>
     </div>
