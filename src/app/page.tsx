@@ -85,13 +85,20 @@ const STEPS = [
 ];
 
 const BADGES = [
-  { icon: "🏆", label: "First Perfect Score" },
-  { icon: "⚡", label: "Speed Star" },
-  { icon: "🥉", label: "10 Tests Completed" },
-  { icon: "🥈", label: "25 Tests Completed" },
-  { icon: "🥇", label: "50 Tests Completed" },
-  { icon: "🥇", label: "75 Tests Completed" },
-  { icon: "👑", label: "100 Tests Completed" },
+  { icon: "🏆", label: "Perfect Mind" },
+  { icon: "⚡", label: "Lightning Mind" },
+  { icon: "🌱", label: "Number Ninja" },
+  { icon: "🔥", label: "Practice Warrior" },
+  { icon: "💎", label: "Abacus Expert" },
+  { icon: "🚀", label: "Abacus Champion" },
+  { icon: "👑", label: "Abacus Legend" },
+  { icon: "📅", label: "7-Day Streak" },
+  { icon: "🌟", label: "First Breakthrough" },
+  { icon: "🏅", label: "New Personal Best" },
+  { icon: "🧮", label: "Addition Ace" },
+  { icon: "➖", label: "Subtraction Star" },
+  { icon: "✖️", label: "Multiplication Master" },
+  { icon: "➗", label: "Division Pro" },
 ];
 
 export default async function Home() {
@@ -254,7 +261,7 @@ export default async function Home() {
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-8">
         <div className="text-center">
           <h2 className="font-display text-3xl font-semibold text-ink">
-            7 Badges Waiting to Be Earned
+            {BADGES.length} Badges Waiting to Be Earned
           </h2>
           <p className="mt-3 text-ink-soft">
             Every practice test brings you closer to your next badge.
