@@ -94,6 +94,7 @@ export default async function ResultDetailPage({
 
         <InfoCard icon={<FileText size={18} />} title="Test Information">
           <Row label="Test Type" value={result.operationLabel ?? result.level} />
+          <Row label="Mode" value={result.mode === "practice" ? "Practice (Untimed)" : "Exam (Timed)"} />
           <Row label="Status" value={result.status} />
           <Row label="Total Marks" value={String(result.totalMarks)} />
           <Row label="Marks Taken" value={result.answered > 0 ? String(result.score) : "-"} />

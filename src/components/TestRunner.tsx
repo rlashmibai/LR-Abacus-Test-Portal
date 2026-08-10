@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, Home, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { Menu, Home, AlertTriangle, CheckCircle2, XCircle, BookOpen } from "lucide-react";
 import type { AnswerMap, PublicTestSession } from "@/lib/types";
 import { pickQuote } from "@/lib/quotes";
+import { playTimeWarning, playSuccessDing } from "@/lib/sound";
 
 const STORAGE_PREFIX = "abacus-test-";
 
@@ -71,12 +72,17 @@ export default function TestRunner({ testId }: { testId: string }) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<DraftAnswers>({});
   const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<{ resultId: string } | null>(null);
+  const [pulseTimer, setPulseTimer] = useState(false);
   const submitLock = useRef(false);
+  const warnedFiveMinRef = useRef(false);
+  const warnedOneMinRef = useRef(false);
+
+  const isPractice = session?.mode === "practice";
 
   // Load the test session + restore any in-progress answers.
   useEffect(() => {
@@ -128,36 +134,54 @@ export default function TestRunner({ testId }: { testId: string }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             answers: payload,
-            timeTakenSeconds: Math.min(elapsed, durationSeconds),
+            timeTakenSeconds: isPractice ? elapsed : Math.min(elapsed, durationSeconds),
             autoSubmitted,
           }),
         });
         const data = await res.json();
         clearProgress(testId);
+        playSuccessDing();
         setSubmitted({ resultId: data.resultId });
       } catch {
         submitLock.current = false;
         setSubmitting(false);
       }
     },
-    [answers, durationSeconds, session, startedAt, testId]
+    [answers, durationSeconds, isPractice, session, startedAt, testId]
   );
 
-  // Countdown timer.
+  // Elapsed-time clock, shared by both modes; exam mode also auto-submits
+  // and plays a warning chime once when crossing 5 minutes and 1 minute
+  // remaining (not a tick every second - just those two moments).
   useEffect(() => {
-    if (!startedAt || submitted) return;
+    if (!startedAt || submitted || !session) return;
     const tick = () => {
       const elapsed = (Date.now() - startedAt) / 1000;
-      const remaining = durationSeconds - elapsed;
-      setRemainingSeconds(remaining);
-      if (remaining <= 0) {
-        submitTest(true);
+      setElapsedSeconds(elapsed);
+
+      if (!isPractice) {
+        const remaining = durationSeconds - elapsed;
+        if (remaining <= 300 && !warnedFiveMinRef.current) {
+          warnedFiveMinRef.current = true;
+          playTimeWarning();
+          setPulseTimer(true);
+          setTimeout(() => setPulseTimer(false), 1500);
+        }
+        if (remaining <= 60 && !warnedOneMinRef.current) {
+          warnedOneMinRef.current = true;
+          playTimeWarning();
+          setPulseTimer(true);
+          setTimeout(() => setPulseTimer(false), 1500);
+        }
+        if (remaining <= 0) {
+          submitTest(true);
+        }
       }
     };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [startedAt, durationSeconds, submitted, submitTest]);
+  }, [startedAt, durationSeconds, submitted, submitTest, isPractice, session]);
 
   function handleAnswerChange(qNo: number, raw: string) {
     // Only allow an optional leading "-" followed by digits, so stray
@@ -208,7 +232,7 @@ export default function TestRunner({ testId }: { testId: string }) {
     return <SubmittedScreen resultId={submitted.resultId} />;
   }
 
-  if (!session || remainingSeconds === null) {
+  if (!session || elapsedSeconds === null) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-paper">
         <p className="text-sm text-ink-soft">Loading your test…</p>
@@ -216,7 +240,9 @@ export default function TestRunner({ testId }: { testId: string }) {
     );
   }
 
-  const isUrgent = remainingSeconds <= 60;
+  const remainingSeconds = durationSeconds - elapsedSeconds;
+  const isUrgent = !isPractice && remainingSeconds <= 60;
+  const timerDisplay = isPractice ? elapsedSeconds : remainingSeconds;
 
   return (
     <div className="min-h-screen bg-paper">
@@ -237,15 +263,17 @@ export default function TestRunner({ testId }: { testId: string }) {
           >
             <Home size={18} />
           </button>
-          <h1 className="font-display text-lg font-semibold text-brand">Online Test</h1>
+          <h1 className="font-display text-lg font-semibold text-brand">
+            {isPractice ? "Practice Test" : "Online Test"}
+          </h1>
         </div>
 
         <div
-          className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold text-white ${
-            isUrgent ? "bg-bad animate-pulse" : "bg-good"
-          }`}
+          className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold text-white transition-transform ${
+            isPractice ? "bg-brand" : isUrgent ? "bg-bad animate-pulse" : "bg-good"
+          } ${pulseTimer ? "scale-110" : "scale-100"}`}
         >
-          🕐 {formatClock(remainingSeconds)}
+          {isPractice ? <BookOpen size={14} /> : "🕐"} {formatClock(timerDisplay)}
         </div>
 
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">
@@ -262,10 +290,17 @@ export default function TestRunner({ testId }: { testId: string }) {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-full bg-bad-soft px-3 py-1.5 text-xs font-semibold text-bad">
-              <AlertTriangle size={14} />
-              Do not refresh this page
-            </span>
+            {isPractice ? (
+              <span className="flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand">
+                <BookOpen size={14} />
+                Practice mode - no time limit
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 rounded-full bg-bad-soft px-3 py-1.5 text-xs font-semibold text-bad">
+                <AlertTriangle size={14} />
+                Do not refresh this page
+              </span>
+            )}
             <button
               onClick={() => setShowCancelConfirm(true)}
               className="rounded-xl border border-line bg-surface px-5 py-2.5 text-sm font-bold text-ink-soft hover:bg-paper"
@@ -465,7 +500,7 @@ function SubmittedScreen({ resultId }: { resultId: string }) {
           }}
         />
       ))}
-      <div className="relative z-10 w-full max-w-sm rounded-2xl bg-surface p-8 text-center shadow-xl">
+      <div className="relative z-10 w-full max-w-sm animate-[pop-in_0.4s_ease-out] rounded-2xl bg-surface p-8 text-center shadow-xl">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-good-soft">
           <CheckCircle2 className="text-good" size={36} />
         </div>

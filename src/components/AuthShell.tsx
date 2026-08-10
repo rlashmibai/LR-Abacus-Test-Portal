@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Gauge, Target, Sparkles, GraduationCap } from "lucide-react";
 import AbacusIllustration from "./AbacusIllustration";
+import { BRAND_NAME } from "@/lib/brand";
 
 const HIGHLIGHTS = [
   { icon: Gauge, label: "Speed", text: "Beat the clock on 100 timed questions" },
@@ -26,11 +27,11 @@ export default function AuthShell({
       <div className="flex items-center justify-center bg-surface p-6 py-12 md:p-12">
         <div className="w-full max-w-md">
           <Link href="/" className="mb-7 flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
               <GraduationCap size={18} />
             </div>
-            <span className="font-display text-lg font-semibold text-brand">
-              Student Portal
+            <span className="font-display text-base font-semibold leading-tight text-brand">
+              {BRAND_NAME}
             </span>
           </Link>
           {children}
@@ -49,7 +50,7 @@ export default function AuthShell({
 
         <div className="relative z-10 flex max-w-sm flex-col items-center gap-8 text-center">
           <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold tracking-wide text-brand">
-            ABACUS PRACTICE TEST
+            100% FREE ABACUS PRACTICE TEST
           </span>
 
           <AbacusIllustration className="h-60 w-60" />

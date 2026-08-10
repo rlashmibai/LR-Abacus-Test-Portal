@@ -60,7 +60,7 @@ export default function TopBar({
   }
 
   return (
-    <header className="relative z-30 flex items-center justify-between gap-3 border-b border-line bg-surface/90 px-4 py-3 backdrop-blur md:px-8">
+    <header className="relative z-30 flex items-center justify-between gap-3 border-b border-line bg-surface/90 px-4 py-3 backdrop-blur print:hidden md:px-8">
       <div className="flex items-center gap-3">
         {/* Only meaningful on mobile - the sidebar is always visible on
             desktop, so a toggle there wouldn't do anything. */}

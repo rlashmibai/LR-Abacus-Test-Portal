@@ -6,33 +6,36 @@ import {
   Layers,
   CheckCircle2,
   BarChart3,
+  Award,
+  FileBadge,
   Zap,
   ArrowRight,
   Sparkles,
 } from "lucide-react";
 import { getSessionStudent } from "@/lib/auth";
 import { pickQuote } from "@/lib/quotes";
+import { BRAND_NAME, BRAND_SHORT } from "@/lib/brand";
 import AbacusIllustration from "@/components/AbacusIllustration";
 import GuestCtaButton from "@/components/GuestCtaButton";
 
 const FEATURES = [
   {
-    icon: Timer,
+    icon: Layers,
     color: "bg-indigo-100 text-indigo-600",
-    title: "100-Question Timed Tests",
-    text: "A 10-minute countdown keeps every practice session focused and game-like.",
+    title: "Custom-Length Tests",
+    text: "Pick 25, 50, or 100 questions - short warm-ups or full-length exams.",
+  },
+  {
+    icon: Timer,
+    color: "bg-amber-100 text-amber-600",
+    title: "Practice or Exam Mode",
+    text: "Untimed practice to learn, or a timed exam to test yourself for real.",
   },
   {
     icon: Calculator,
-    color: "bg-amber-100 text-amber-600",
+    color: "bg-rose-100 text-rose-600",
     title: "4 Operations to Master",
     text: "Addition & subtraction, multiplication, and division - all in one place.",
-  },
-  {
-    icon: Layers,
-    color: "bg-rose-100 text-rose-600",
-    title: "Pick Your Difficulty",
-    text: "2-digit or 3-digit numbers, so every student can start at the right level.",
   },
   {
     icon: CheckCircle2,
@@ -43,12 +46,24 @@ const FEATURES = [
   {
     icon: BarChart3,
     color: "bg-sky-100 text-sky-600",
-    title: "Track Every Attempt",
-    text: "A running history of results makes it easy to watch speed and accuracy improve.",
+    title: "Progress Charts",
+    text: "Watch your score and speed improve over time, test after test.",
+  },
+  {
+    icon: Award,
+    color: "bg-violet-100 text-violet-600",
+    title: "Badges & Achievements",
+    text: "Earn badges for milestones - your first perfect score, 10 tests, 100 tests, and more.",
+  },
+  {
+    icon: FileBadge,
+    color: "bg-fuchsia-100 text-fuchsia-600",
+    title: "Printable Certificates",
+    text: "Unlock a personalized certificate to celebrate every milestone.",
   },
   {
     icon: Zap,
-    color: "bg-violet-100 text-violet-600",
+    color: "bg-orange-100 text-orange-600",
     title: "No Sign-Up Needed",
     text: "Jump straight into a test as a guest, or register to save your progress.",
   },
@@ -57,15 +72,15 @@ const FEATURES = [
 const STEPS = [
   {
     title: "Choose your test",
-    text: "Pick an operation and a digit size that fits your level.",
+    text: "Pick an operation, a digit size, a length, and practice or exam mode.",
   },
   {
-    title: "Race the clock",
-    text: "Answer as many of the 100 questions as you can in 10 minutes.",
+    title: "Race the clock (or don't)",
+    text: "Answer at your own pace in practice mode, or beat the timer in exam mode.",
   },
   {
     title: "Review & improve",
-    text: "See your score instantly and study exactly where you slipped up.",
+    text: "See your score instantly, track your progress, and earn badges.",
   },
 ];
 
@@ -79,14 +94,20 @@ export default async function Home() {
       <header className="sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-8">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
               <GraduationCap size={18} />
             </div>
-            <span className="font-display text-lg font-semibold text-brand">
-              Abacus Test Portal
+            <span className="font-display text-base font-semibold leading-tight text-brand sm:text-lg">
+              {BRAND_SHORT}
             </span>
           </Link>
           <div className="flex items-center gap-3">
+            <Link
+              href="/about"
+              className="hidden text-sm font-semibold text-ink-soft hover:text-brand sm:inline"
+            >
+              About
+            </Link>
             {student ? (
               <Link
                 href="/dashboard"
@@ -119,15 +140,15 @@ export default async function Home() {
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-soft px-3 py-1 text-xs font-semibold text-ink">
             <Sparkles size={13} />
-            ABACUS PRACTICE TEST
+            100% FREE ABACUS PRACTICE TEST
           </span>
           <h1 className="mt-5 text-balance font-display text-4xl font-semibold leading-tight text-ink md:text-5xl">
             Where fast fingers grow into faster minds
           </h1>
           <p className="mt-5 max-w-lg text-lg text-ink-soft">
-            Free, timed abacus practice tests that build lightning-quick
-            mental math - built for kids, loved by abacus centers, and
-            ready in seconds.
+            {BRAND_NAME} - free, timed (or untimed) abacus practice that
+            builds lightning-quick mental math. Built for kids, loved by
+            abacus centers, always free.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             {student ? (
@@ -174,7 +195,8 @@ export default async function Home() {
             Everything a student needs to practice smarter
           </h2>
           <p className="mt-3 text-ink-soft">
-            Built to help kids build speed and accuracy, one test at a time.
+            Built to help kids build speed and accuracy, one test at a time -
+            completely free.
           </p>
         </div>
 
@@ -224,8 +246,8 @@ export default async function Home() {
           Ready to test your speed?
         </h2>
         <p className="mt-3 text-ink-soft">
-          It takes ten seconds to start - no card, no commitment, just beads
-          and numbers.
+          It takes ten seconds to start - always free, no card, no
+          commitment, just beads and numbers.
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           {student ? (
@@ -257,7 +279,10 @@ export default async function Home() {
       </section>
 
       <footer className="border-t border-line py-8 text-center text-xs text-ink-faint">
-        Abacus Test Portal - practice built for speed, accuracy, and confidence.
+        <p>{BRAND_NAME} - practice built for speed, accuracy, and confidence.</p>
+        <Link href="/about" className="mt-2 inline-block font-semibold text-brand hover:underline">
+          About this site
+        </Link>
       </footer>
     </div>
   );

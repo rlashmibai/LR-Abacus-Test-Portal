@@ -54,6 +54,7 @@ export async function POST(
     operation: session.operation,
     operationLabel: session.operationLabel,
     variant: session.variant,
+    mode: session.mode,
     totalQuestions: session.totalQuestions,
     totalMarks: session.totalMarks,
     answered,

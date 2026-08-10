@@ -2,13 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
-import { OPERATIONS, getOperation } from "@/lib/testTypes";
+import { ArrowRight, Timer, BookOpen } from "lucide-react";
+import { OPERATIONS, getOperation, QUESTION_COUNTS, durationForQuestionCount } from "@/lib/testTypes";
+import type { TestMode } from "@/lib/testTypes";
+
+const MODES: { value: TestMode; label: string; text: string; icon: typeof Timer }[] = [
+  {
+    value: "exam",
+    label: "Exam Mode",
+    text: "Timed - the clock counts down and auto-submits at zero.",
+    icon: Timer,
+  },
+  {
+    value: "practice",
+    label: "Practice Mode",
+    text: "Untimed - take as long as you need, submit whenever you're ready.",
+    icon: BookOpen,
+  },
+];
 
 export default function TestSetupForm() {
   const router = useRouter();
   const [operation, setOperation] = useState(OPERATIONS[0].value);
   const [variant, setVariant] = useState(OPERATIONS[0].variants[0].value);
+  const [questionCount, setQuestionCount] = useState<number>(100);
+  const [mode, setMode] = useState<TestMode>("exam");
 
   const activeOperation = getOperation(operation);
 
@@ -19,7 +37,12 @@ export default function TestSetupForm() {
   }
 
   function handleCreateTest() {
-    const params = new URLSearchParams({ operation, variant });
+    const params = new URLSearchParams({
+      operation,
+      variant,
+      questionCount: String(questionCount),
+      mode,
+    });
     router.push(`/instructions?${params.toString()}`);
   }
 
@@ -88,6 +111,66 @@ export default function TestSetupForm() {
             })}
           </div>
         )}
+      </section>
+
+      <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
+        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-ink-faint">
+          3. Number of Questions
+        </h3>
+        <div className="grid grid-cols-3 gap-3">
+          {QUESTION_COUNTS.map((count) => {
+            const active = count === questionCount;
+            return (
+              <button
+                key={count}
+                onClick={() => setQuestionCount(count)}
+                className={`rounded-2xl border-2 p-4 text-center transition ${
+                  active
+                    ? "border-brand bg-brand-soft"
+                    : "border-line hover:border-brand/40 hover:bg-paper"
+                }`}
+              >
+                <p className="text-lg font-bold text-ink">{count}</p>
+                <p className="mt-1 text-xs text-ink-soft">questions</p>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
+        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-ink-faint">
+          4. Practice or Exam
+        </h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {MODES.map(({ value, label, text, icon: Icon }) => {
+            const active = value === mode;
+            return (
+              <button
+                key={value}
+                onClick={() => setMode(value)}
+                className={`flex items-start gap-3 rounded-2xl border-2 p-4 text-left transition ${
+                  active
+                    ? "border-brand bg-brand-soft"
+                    : "border-line hover:border-brand/40 hover:bg-paper"
+                }`}
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
+                  <Icon size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-ink">{label}</p>
+                  <p className="mt-1 text-xs text-ink-soft">{text}</p>
+                  {value === "exam" && (
+                    <p className="mt-1 text-xs font-semibold text-brand">
+                      {durationForQuestionCount(questionCount)} Mins for {questionCount} questions
+                    </p>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </section>
 
       <div className="flex justify-center pb-4">

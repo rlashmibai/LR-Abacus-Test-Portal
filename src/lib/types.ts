@@ -1,4 +1,4 @@
-import type { OperationType } from "./testTypes";
+import type { OperationType, TestMode } from "./testTypes";
 
 export interface Student {
   id: string; // e.g. "5506" (Student ID shown on portal)
@@ -31,6 +31,7 @@ export interface TestSession {
   operation: OperationType;
   operationLabel: string; // e.g. "Addition & Subtraction (2-Digit)"
   variant: string; // e.g. "2-digit", "3x1"
+  mode: TestMode;
   durationMinutes: number;
   totalQuestions: number;
   totalMarks: number;
@@ -51,6 +52,7 @@ export interface PublicTestSession {
   operation: OperationType;
   operationLabel: string;
   variant: string;
+  mode: TestMode;
   durationMinutes: number;
   totalQuestions: number;
   totalMarks: number;
@@ -83,6 +85,7 @@ export interface TestResult {
   operation: OperationType;
   operationLabel: string;
   variant: string;
+  mode: TestMode;
   totalQuestions: number;
   totalMarks: number;
   answered: number;

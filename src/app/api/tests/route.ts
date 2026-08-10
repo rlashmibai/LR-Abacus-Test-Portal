@@ -5,15 +5,16 @@ import { generateQuestions } from "@/lib/questions";
 import {
   DEFAULT_OPERATION,
   DEFAULT_VARIANT,
+  DEFAULT_MODE,
+  DEFAULT_QUESTION_COUNT,
   isValidOperation,
   isValidVariant,
+  isValidMode,
+  isValidQuestionCount,
   operationLabel,
+  durationForQuestionCount,
 } from "@/lib/testTypes";
 import type { TestSession, PublicTestSession } from "@/lib/types";
-
-const DURATION_MINUTES = 10;
-const TOTAL_QUESTIONS = 100;
-const TOTAL_MARKS = 100;
 
 function toPublic(session: TestSession): PublicTestSession {
   return {
@@ -35,6 +36,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const operation = isValidOperation(body.operation) ? body.operation : DEFAULT_OPERATION;
   const variant = isValidVariant(operation, body.variant) ? body.variant : DEFAULT_VARIANT;
+  const mode = isValidMode(body.mode) ? body.mode : DEFAULT_MODE;
+  const totalQuestions = isValidQuestionCount(Number(body.questionCount))
+    ? Number(body.questionCount)
+    : DEFAULT_QUESTION_COUNT;
 
   // A fresh id (timestamp + random) per call means every test - even two
   // started back to back by the same student - gets its own question set.
@@ -43,7 +48,7 @@ export async function POST(req: NextRequest) {
     testId,
     operation,
     variant,
-    totalQuestions: TOTAL_QUESTIONS,
+    totalQuestions,
   });
 
   const session: TestSession = {
@@ -57,9 +62,10 @@ export async function POST(req: NextRequest) {
     operation,
     operationLabel: operationLabel(operation, variant),
     variant,
-    durationMinutes: DURATION_MINUTES,
-    totalQuestions: TOTAL_QUESTIONS,
-    totalMarks: TOTAL_MARKS,
+    mode,
+    durationMinutes: durationForQuestionCount(totalQuestions),
+    totalQuestions,
+    totalMarks: totalQuestions,
     createdAt: new Date().toISOString(),
     questions,
   };

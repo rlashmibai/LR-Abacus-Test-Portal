@@ -2,10 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, HelpCircle, X } from "lucide-react";
+import { LayoutDashboard, FileText, HelpCircle, X, TrendingUp, Award, Info } from "lucide-react";
 import AbacusIllustration from "./AbacusIllustration";
+import { BRAND_SHORT } from "@/lib/brand";
 
-const NAV = [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }];
+const NAV = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/progress", label: "Progress", icon: TrendingUp },
+  { href: "/achievements", label: "Achievements", icon: Award },
+];
 const STUDENT_NAV = [{ href: "/results", label: "Results", icon: FileText }];
 
 function initials(name: string) {
@@ -30,7 +35,14 @@ export default function Sidebar({
 
   const content = (
     <div className="flex h-full flex-col bg-surface">
-      <div className="flex items-center justify-between gap-3 px-5 py-6">
+      <Link
+        href="/"
+        onClick={onClose}
+        className="block px-5 pt-5 font-display text-sm font-semibold text-brand hover:underline"
+      >
+        {BRAND_SHORT}
+      </Link>
+      <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-lg font-semibold text-white">
             {initials(studentName)}
@@ -104,7 +116,15 @@ export default function Sidebar({
         </p>
       </div>
 
-      <div className="px-4 pb-6">
+      <div className="space-y-2 px-4 pb-6">
+        <Link
+          href="/about"
+          onClick={onClose}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-paper px-4 py-3 text-sm font-semibold text-brand hover:bg-brand-soft"
+        >
+          <Info size={18} />
+          About This Site
+        </Link>
         <a
           href="https://lrvirtualclassroom.co.in/contact/"
           target="_blank"
@@ -123,7 +143,7 @@ export default function Sidebar({
       {/* Desktop - sticky + its own viewport height, so it never stretches
           to match a taller main-content column and push the quote card
           below the fold. */}
-      <aside className="sticky top-0 z-10 hidden h-screen w-72 shrink-0 overflow-y-auto border-r border-line md:block">
+      <aside className="sticky top-0 z-10 hidden h-screen w-72 shrink-0 overflow-y-auto border-r border-line print:hidden md:block">
         {content}
       </aside>
 

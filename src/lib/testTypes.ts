@@ -51,6 +51,27 @@ export const OPERATIONS: OperationDef[] = [
 export const DEFAULT_OPERATION: OperationType = "addition_subtraction";
 export const DEFAULT_VARIANT = "2-digit";
 
+export type TestMode = "practice" | "exam";
+export const DEFAULT_MODE: TestMode = "exam";
+
+export function isValidMode(mode: string | undefined): mode is TestMode {
+  return mode === "practice" || mode === "exam";
+}
+
+export const QUESTION_COUNTS = [25, 50, 100] as const;
+export type QuestionCount = (typeof QUESTION_COUNTS)[number];
+export const DEFAULT_QUESTION_COUNT: QuestionCount = 100;
+
+export function isValidQuestionCount(n: number | undefined): n is QuestionCount {
+  return QUESTION_COUNTS.includes(n as QuestionCount);
+}
+
+/** Exam mode duration - roughly 6 seconds per question, same pace as the
+ * original 100 questions / 10 minutes. Practice mode is untimed. */
+export function durationForQuestionCount(count: number): number {
+  return Math.max(1, Math.round((count * 6) / 60));
+}
+
 export function getOperation(op: string | undefined): OperationDef {
   return OPERATIONS.find((o) => o.value === op) ?? OPERATIONS[0];
 }

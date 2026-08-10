@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { BRAND_NAME } from "@/lib/brand";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -15,8 +16,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Abacus Test Portal",
-  description: "Student portal for taking timed abacus mental-math practice tests.",
+  title: BRAND_NAME,
+  description: `${BRAND_NAME} - free timed abacus mental-math practice tests for kids.`,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
