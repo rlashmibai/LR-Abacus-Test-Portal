@@ -85,3 +85,31 @@ body {
     opacity: 1;
   }
 }
+
+/* Gentle "press" feedback for interactive controls across the whole app -
+   pairs with the click sound in ClickSound.tsx. Skipped for anyone who
+   has asked their OS/browser for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  button:not(:disabled),
+  a[href],
+  [role="button"],
+  input[type="submit"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    transition: transform 0.12s ease-out;
+  }
+
+  button:not(:disabled):active,
+  a[href]:active,
+  [role="button"]:active,
+  input[type="submit"]:active,
+  select:active {
+    transform: scale(0.96);
+  }
+
+  input[type="checkbox"]:active,
+  input[type="radio"]:active {
+    transform: scale(1.15);
+  }
+}

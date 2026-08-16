@@ -43,13 +43,30 @@ function beep(freq: number, duration: number, type: OscillatorType = "sine", vol
 
 /** Two-tone alert used for the 5-minute and 1-minute exam warnings. */
 export function playTimeWarning() {
-  beep(660, 0.15, "sine", 0.13);
-  setTimeout(() => beep(880, 0.18, "sine", 0.13), 160);
+  beep(660, 0.22, "sine", 0.22);
+  setTimeout(() => beep(880, 0.26, "sine", 0.22), 170);
 }
 
 /** Cheerful ascending chime for a successful submit. */
 export function playSuccessDing() {
-  beep(523.25, 0.15, "sine", 0.12); // C5
-  setTimeout(() => beep(659.25, 0.15, "sine", 0.12), 120); // E5
-  setTimeout(() => beep(783.99, 0.3, "sine", 0.12), 240); // G5
+  beep(523.25, 0.2, "sine", 0.18); // C5
+  setTimeout(() => beep(659.25, 0.2, "sine", 0.18), 130); // E5
+  setTimeout(() => beep(783.99, 0.36, "sine", 0.18), 260); // G5
+}
+
+/** Soft, brief tap heard on ordinary clicks (buttons, links) across the
+ * whole site. Deliberately much quieter/shorter than the other cues so
+ * dozens of clicks per minute never feel noisy. As a side effect, the
+ * very first click anywhere in the app unlocks the AudioContext under a
+ * genuine user gesture, so later timer-triggered cues (like the exam
+ * warnings, which fire from a setInterval with no gesture of their own)
+ * are reliably audible on strict browsers instead of silently no-oping. */
+export function playClickTick() {
+  beep(720, 0.05, "triangle", 0.07);
+}
+
+/** Explicitly warms up / unlocks the AudioContext. Safe to call from any
+ * real user-gesture handler (click, keydown, touchstart). */
+export function unlockAudio() {
+  getCtx();
 }
