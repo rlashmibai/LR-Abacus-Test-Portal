@@ -55,41 +55,40 @@ export default function AboutPage() {
 
         <div className="mt-10 space-y-5 rounded-3xl bg-surface p-8 text-ink-soft shadow-sm ring-1 ring-line md:p-12">
           <p>
-            Hi, I&apos;m <span className="font-semibold text-ink">Lashmi Bai Ravindrapandian</span> -
-            mom to a wonderful 12-year-old boy who spends his evenings racing
-            beads across an abacus. I built this site as a simple practice
-            tool for him, something to keep his speed and accuracy sharp
-            between his classes.
+            I&apos;m <span className="font-semibold text-ink">Lashmi Bai Ravindrapandian</span>,
+            a mom to a wonderful teen who loves racing through beads on his
+            abacus.
           </p>
           <p>
-            Here&apos;s the part that still makes me smile: I am not a
-            technical person. Not even a little bit. I had never built
-            anything like this in my life. And yet, somehow, question by
-            question and page by page, this whole portal came together. I
-            genuinely could not believe what I was able to create for my
-            son - there were so many &ldquo;wow, I actually did that?&rdquo;
-            moments along the way that I lost count.
+            I originally built this site simply to give him a little extra
+            practice between his classes - a place where he could work on
+            speed and accuracy whenever he had a few quiet minutes.
           </p>
           <p>
-            What started as one mother&apos;s attempt to help her own child
-            turned into something I wanted to share more widely. Abacus
-            learning takes patience, repetition, and a lot of quiet practice
-            - and not every family has an easy way to get that practice in.
-            So this site is, and always will be,{" "}
-            <span className="font-semibold text-ink">completely free</span> -
-            my small way of giving back to every abacus kid out there, and
-            every parent cheering them on the way I cheer for mine.
+            I&apos;m not a technical person, and I never imagined I would
+            build something like this myself. But little by little, question
+            by question and page by page, the site came together. Along the
+            way, there were plenty of moments when I stopped and thought,
+            &ldquo;I actually made this!&rdquo;
+          </p>
+          <p>That experience made me want to share it.</p>
+          <p>
+            Abacus learning takes patience, repetition, and regular
+            practice, and I know how much encouragement goes into that from
+            parents and teachers. So I decided to keep this site{" "}
+            <span className="font-semibold text-ink">completely free</span>,
+            in the hope that it can give other children a simple place to
+            practice too.
           </p>
           <p>
-            More than anything, building this has been one of the best
-            learning experiences of my life. If a non-technical mom trying
-            to help her son can end up building something like this, I hope
-            it&apos;s proof that it&apos;s never too late to learn something
-            new - at any age, for any reason.
+            Building it has been one of the most unexpected and rewarding
+            learning experiences of my life. It reminded me that learning
+            something new doesn&apos;t have to be limited by age or
+            background.
           </p>
           <p className="font-display italic text-ink">
-            Thank you for practicing with us. I hope it helps your child the
-            way it helps mine.
+            Thank you for practicing with us. I hope this little site helps
+            your child as much as it has helped mine.
           </p>
         </div>
 

@@ -326,7 +326,7 @@ export default async function Home() {
       </section>
 
       <footer className="border-t border-line bg-surface py-10 text-center text-xs text-ink-faint">
-        <p>{BRAND_NAME} - practice built for speed, accuracy, and confidence.</p>
+        <p className="text-base font-medium text-ink-soft">{BRAND_NAME} - practice built for speed, accuracy, and confidence.</p>
         <Link
           href="/about"
           className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
