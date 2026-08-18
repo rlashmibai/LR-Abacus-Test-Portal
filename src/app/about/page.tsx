@@ -48,7 +48,7 @@ export default function AboutPage() {
             WHY I BUILT THIS
           </span>
           <h1 className="mt-4 text-balance font-display text-3xl font-semibold text-ink md:text-4xl">
-            A &ldquo;Non-Technical&rdquo; Mom, A Loving Son and one very
+            A &ldquo;Non-Developer&rdquo; Mom, A Loving Son and one very
             stubborn Abacus
           </h1>
         </div>
@@ -65,7 +65,7 @@ export default function AboutPage() {
             speed and accuracy whenever he had a few quiet minutes.
           </p>
           <p>
-            I&apos;m not a technical person, and I never imagined I would
+            I&apos;m not a developer, and I never imagined I would
             build something like this myself. But little by little, question
             by question and page by page, the site came together. Along the
             way, there were plenty of moments when I stopped and thought,
