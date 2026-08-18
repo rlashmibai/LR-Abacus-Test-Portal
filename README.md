@@ -1,4 +1,4 @@
-# Abacus Practice Test Portal
+# LR Abacus Test Portal
 
 A free online **Abacus Practice Test** created by **Lashmi Bai Ravindrapandian** as a learning resource for children practicing abacus.
 
