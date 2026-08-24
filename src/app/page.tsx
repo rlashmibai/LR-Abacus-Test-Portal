@@ -163,9 +163,8 @@ export default async function Home() {
             Where fast fingers grow into faster minds
           </h1>
           <p className="mt-5 max-w-lg text-lg text-ink-soft">
-            {BRAND_NAME} - free, timed (or untimed) abacus practice that
-            builds lightning-quick mental math. Built for kids, loved by
-            abacus centers, always free.
+            {BRAND_NAME} - a free, simple practice tool I built for my son
+            to sharpen his abacus speed and accuracy, one test at a time.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             {student ? (
@@ -182,7 +181,7 @@ export default async function Home() {
                   href="/register"
                   className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
                 >
-                  Create Free Account
+                  Free Account - Sign In To Save Your Progress
                   <ArrowRight size={16} />
                 </Link>
                 <GuestCtaButton className="inline-flex items-center gap-2 rounded-xl border border-dashed border-brand/40 bg-brand-soft px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-brand-soft/70 disabled:cursor-not-allowed disabled:opacity-70" />
@@ -285,6 +284,22 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Personal-use disclaimer - keeps the site's voice honest: a mom's
+          project, not a business. */}
+      <section className="bg-brand-soft py-16 text-center">
+        <div className="mx-auto max-w-2xl px-4 md:px-8">
+          <h2 className="font-display text-3xl font-semibold text-ink">
+            Disclaimer
+          </h2>
+          <p className="mt-4 text-sm text-ink-soft">
+            I built this site just for my son&apos;s abacus practice -
+            not as a business. It&apos;s my first application built using
+            Claude Code, and it&apos;s free for anyone to use, always will
+            be, no strings attached.
+          </p>
+        </div>
+      </section>
+
       {/* Final CTA - solid brand band so it reads as the closing statement. */}
       <section className="bg-brand py-16 text-center">
         <div className="mx-auto max-w-4xl px-4 md:px-8">
@@ -310,7 +325,7 @@ export default async function Home() {
                   href="/register"
                   className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-gold-soft"
                 >
-                  Create Free Account
+                  Free Account - Sign In To Save Your Progress
                   <ArrowRight size={16} />
                 </Link>
                 <Link
@@ -325,15 +340,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-line bg-surface py-10 text-center text-xs text-ink-faint">
-        <p className="text-base font-medium text-ink-soft">{BRAND_NAME} - practice built for speed, accuracy, and confidence.</p>
-        <Link
-          href="/about"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-        >
-          About Me
-        </Link>
-      </footer>
     </div>
   );
 }
