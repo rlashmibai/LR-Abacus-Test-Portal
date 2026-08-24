@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { BRAND_NAME } from "@/lib/brand";
 import ClickSound from "@/components/ClickSound";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <ClickSound />
         {children}
+        <ScrollToTopButton />
       </body>
     </html>
   );
