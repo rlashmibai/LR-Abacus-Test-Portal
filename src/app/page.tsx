@@ -291,7 +291,7 @@ export default async function Home() {
           <h2 className="font-display text-3xl font-semibold text-ink">
             Disclaimer
           </h2>
-          <p className="mt-4 text-sm text-ink-soft">
+          <p className="mt-4 text-base text-ink-soft">
             I built this site just for my son&apos;s abacus practice -
             not as a business. It&apos;s my first application built using
             Claude Code, and it&apos;s free for anyone to use, always will
@@ -328,12 +328,7 @@ export default async function Home() {
                   Free Account - Sign In To Save Your Progress
                   <ArrowRight size={16} />
                 </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/40 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  Log In
-                </Link>
+                <GuestCtaButton className="inline-flex items-center gap-2 rounded-xl border border-dashed border-white/40 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70" />
               </>
             )}
           </div>
