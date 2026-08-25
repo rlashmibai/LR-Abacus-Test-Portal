@@ -50,7 +50,7 @@ export default async function AchievementsPage() {
             className={`rounded-2xl p-5 text-center shadow-sm ring-1 ${
               a.earned
                 ? "bg-surface ring-line [animation:badge-pop_0.5s_ease-out]"
-                : "bg-paper ring-line opacity-70"
+                : "bg-surface ring-line opacity-70"
             }`}
           >
             <div
