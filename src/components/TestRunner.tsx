@@ -281,7 +281,7 @@ export default function TestRunner({ testId }: { testId: string }) {
         </div>
       </header>
 
-      <main className="w-full px-2 py-3 md:px-3">
+      <main className="w-full px-2 py-3 pb-24 md:px-3">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-display text-xl font-semibold text-ink">Questions</h2>
