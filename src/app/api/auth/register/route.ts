@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStudent, getStudents, saveStudents, newId } from "@/lib/store";
+import { getStudent, getStudents, saveStudents, nextStudentId } from "@/lib/store";
 import {
   encodeSession,
   hashPassword,
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   }
 
   const student: Student = {
-    id: newId(),
+    id: await nextStudentId(),
     userId,
     name,
     centerName,

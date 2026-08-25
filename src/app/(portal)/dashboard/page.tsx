@@ -88,7 +88,6 @@ export default async function DashboardPage() {
         <dl className="divide-y divide-line">
           <Row label="Student ID" value={student.id} />
           <Row label="Name" value={student.name} />
-          <Row label="Center Name" value={student.centerName} />
           <Row label="Duration" value={`${DURATION_MINUTES} Mins`} />
           <Row label="Questions" value={`${TOTAL_QUESTIONS}`} />
           <Row label="Total Marks" value={`${TOTAL_MARKS}`} />

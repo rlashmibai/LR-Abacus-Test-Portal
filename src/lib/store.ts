@@ -117,6 +117,20 @@ export async function saveResult(result: TestResult): Promise<void> {
   return isDbConfigured() ? dbSaveResult(result) : fileSaveResult(result);
 }
 
+/** The next sequential "STUD_001", "STUD_002", ... id, based on the
+ * highest STUD_### id already assigned to a registered student. Guests
+ * are never persisted (see the guest auth route) so they don't take a
+ * slot in this sequence. */
+export async function nextStudentId(): Promise<string> {
+  const students = await getStudents();
+  let max = 0;
+  for (const s of students) {
+    const m = /^STUD_(\d+)$/.exec(s.id);
+    if (m) max = Math.max(max, parseInt(m[1], 10));
+  }
+  return `STUD_${String(max + 1).padStart(3, "0")}`;
+}
+
 export function newId(prefix = ""): string {
   // Timestamp + random suffix: unique per call even across many tests in
   // quick succession, which matters since each test's question set is

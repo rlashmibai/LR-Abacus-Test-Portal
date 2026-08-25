@@ -88,7 +88,6 @@ export default async function ResultDetailPage({
         <InfoCard icon={<User size={18} />} title="Student Information">
           <Row label="Student Name" value={result.studentName} />
           <Row label="User ID" value={result.userId} />
-          <Row label="Centre" value={result.centerName} />
           <Row label="Student ID" value={result.studentIdNumber} />
         </InfoCard>
 
