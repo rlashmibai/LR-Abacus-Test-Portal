@@ -17,6 +17,7 @@ import { pickQuote } from "@/lib/quotes";
 import { BRAND_NAME, BRAND_SHORT } from "@/lib/brand";
 import AbacusIllustration from "@/components/AbacusIllustration";
 import GuestCtaButton from "@/components/GuestCtaButton";
+import AccountMenu from "@/components/AccountMenu";
 
 const FEATURES = [
   {
@@ -126,12 +127,19 @@ export default async function Home() {
               About Me
             </Link>
             {student ? (
-              <Link
-                href="/dashboard"
-                className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark sm:px-5 sm:py-3 sm:text-base"
-              >
-                Go to Dashboard
-              </Link>
+              <>
+                <Link
+                  href="/dashboard"
+                  className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark sm:px-5 sm:py-3 sm:text-base"
+                >
+                  Go to Dashboard
+                </Link>
+                <AccountMenu
+                  studentName={student.name}
+                  userId={student.userId}
+                  isGuest={Boolean(student.isGuest)}
+                />
+              </>
             ) : (
               <>
                 <Link
@@ -181,7 +189,7 @@ export default async function Home() {
                   href="/register"
                   className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
                 >
-                  Free Account - Sign In To Save Your Progress
+                  Create Free Account - Sign In To Save Your Progress
                   <ArrowRight size={16} />
                 </Link>
                 <GuestCtaButton className="inline-flex items-center gap-2 rounded-xl border border-dashed border-brand/40 bg-brand-soft px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-brand-soft/70 disabled:cursor-not-allowed disabled:opacity-70" />
@@ -325,7 +333,7 @@ export default async function Home() {
                   href="/register"
                   className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-gold-soft"
                 >
-                  Free Account - Sign In To Save Your Progress
+                  Create Free Account - Sign In To Save Your Progress
                   <ArrowRight size={16} />
                 </Link>
                 <GuestCtaButton className="inline-flex items-center gap-2 rounded-xl border border-dashed border-white/40 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70" />

@@ -1,0 +1,125 @@
+"use client";
+
+import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ChevronDown, KeyRound, LogOut, UserRound } from "lucide-react";
+
+function initials(name: string) {
+  return name.slice(0, 1).toUpperCase();
+}
+
+/** The avatar/name button + dropdown (Edit Profile, Change Password,
+ * Sign Out) shared by every page that shows a logged-in student -
+ * both inside the portal (via TopBar) and on public pages like the
+ * homepage and About Me, so signing out (and editing your profile) is
+ * always reachable no matter where you are on the site. */
+export default function AccountMenu({
+  studentName,
+  userId,
+  isGuest,
+}: {
+  studentName: string;
+  userId: string;
+  isGuest: boolean;
+}) {
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+  const [signingOut, setSigningOut] = useState(false);
+  const accountBtnRef = useRef<HTMLButtonElement>(null);
+
+  function toggleMenu() {
+    if (!menuOpen && accountBtnRef.current) {
+      const rect = accountBtnRef.current.getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+    setMenuOpen((v) => !v);
+  }
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/");
+    router.refresh();
+  }
+
+  return (
+    <>
+      <button
+        ref={accountBtnRef}
+        onClick={toggleMenu}
+        className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-paper"
+      >
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white">
+          {initials(studentName)}
+        </div>
+        <span className="hidden text-sm font-semibold text-ink sm:inline">
+          {studentName}
+        </span>
+        <ChevronDown size={14} className="hidden text-ink-faint sm:inline" />
+      </button>
+
+      {/* Portalled to <body> so a parent header's own stacking context
+          (e.g. backdrop-blur) can never cap the dropdown below other
+          page content. */}
+      {menuOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <>
+            <div className="fixed inset-0 z-[100]" onClick={() => setMenuOpen(false)} />
+            <div
+              style={{ top: menuPos.top, right: menuPos.right }}
+              className="fixed z-[101] w-56 rounded-xl bg-surface p-1.5 shadow-lg ring-1 ring-line"
+            >
+              <div className="px-3 py-2">
+                <p className="text-sm font-semibold text-ink">{studentName}</p>
+                <p className="text-xs text-ink-soft">
+                  {isGuest ? "Guest session" : userId}
+                </p>
+              </div>
+              <div className="my-1 h-px bg-line" />
+              <Link
+                href="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-soft hover:bg-paper"
+              >
+                <UserRound size={15} />
+                Dashboard
+              </Link>
+              {!isGuest && (
+                <>
+                  <Link
+                    href="/profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-soft hover:bg-paper"
+                  >
+                    <UserRound size={15} />
+                    Edit Profile
+                  </Link>
+                  <Link
+                    href="/change-password"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-soft hover:bg-paper"
+                  >
+                    <KeyRound size={15} />
+                    Change Password
+                  </Link>
+                </>
+              )}
+              <button
+                onClick={handleSignOut}
+                disabled={signingOut}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-bad hover:bg-bad-soft disabled:opacity-60"
+              >
+                <LogOut size={15} />
+                {signingOut ? "Signing out..." : "Sign Out"}
+              </button>
+            </div>
+          </>,
+          document.body
+        )}
+    </>
+  );
+}

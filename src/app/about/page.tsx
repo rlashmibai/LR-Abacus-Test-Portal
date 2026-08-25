@@ -4,12 +4,16 @@ import Link from "next/link";
 import { GraduationCap, Heart, ExternalLink, ArrowLeft } from "lucide-react";
 import { BRAND_SHORT, BRAND_NAME } from "@/lib/brand";
 import AbacusIllustration from "@/components/AbacusIllustration";
+import AccountMenu from "@/components/AccountMenu";
+import { getSessionStudent } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: `About Me | ${BRAND_NAME}`,
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const student = await getSessionStudent();
+
   return (
     <div className="min-h-screen bg-paper">
       <header className="sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur">
@@ -22,13 +26,22 @@ export default function AboutPage() {
               {BRAND_SHORT}
             </span>
           </Link>
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand"
-          >
-            <ArrowLeft size={15} />
-            Back home
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-brand"
+            >
+              <ArrowLeft size={15} />
+              Back home
+            </Link>
+            {student && (
+              <AccountMenu
+                studentName={student.name}
+                userId={student.userId}
+                isGuest={Boolean(student.isGuest)}
+              />
+            )}
+          </div>
         </div>
       </header>
 
