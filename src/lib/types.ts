@@ -14,6 +14,11 @@ export interface AbacusQuestion {
   qNo: number;
   values: number[]; // operands, e.g. [58, 27, 16] for add/sub, [45, 3] for x or /
   signs: number[]; // 1 | -1 per value; only meaningful for addition_subtraction
+  // Which kind of question this row actually is. Only set (and needed) for
+  // a "mixed" test, where different questions in the same test can be
+  // add/sub or multiplication; everything else infers its rendering from
+  // the test-level `operation` instead.
+  opKind?: "addition_subtraction" | "multiplication";
 }
 
 export interface AbacusQuestionWithAnswer extends AbacusQuestion {

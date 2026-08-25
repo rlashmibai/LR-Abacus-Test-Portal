@@ -2,7 +2,7 @@
 // before a test is generated. Used by both the selection page (client)
 // and the question generator (server), so the two never drift apart.
 
-export type OperationType = "addition_subtraction" | "multiplication" | "division";
+export type OperationType = "addition_subtraction" | "multiplication" | "division" | "mixed";
 
 export interface VariantOption {
   value: string;
@@ -45,6 +45,15 @@ export const OPERATIONS: OperationDef[] = [
     icon: "➗",
     description: "A multi-digit number divided evenly by a single digit.",
     variants: [{ value: "2x1", label: "2 x 1", example: "84 / 4" }],
+  },
+  {
+    value: "mixed",
+    label: "Mixed",
+    icon: "🔀",
+    description: "A blend of running-total add/subtract rows and multiplication, in one test.",
+    variants: [
+      { value: "2-digit", label: "2-Digit", example: "45 + 27 - 13, then 34 x 5" },
+    ],
   },
 ];
 

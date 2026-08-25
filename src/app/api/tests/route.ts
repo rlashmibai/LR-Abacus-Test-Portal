@@ -19,10 +19,11 @@ import type { TestSession, PublicTestSession } from "@/lib/types";
 function toPublic(session: TestSession): PublicTestSession {
   return {
     ...session,
-    questions: session.questions.map(({ qNo, values, signs }) => ({
+    questions: session.questions.map(({ qNo, values, signs, opKind }) => ({
       qNo,
       values,
       signs,
+      opKind,
     })),
   };
 }

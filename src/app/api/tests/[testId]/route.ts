@@ -20,10 +20,11 @@ export async function GET(
 
   const publicSession: PublicTestSession = {
     ...session,
-    questions: session.questions.map(({ qNo, values, signs }) => ({
+    questions: session.questions.map(({ qNo, values, signs, opKind }) => ({
       qNo,
       values,
       signs,
+      opKind,
     })),
   };
 

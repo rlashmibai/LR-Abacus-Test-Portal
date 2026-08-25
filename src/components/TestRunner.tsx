@@ -281,7 +281,7 @@ export default function TestRunner({ testId }: { testId: string }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl p-4 md:p-8">
+      <main className="w-full px-2 py-3 md:px-3">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-display text-xl font-semibold text-ink">Questions</h2>
@@ -316,21 +316,21 @@ export default function TestRunner({ testId }: { testId: string }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 xl:grid-cols-10">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 md:grid-cols-10">
           {session.questions.map((q) => {
             const isAnswered = parseAnswer(answers[q.qNo]) !== null;
             return (
               <div
                 key={q.qNo}
-                className="flex flex-col rounded-xl bg-surface p-3 shadow-sm ring-1 ring-line"
+                className="flex flex-col rounded-xl bg-white p-2 shadow-sm ring-1 ring-line"
               >
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-faint">
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
                   Q.No {q.qNo}
                 </p>
-                <div className="mb-2 space-y-1 text-right font-mono text-sm text-ink-soft">
+                <div className="mb-2 space-y-1 text-right font-mono text-base font-semibold text-ink">
                   {q.values.map((v, i) => (
-                    <div key={i} className="rounded-md bg-paper px-2 py-1">
-                      {formatRow(session.operation, v, i, q.signs[i])}
+                    <div key={i} className="rounded-md bg-white px-2 py-1">
+                      {formatRow(q.opKind ?? session.operation, v, i, q.signs[i])}
                     </div>
                   ))}
                 </div>
@@ -347,7 +347,7 @@ export default function TestRunner({ testId }: { testId: string }) {
                   inputMode="numeric"
                   placeholder="Ans"
                   aria-label={`Answer for question ${q.qNo}`}
-                  className={`mt-auto rounded-lg border px-2 py-1.5 text-center text-sm font-bold outline-none transition ${
+                  className={`mt-auto rounded-lg border px-2 py-1.5 text-center text-base font-bold outline-none transition ${
                     isAnswered
                       ? "border-good bg-good-soft text-good"
                       : "border-line text-ink placeholder:font-normal placeholder:text-ink-faint focus:border-brand focus:ring-2 focus:ring-brand-soft"
