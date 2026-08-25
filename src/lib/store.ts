@@ -11,6 +11,7 @@ import {
   dbGetResults,
   dbGetResult,
   dbSaveResult,
+  dbNextCounter,
 } from "./db";
 
 // Local JSON files are used when no database is configured (e.g. local
@@ -22,6 +23,7 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const SESSIONS_DIR = path.join(DATA_DIR, "sessions");
 const STUDENTS_FILE = path.join(DATA_DIR, "students.json");
 const RESULTS_FILE = path.join(DATA_DIR, "results.json");
+const COUNTERS_FILE = path.join(DATA_DIR, "counters.json");
 
 async function ensureDirs() {
   await fs.mkdir(SESSIONS_DIR, { recursive: true });
@@ -85,6 +87,15 @@ async function fileSaveResult(result: TestResult): Promise<void> {
   await writeJson(RESULTS_FILE, results);
 }
 
+async function fileNextCounter(name: string): Promise<number> {
+  await ensureDirs();
+  const counters = await readJson<Record<string, number>>(COUNTERS_FILE, {});
+  const next = (counters[name] ?? 0) + 1;
+  counters[name] = next;
+  await writeJson(COUNTERS_FILE, counters);
+  return next;
+}
+
 export async function getStudents(): Promise<Student[]> {
   return isDbConfigured() ? dbGetStudents() : fileGetStudents();
 }
@@ -117,18 +128,29 @@ export async function saveResult(result: TestResult): Promise<void> {
   return isDbConfigured() ? dbSaveResult(result) : fileSaveResult(result);
 }
 
-/** The next sequential "STUD_001", "STUD_002", ... id, based on the
- * highest STUD_### id already assigned to a registered student. Guests
- * are never persisted (see the guest auth route) so they don't take a
- * slot in this sequence. */
+/** Atomically bump a named counter and return its new value - backs
+ * both the STUD_### and GUEST_### sequences below, so two people
+ * registering or starting a guest session at the same moment never
+ * collide on the same number. */
+export async function nextCounterValue(name: string): Promise<number> {
+  return isDbConfigured() ? dbNextCounter(name) : fileNextCounter(name);
+}
+
+/** The next sequential "STUD_001", "STUD_002", ... id for a newly
+ * registered student. */
 export async function nextStudentId(): Promise<string> {
-  const students = await getStudents();
-  let max = 0;
-  for (const s of students) {
-    const m = /^STUD_(\d+)$/.exec(s.id);
-    if (m) max = Math.max(max, parseInt(m[1], 10));
-  }
-  return `STUD_${String(max + 1).padStart(3, "0")}`;
+  const n = await nextCounterValue("student");
+  return `STUD_${String(n).padStart(3, "0")}`;
+}
+
+/** The next sequential "GUEST_001", "GUEST_002", ... id for a guest
+ * session. Guests are still never persisted to the students table (see
+ * the guest auth route) - this counter exists purely so the numbering
+ * itself doubles as a rough count of how many times "try as guest" has
+ * been used. */
+export async function nextGuestId(): Promise<string> {
+  const n = await nextCounterValue("guest");
+  return `GUEST_${String(n).padStart(3, "0")}`;
 }
 
 export function newId(prefix = ""): string {

@@ -71,6 +71,12 @@ function ensureSchema(): Promise<void> {
           submitted_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS counters (
+          name TEXT PRIMARY KEY,
+          value INTEGER NOT NULL DEFAULT 0
+        )
+      `;
 
       await sql`
         INSERT INTO students (id, user_id, name, center_name, level, password_hash)
@@ -173,6 +179,20 @@ export async function dbGetResult(id: string): Promise<TestResult | undefined> {
     data: TestResult;
   }[];
   return rows[0]?.data;
+}
+
+/** Atomically bump a named counter and return its new value - used to
+ * hand out sequential STUD_### and GUEST_### numbers without a race
+ * between two people signing up/starting a guest session at once. */
+export async function dbNextCounter(name: string): Promise<number> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`
+    INSERT INTO counters (name, value) VALUES (${name}, 1)
+    ON CONFLICT (name) DO UPDATE SET value = counters.value + 1
+    RETURNING value
+  `) as unknown as { value: number }[];
+  return rows[0].value;
 }
 
 export async function dbSaveResult(result: TestResult): Promise<void> {
