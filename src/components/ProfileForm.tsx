@@ -8,16 +8,13 @@ export default function ProfileForm({
   userId,
   studentId,
   initialName,
-  initialCenterName,
 }: {
   userId: string;
   studentId: string;
   initialName: string;
-  initialCenterName: string;
 }) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
-  const [centerName, setCenterName] = useState(initialCenterName);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -31,7 +28,7 @@ export default function ProfileForm({
       const res = await fetch("/api/auth/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, centerName }),
+        body: JSON.stringify({ name }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -80,15 +77,6 @@ export default function ProfileForm({
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
-          />
-        </Field>
-
-        <Field label="Center Name">
-          <input
-            value={centerName}
-            onChange={(e) => setCenterName(e.target.value)}
-            placeholder="Optional"
             className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
           />
         </Field>

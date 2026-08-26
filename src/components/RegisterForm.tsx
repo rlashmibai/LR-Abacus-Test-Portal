@@ -11,7 +11,6 @@ export default function RegisterForm({ quote }: { quote: string }) {
   const [form, setForm] = useState({
     userId: "",
     name: "",
-    centerName: "",
     password: "",
     confirm: "",
   });
@@ -76,15 +75,6 @@ export default function RegisterForm({ quote }: { quote: string }) {
             value={form.name}
             onChange={(e) => update("name", e.target.value)}
             placeholder="Your name"
-            className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
-          />
-        </Field>
-
-        <Field label="Center Name">
-          <input
-            value={form.centerName}
-            onChange={(e) => update("centerName", e.target.value)}
-            placeholder="Optional"
             className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
           />
         </Field>

@@ -23,7 +23,6 @@ export default async function ProfilePage() {
       userId={student.userId}
       studentId={student.id}
       initialName={student.name}
-      initialCenterName={student.centerName}
     />
   );
 }
