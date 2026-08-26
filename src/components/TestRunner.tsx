@@ -6,6 +6,7 @@ import { Menu, Home, AlertTriangle, CheckCircle2, XCircle, BookOpen } from "luci
 import type { AnswerMap, PublicTestSession } from "@/lib/types";
 import { pickQuote } from "@/lib/quotes";
 import { playTimeWarning, playSuccessDing } from "@/lib/sound";
+import { formatRow } from "@/lib/formatRow";
 
 const STORAGE_PREFIX = "abacus-test-";
 
@@ -56,14 +57,6 @@ function parseAnswer(raw: string | undefined): number | null {
   const trimmed = raw.trim();
   if (!/^-?\d+$/.test(trimmed)) return null;
   return parseInt(trimmed, 10);
-}
-
-/** How to render one operand row, depending on the test's operation. */
-function formatRow(operation: string, value: number, index: number, sign: number): string {
-  if (index === 0) return String(value);
-  if (operation === "multiplication") return `x ${value}`;
-  if (operation === "division") return `/ ${value}`;
-  return sign < 0 ? `- ${value}` : String(value);
 }
 
 export default function TestRunner({ testId }: { testId: string }) {
@@ -281,7 +274,7 @@ export default function TestRunner({ testId }: { testId: string }) {
         </div>
       </header>
 
-      <main className="w-full p-4 pb-24 sm:p-6 sm:pb-28">
+      <main className="w-full p-4 pb-20 sm:p-6 sm:pb-24">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-display text-xl font-semibold text-ink">Questions</h2>
@@ -356,6 +349,26 @@ export default function TestRunner({ testId }: { testId: string }) {
               </div>
             );
           })}
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
+          <p className="text-sm text-ink-soft">
+            {answeredCount} of {totalQuestions} answered
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setShowCancelConfirm(true)}
+              className="rounded-xl border border-line bg-surface px-5 py-2.5 text-sm font-bold text-ink-soft hover:bg-paper"
+            >
+              Cancel Test
+            </button>
+            <button
+              onClick={() => setShowConfirm(true)}
+              className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-dark"
+            >
+              Submit
+            </button>
+          </div>
         </div>
       </main>
 
