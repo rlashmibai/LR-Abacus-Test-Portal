@@ -38,7 +38,7 @@ export default async function ResultDetailPage({
       : "var(--bad)";
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="w-full space-y-6">
       <section className="relative overflow-hidden rounded-3xl bg-brand-soft p-8">
         <AbacusIllustration className="pointer-events-none absolute -bottom-6 -left-6 hidden h-32 w-32 opacity-40 lg:block" />
         <div className="relative flex flex-wrap items-center justify-between gap-6">

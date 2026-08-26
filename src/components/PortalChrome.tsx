@@ -34,7 +34,7 @@ export default function PortalChrome({
           isGuest={isGuest}
           onMenuClick={() => setSidebarOpen((v) => !v)}
         />
-        <main className="flex-1 p-4 md:p-8">{children}</main>
+        <main className="flex-1 p-4 pb-20 md:p-8 md:pb-24">{children}</main>
       </div>
     </div>
   );
