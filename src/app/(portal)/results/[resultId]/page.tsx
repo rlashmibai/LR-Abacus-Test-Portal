@@ -111,31 +111,31 @@ export default async function ResultDetailPage({
             <span className="flex items-center gap-1 text-ink-faint">— Skipped</span>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {result.breakdown.map((b) => {
             const skipped = b.givenAnswer === null;
             return (
               <div
                 key={b.qNo}
-                className={`flex flex-col rounded-xl border p-2.5 text-xs ${
+                className={`flex flex-col rounded-xl border p-4 text-sm ${
                   b.isCorrect || skipped
                     ? "border-line bg-white"
                     : "border-bad bg-bad-soft"
                 }`}
               >
-                <p className="mb-1.5 font-bold text-brand">Q.{b.qNo}</p>
-                <div className="mb-2 space-y-0.5 text-right font-mono font-semibold text-ink">
+                <p className="mb-2 font-bold text-brand">Q.{b.qNo}</p>
+                <div className="mb-3 space-y-1 text-right font-mono font-semibold text-ink">
                   {b.values.map((v, i) => (
                     <div key={i}>{formatRow(b.opKind ?? result.operation, v, i, b.signs[i])}</div>
                   ))}
                 </div>
-                <div className="mt-auto space-y-1">
+                <div className="mt-auto space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <span className={skipped ? "text-ink-faint" : b.isCorrect ? "text-ink-soft" : "text-bad"}>
                       {!skipped && !b.isCorrect ? "✗ You" : "You"}
                     </span>
                     <span
-                      className={`rounded-md px-1.5 py-0.5 font-bold ${
+                      className={`rounded-md px-2 py-1 font-bold ${
                         skipped
                           ? "bg-paper text-ink-faint"
                           : b.isCorrect
@@ -150,7 +150,7 @@ export default async function ResultDetailPage({
                     <span className={skipped ? "text-ink-faint" : b.isCorrect ? "text-good" : "text-ink-soft"}>
                       {skipped ? "— Skipped" : b.isCorrect ? "✓ Correct" : "Correct"}
                     </span>
-                    <span className="rounded-md bg-good-soft px-1.5 py-0.5 font-bold text-good">
+                    <span className="rounded-md bg-good-soft px-2 py-1 font-bold text-good">
                       {b.correctAnswer}
                     </span>
                   </div>
