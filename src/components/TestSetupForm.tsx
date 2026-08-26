@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Timer, BookOpen } from "lucide-react";
-import { OPERATIONS, getOperation, QUESTION_COUNTS, durationForQuestionCount } from "@/lib/testTypes";
+import {
+  OPERATIONS,
+  getOperation,
+  QUESTION_COUNTS,
+  ROW_COUNTS,
+  DEFAULT_ROW_COUNT,
+  durationForQuestionCount,
+} from "@/lib/testTypes";
 import type { TestMode } from "@/lib/testTypes";
 
 const MODES: { value: TestMode; label: string; text: string; icon: typeof Timer }[] = [
@@ -25,10 +32,14 @@ export default function TestSetupForm() {
   const router = useRouter();
   const [operation, setOperation] = useState(OPERATIONS[0].value);
   const [variant, setVariant] = useState(OPERATIONS[0].variants[0].value);
+  const [rows, setRows] = useState<number>(DEFAULT_ROW_COUNT);
   const [questionCount, setQuestionCount] = useState<number>(100);
   const [mode, setMode] = useState<TestMode>("exam");
 
   const activeOperation = getOperation(operation);
+  const showRows = operation === "addition_subtraction";
+  const questionsStep = showRows ? 4 : 3;
+  const modeStep = showRows ? 5 : 4;
 
   function selectOperation(op: string) {
     setOperation(op as typeof operation);
@@ -42,6 +53,7 @@ export default function TestSetupForm() {
       variant,
       questionCount: String(questionCount),
       mode,
+      ...(showRows ? { rows: String(rows) } : {}),
     });
     router.push(`/instructions?${params.toString()}`);
   }
@@ -113,9 +125,36 @@ export default function TestSetupForm() {
         )}
       </section>
 
+      {showRows && (
+        <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
+          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-ink-faint">
+            3. Rows per Question
+          </h3>
+          <div className="grid grid-cols-3 gap-3">
+            {ROW_COUNTS.map((count) => {
+              const active = count === rows;
+              return (
+                <button
+                  key={count}
+                  onClick={() => setRows(count)}
+                  className={`rounded-2xl border-2 p-4 text-center transition ${
+                    active
+                      ? "border-brand bg-brand-soft"
+                      : "border-line hover:border-brand/40 hover:bg-paper"
+                  }`}
+                >
+                  <p className="text-lg font-bold text-ink">{count}</p>
+                  <p className="mt-1 text-xs text-ink-soft">rows</p>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
         <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-ink-faint">
-          3. Number of Questions
+          {questionsStep}. Number of Questions
         </h3>
         <div className="grid grid-cols-3 gap-3">
           {QUESTION_COUNTS.map((count) => {
@@ -140,7 +179,7 @@ export default function TestSetupForm() {
 
       <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
         <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-ink-faint">
-          4. Practice or Exam
+          {modeStep}. Practice or Exam
         </h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {MODES.map(({ value, label, text, icon: Icon }) => {

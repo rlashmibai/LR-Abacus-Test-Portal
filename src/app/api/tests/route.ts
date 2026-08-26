@@ -7,10 +7,12 @@ import {
   DEFAULT_VARIANT,
   DEFAULT_MODE,
   DEFAULT_QUESTION_COUNT,
+  DEFAULT_ROW_COUNT,
   isValidOperation,
   isValidVariant,
   isValidMode,
   isValidQuestionCount,
+  isValidRowCount,
   operationLabel,
   durationForQuestionCount,
 } from "@/lib/testTypes";
@@ -41,6 +43,7 @@ export async function POST(req: NextRequest) {
   const totalQuestions = isValidQuestionCount(Number(body.questionCount))
     ? Number(body.questionCount)
     : DEFAULT_QUESTION_COUNT;
+  const rows = isValidRowCount(Number(body.rows)) ? Number(body.rows) : DEFAULT_ROW_COUNT;
 
   // A fresh id (timestamp + random) per call means every test - even two
   // started back to back by the same student - gets its own question set.
@@ -50,6 +53,7 @@ export async function POST(req: NextRequest) {
     operation,
     variant,
     totalQuestions,
+    rows,
   });
 
   const session: TestSession = {

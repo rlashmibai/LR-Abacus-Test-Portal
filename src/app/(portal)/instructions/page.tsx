@@ -5,10 +5,12 @@ import {
   isValidVariant,
   isValidMode,
   isValidQuestionCount,
+  isValidRowCount,
   DEFAULT_OPERATION,
   DEFAULT_VARIANT,
   DEFAULT_MODE,
   DEFAULT_QUESTION_COUNT,
+  DEFAULT_ROW_COUNT,
   operationLabel,
   durationForQuestionCount,
 } from "@/lib/testTypes";
@@ -23,6 +25,7 @@ export default async function InstructionsPage({
     variant?: string;
     mode?: string;
     questionCount?: string;
+    rows?: string;
   }>;
 }) {
   await requireSessionOrRedirect();
@@ -33,6 +36,7 @@ export default async function InstructionsPage({
   const questionCount = isValidQuestionCount(Number(params.questionCount))
     ? Number(params.questionCount)
     : DEFAULT_QUESTION_COUNT;
+  const rows = isValidRowCount(Number(params.rows)) ? Number(params.rows) : DEFAULT_ROW_COUNT;
   const typeLabel = operationLabel(operation, variant);
   const isExam = mode === "exam";
   const durationMinutes = durationForQuestionCount(questionCount);
@@ -109,7 +113,13 @@ export default async function InstructionsPage({
       </p>
 
       <div className="flex justify-center pb-4">
-        <ProceedButton operation={operation} variant={variant} mode={mode} questionCount={questionCount} />
+        <ProceedButton
+          operation={operation}
+          variant={variant}
+          mode={mode}
+          questionCount={questionCount}
+          rows={operation === "addition_subtraction" ? rows : undefined}
+        />
       </div>
     </div>
   );

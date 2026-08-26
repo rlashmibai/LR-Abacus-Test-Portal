@@ -44,7 +44,10 @@ export const OPERATIONS: OperationDef[] = [
     label: "Division",
     icon: "➗",
     description: "A multi-digit number divided evenly by a single digit.",
-    variants: [{ value: "2x1", label: "2 x 1", example: "84 / 4" }],
+    variants: [
+      { value: "2x1", label: "2 x 1", example: "84 / 4" },
+      { value: "3x1", label: "3 x 1", example: "846 / 6" },
+    ],
   },
   {
     value: "mixed",
@@ -53,6 +56,7 @@ export const OPERATIONS: OperationDef[] = [
     description: "A blend of running-total add/subtract rows and multiplication, in one test.",
     variants: [
       { value: "2-digit", label: "2-Digit", example: "45 + 27 - 13, then 34 x 5" },
+      { value: "3-digit", label: "3-Digit", example: "245 + 127 - 63, then 234 x 5" },
     ],
   },
 ];
@@ -73,6 +77,17 @@ export const DEFAULT_QUESTION_COUNT: QuestionCount = 100;
 
 export function isValidQuestionCount(n: number | undefined): n is QuestionCount {
   return QUESTION_COUNTS.includes(n as QuestionCount);
+}
+
+// How many operands make up each running-total row - only meaningful for
+// the standalone "Addition & Subtraction" operation (Mixed picks its own
+// varying 2-4 rows per question automatically).
+export const ROW_COUNTS = [2, 3, 4] as const;
+export type RowCount = (typeof ROW_COUNTS)[number];
+export const DEFAULT_ROW_COUNT: RowCount = 3;
+
+export function isValidRowCount(n: number | undefined): n is RowCount {
+  return ROW_COUNTS.includes(n as RowCount);
 }
 
 /** Exam mode duration - roughly 6 seconds per question, same pace as the

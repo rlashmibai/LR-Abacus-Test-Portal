@@ -26,6 +26,9 @@ interface GenerateParams {
   operation: OperationType;
   variant: string;
   totalQuestions: number;
+  // Rows per addition_subtraction question (2, 3, or 4). Ignored by every
+  // other operation - Mixed picks its own varying row count internally.
+  rows?: number;
 }
 
 function digitRange(digits: 2 | 3): [number, number] {
@@ -68,6 +71,19 @@ function generateMultiplicationRow(rand: () => number, digits: 2 | 3): Row {
   return { values: [a, b], signs: [1, 1], answer: a * b };
 }
 
+/** A dividend (2 or 3 digits) that divides evenly by a single-digit
+ * divisor (2-9), so the answer is always a whole number. */
+function generateDivisionRow(rand: () => number, digits: 2 | 3): Row {
+  const [min, max] = digitRange(digits);
+  const divisor = 2 + Math.floor(rand() * 8); // 2-9
+  const minQuotient = Math.max(2, Math.ceil(min / divisor));
+  const maxQuotient = Math.floor(max / divisor);
+  const quotient =
+    minQuotient + Math.floor(rand() * (maxQuotient - minQuotient + 1));
+  const dividend = divisor * quotient;
+  return { values: [dividend, divisor], signs: [1, 1], answer: quotient };
+}
+
 // For a "mixed" test: roughly the first 60% of questions are add/subtract
 // running totals (a varying 2-4 rows each, for a more realistic paper feel
 // instead of always the same shape), and the rest are multiplication.
@@ -78,6 +94,7 @@ export function generateQuestions({
   operation,
   variant,
   totalQuestions,
+  rows: rowsInput,
 }: GenerateParams): AbacusQuestionWithAnswer[] {
   const rand = mulberry32(hashSeed(testId));
   const questions: AbacusQuestionWithAnswer[] = [];
@@ -87,32 +104,24 @@ export function generateQuestions({
       const row = generateMultiplicationRow(rand, variant === "3x1" ? 3 : 2);
       questions.push({ qNo, ...row });
     } else if (operation === "division") {
-      // "2x1": a 2-digit dividend split evenly by a single-digit divisor.
-      const divisor = 2 + Math.floor(rand() * 8); // 2-9
-      const minQuotient = Math.max(2, Math.ceil(10 / divisor));
-      const maxQuotient = Math.floor(99 / divisor);
-      const quotient =
-        minQuotient + Math.floor(rand() * (maxQuotient - minQuotient + 1));
-      const dividend = divisor * quotient;
-      questions.push({
-        qNo,
-        values: [dividend, divisor],
-        signs: [1, 1],
-        answer: quotient,
-      });
+      const row = generateDivisionRow(rand, variant === "3x1" ? 3 : 2);
+      questions.push({ qNo, ...row });
     } else if (operation === "mixed") {
+      const digits = variant === "3-digit" ? 3 : 2;
       const isAddSub = qNo <= Math.round(totalQuestions * MIXED_ADD_SUB_SHARE);
       if (isAddSub) {
         const rows = 2 + Math.floor(rand() * 3); // 2, 3, or 4 rows
-        const row = generateAddSubRow(rand, 2, rows);
+        const row = generateAddSubRow(rand, digits, rows);
         questions.push({ qNo, ...row, opKind: "addition_subtraction" });
       } else {
-        const row = generateMultiplicationRow(rand, 2);
+        const row = generateMultiplicationRow(rand, digits);
         questions.push({ qNo, ...row, opKind: "multiplication" });
       }
     } else {
-      // addition_subtraction: a running total across 3 rows.
-      const row = generateAddSubRow(rand, variant === "3-digit" ? 3 : 2, 3);
+      // addition_subtraction: a running total across the chosen row count
+      // (2, 3, or 4 operands), defaulting to 3 if not specified.
+      const rows = rowsInput === 2 || rowsInput === 4 ? rowsInput : 3;
+      const row = generateAddSubRow(rand, variant === "3-digit" ? 3 : 2, rows);
       questions.push({ qNo, ...row });
     }
   }

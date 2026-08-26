@@ -9,11 +9,13 @@ export default function ProceedButton({
   variant,
   mode,
   questionCount,
+  rows,
 }: {
   operation: string;
   variant: string;
   mode: string;
   questionCount: number;
+  rows?: number;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ export default function ProceedButton({
       const res = await fetch("/api/tests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ operation, variant, mode, questionCount }),
+        body: JSON.stringify({ operation, variant, mode, questionCount, rows }),
       });
       if (!res.ok) throw new Error("Could not start the test");
       const session = await res.json();
