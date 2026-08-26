@@ -73,6 +73,7 @@ export interface QuestionBreakdown {
   qNo: number;
   values: number[];
   signs: number[];
+  opKind?: "addition_subtraction" | "multiplication";
   correctAnswer: number;
   givenAnswer: number | null;
   isCorrect: boolean;

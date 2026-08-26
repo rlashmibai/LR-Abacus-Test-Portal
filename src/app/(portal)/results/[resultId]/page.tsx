@@ -4,6 +4,7 @@ import { User, FileText } from "lucide-react";
 import { getResult } from "@/lib/store";
 import { requireSessionOrRedirect } from "@/lib/auth";
 import AbacusIllustration from "@/components/AbacusIllustration";
+import { formatRow } from "@/lib/formatRow";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -102,23 +103,58 @@ export default async function ResultDetailPage({
       </section>
 
       <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
-        <h3 className="mb-4 font-display text-lg font-semibold text-ink">Answer Review</h3>
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-display text-lg font-semibold text-ink">Questions &amp; Answers</h3>
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
+            <span className="flex items-center gap-1 text-good">✓ Correct</span>
+            <span className="flex items-center gap-1 text-bad">✗ Wrong</span>
+            <span className="flex items-center gap-1 text-ink-faint">— Skipped</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8">
           {result.breakdown.map((b) => {
-            const tone = b.isCorrect
-              ? "border-good/30 bg-good-soft text-good"
-              : b.givenAnswer === null
-              ? "border-line bg-paper text-ink-soft"
-              : "border-bad/30 bg-bad-soft text-bad";
+            const skipped = b.givenAnswer === null;
             return (
-              <div key={b.qNo} className={`rounded-xl border p-2.5 text-center text-xs ${tone}`}>
-                <p className="font-semibold">Q{b.qNo}</p>
-                <p className="mt-1 font-bold">
-                  {b.givenAnswer === null ? "-" : b.givenAnswer}
-                </p>
-                {!b.isCorrect && (
-                  <p className="mt-0.5 text-[10px] opacity-70">✗ {b.correctAnswer}</p>
-                )}
+              <div
+                key={b.qNo}
+                className={`flex flex-col rounded-xl border p-2.5 text-xs ${
+                  b.isCorrect || skipped
+                    ? "border-line bg-white"
+                    : "border-bad bg-bad-soft"
+                }`}
+              >
+                <p className="mb-1.5 font-bold text-brand">Q.{b.qNo}</p>
+                <div className="mb-2 space-y-0.5 text-right font-mono font-semibold text-ink">
+                  {b.values.map((v, i) => (
+                    <div key={i}>{formatRow(b.opKind ?? result.operation, v, i, b.signs[i])}</div>
+                  ))}
+                </div>
+                <div className="mt-auto space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={skipped ? "text-ink-faint" : b.isCorrect ? "text-ink-soft" : "text-bad"}>
+                      {!skipped && !b.isCorrect ? "✗ You" : "You"}
+                    </span>
+                    <span
+                      className={`rounded-md px-1.5 py-0.5 font-bold ${
+                        skipped
+                          ? "bg-paper text-ink-faint"
+                          : b.isCorrect
+                          ? "bg-good-soft text-good"
+                          : "bg-bad text-white"
+                      }`}
+                    >
+                      {skipped ? "-" : b.givenAnswer}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={skipped ? "text-ink-faint" : b.isCorrect ? "text-good" : "text-ink-soft"}>
+                      {skipped ? "— Skipped" : b.isCorrect ? "✓ Correct" : "Correct"}
+                    </span>
+                    <span className="rounded-md bg-good-soft px-1.5 py-0.5 font-bold text-good">
+                      {b.correctAnswer}
+                    </span>
+                  </div>
+                </div>
               </div>
             );
           })}

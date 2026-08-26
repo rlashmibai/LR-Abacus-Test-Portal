@@ -30,6 +30,7 @@ export async function POST(
       qNo: q.qNo,
       values: q.values,
       signs: q.signs,
+      opKind: q.opKind,
       correctAnswer: q.answer,
       givenAnswer: given,
       isCorrect: given !== null && given === q.answer,
