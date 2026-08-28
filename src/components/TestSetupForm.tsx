@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Timer, BookOpen } from "lucide-react";
+import { ArrowRight, Timer, BookOpen, Eye } from "lucide-react";
 import {
   OPERATIONS,
   getOperation,
@@ -12,6 +12,8 @@ import {
   durationForQuestionCount,
 } from "@/lib/testTypes";
 import type { TestMode } from "@/lib/testTypes";
+import { generateQuestions } from "@/lib/questions";
+import { formatRow } from "@/lib/formatRow";
 
 const MODES: { value: TestMode; label: string; text: string; icon: typeof Timer }[] = [
   {
@@ -40,6 +42,20 @@ export default function TestSetupForm() {
   const showRows = operation === "addition_subtraction";
   const questionsStep = showRows ? 4 : 3;
   const modeStep = showRows ? 5 : 4;
+
+  // A single live sample question, regenerated whenever the current
+  // choices change - lets a student see exactly what they're about to
+  // get instead of just reading a static text example.
+  const sampleQuestion = useMemo(() => {
+    const [q] = generateQuestions({
+      testId: `preview-${operation}-${variant}-${rows}`,
+      operation,
+      variant,
+      totalQuestions: 1,
+      rows,
+    });
+    return q;
+  }, [operation, variant, rows]);
 
   function selectOperation(op: string) {
     setOperation(op as typeof operation);
@@ -123,6 +139,31 @@ export default function TestSetupForm() {
             })}
           </div>
         )}
+      </section>
+
+      <section className="rounded-2xl bg-brand-soft p-6 md:p-8">
+        <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-brand">
+          <Eye size={14} />
+          Sample Question Preview
+        </h3>
+        <div className="mx-auto flex w-40 flex-col rounded-xl bg-white p-3 shadow-sm ring-1 ring-line">
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
+            Q.No 1
+          </p>
+          <div className="mb-2 space-y-1 text-right font-mono text-base font-semibold text-ink">
+            {sampleQuestion.values.map((v, i) => (
+              <div key={i}>
+                {formatRow(sampleQuestion.opKind ?? operation, v, i, sampleQuestion.signs[i])}
+              </div>
+            ))}
+          </div>
+          <div className="mt-auto rounded-lg border border-line px-2 py-1.5 text-center text-base font-bold text-ink-faint">
+            Ans
+          </div>
+        </div>
+        <p className="mt-3 text-center text-xs text-ink-soft">
+          This is exactly what a question will look like with your current choices.
+        </p>
       </section>
 
       {showRows && (
