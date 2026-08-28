@@ -1,9 +1,12 @@
 import Link from "next/link";
-import { FileText, Clock, ListChecks, Award, ArrowRight } from "lucide-react";
+import { FileText, Clock, ListChecks, Award, ArrowRight, Flame } from "lucide-react";
 import { getResults } from "@/lib/store";
 import { requireSessionOrRedirect } from "@/lib/auth";
 import AbacusIllustration from "@/components/AbacusIllustration";
 import { pickQuote, todaySeed } from "@/lib/quotes";
+import { computeStreakInfo } from "@/lib/streak";
+
+const DAY_INITIALS = ["S", "M", "T", "W", "T", "F", "S"];
 
 const DURATION_MINUTES = 10;
 const TOTAL_QUESTIONS = 100;
@@ -14,6 +17,7 @@ export default async function DashboardPage() {
   const results = await getResults();
   const studentResults = results.filter((r) => r.studentId === student.id);
   const lastResult = studentResults[0];
+  const streak = computeStreakInfo(studentResults);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -66,6 +70,47 @@ export default async function DashboardPage() {
             lastResult ? `${lastResult.score}/${lastResult.totalMarks}` : "-"
           }
         />
+      </section>
+
+      {/* Streak */}
+      <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-surface p-5 shadow-sm ring-1 ring-line">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold-soft text-gold">
+            <Flame size={20} />
+          </div>
+          <div>
+            <p className="text-base font-bold text-ink">
+              {streak.currentStreak > 0
+                ? `${streak.currentStreak}-day streak`
+                : "No streak yet"}
+            </p>
+            <p className="text-xs text-ink-soft">
+              {streak.currentStreak > 0
+                ? "Keep it going - practice today!"
+                : "Complete a test today to start one"}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {streak.last7Days.map((day, i) => (
+            <div key={i} className="flex flex-col items-center gap-1">
+              <span className="text-[10px] font-semibold uppercase text-ink-faint">
+                {DAY_INITIALS[day.date.getDay()]}
+              </span>
+              <div
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+                  day.active
+                    ? "bg-good text-white"
+                    : day.isToday
+                    ? "border-2 border-dashed border-brand/50 text-ink-faint"
+                    : "bg-paper text-ink-faint"
+                }`}
+              >
+                {day.active ? "✓" : ""}
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Test specifications */}
