@@ -66,10 +66,19 @@ export default function TrendChart({
       {points.map((p, i) => (
         <g key={i}>
           <circle cx={p.x} cy={p.y} r={4} fill={color}>
-            <title>
-              {p.label}: {valueFormat(p.value)}
-            </title>
+            <title>{`${p.label}: ${valueFormat(p.value)}`}</title>
           </circle>
+          {/* value directly above every point, not just the last one */}
+          <text
+            x={p.x}
+            y={p.y - 10}
+            textAnchor="middle"
+            fontSize="11"
+            fontWeight="600"
+            fill="var(--ink)"
+          >
+            {valueFormat(p.value)}
+          </text>
           {i % labelStep === 0 && (
             <text
               x={p.x}
@@ -83,18 +92,6 @@ export default function TrendChart({
           )}
         </g>
       ))}
-
-      {/* direct label on the most recent point only */}
-      <text
-        x={last.x}
-        y={last.y - 10}
-        textAnchor={points.length > 1 ? "end" : "middle"}
-        fontSize="12"
-        fontWeight="600"
-        fill="var(--ink)"
-      >
-        {valueFormat(last.value)}
-      </text>
     </svg>
   );
 }

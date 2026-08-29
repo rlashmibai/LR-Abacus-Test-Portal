@@ -23,13 +23,16 @@ export default async function ProgressPage() {
     );
   }
 
-  const scoreData = results.map((r, i) => ({
-    label: `#${i + 1}`,
+  const dateLabel = (iso: string) =>
+    new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+  const scoreData = results.map((r) => ({
+    label: dateLabel(r.submittedAt),
     value: r.scorePercent,
   }));
 
-  const speedData = results.map((r, i) => ({
-    label: `#${i + 1}`,
+  const speedData = results.map((r) => ({
+    label: dateLabel(r.submittedAt),
     value: r.timeTakenSeconds > 0 ? Math.round((r.answered / r.timeTakenSeconds) * 60 * 10) / 10 : 0,
   }));
 
