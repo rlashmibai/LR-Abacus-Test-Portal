@@ -6,7 +6,7 @@ export default async function TestSetupPage() {
   await requireSessionOrRedirect();
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <div className="text-center">
         <AbacusIllustration className="mx-auto mb-4 h-28 w-28" />
         <h2 className="font-display text-2xl font-semibold text-ink md:text-3xl">

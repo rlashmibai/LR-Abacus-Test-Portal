@@ -80,7 +80,7 @@ export default function TestSetupForm() {
         <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-ink-faint">
           1. Operation
         </h3>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {OPERATIONS.map((op) => {
             const active = op.value === operation;
             return (
@@ -119,7 +119,7 @@ export default function TestSetupForm() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {activeOperation.variants.map((v) => {
               const active = v.value === variant;
               return (
@@ -139,31 +139,6 @@ export default function TestSetupForm() {
             })}
           </div>
         )}
-      </section>
-
-      <section className="rounded-2xl bg-brand-soft p-6 md:p-8">
-        <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-brand">
-          <Eye size={14} />
-          Sample Question Preview
-        </h3>
-        <div className="mx-auto flex w-40 flex-col rounded-xl bg-white p-3 shadow-sm ring-1 ring-line">
-          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
-            Q.No 1
-          </p>
-          <div className="mb-2 space-y-1 text-right font-mono text-base font-semibold text-ink">
-            {sampleQuestion.values.map((v, i) => (
-              <div key={i}>
-                {formatRow(sampleQuestion.opKind ?? operation, v, i, sampleQuestion.signs[i])}
-              </div>
-            ))}
-          </div>
-          <div className="mt-auto rounded-lg border border-line px-2 py-1.5 text-center text-base font-bold text-ink-faint">
-            Ans
-          </div>
-        </div>
-        <p className="mt-3 text-center text-xs text-ink-soft">
-          This is exactly what a question will look like with your current choices.
-        </p>
       </section>
 
       {showRows && (
@@ -192,6 +167,31 @@ export default function TestSetupForm() {
           </div>
         </section>
       )}
+
+      <section className="rounded-2xl bg-brand-soft p-6 md:p-8">
+        <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-brand">
+          <Eye size={14} />
+          Sample Question Preview
+        </h3>
+        <div className="mx-auto flex w-40 flex-col rounded-xl bg-white p-3 shadow-sm ring-1 ring-line">
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-ink-faint">
+            Q.No 1
+          </p>
+          <div className="mb-2 space-y-1 text-right font-mono text-base font-semibold text-ink">
+            {sampleQuestion.values.map((v, i) => (
+              <div key={i}>
+                {formatRow(sampleQuestion.opKind ?? operation, v, i, sampleQuestion.signs[i])}
+              </div>
+            ))}
+          </div>
+          <div className="mt-auto rounded-lg border border-line px-2 py-1.5 text-center text-base font-bold text-ink-faint">
+            Ans
+          </div>
+        </div>
+        <p className="mt-3 text-center text-xs text-ink-soft">
+          This is exactly what a question will look like with your current choices.
+        </p>
+      </section>
 
       <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
         <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-ink-faint">
