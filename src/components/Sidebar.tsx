@@ -101,7 +101,7 @@ export default function Sidebar({
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-paper px-4 py-3 text-sm font-semibold text-brand hover:bg-brand-soft"
         >
           <Info size={18} />
-          About Me
+          About Us
         </Link>
         <a
           href="https://lrvirtualclassroom.co.in/contact/"

@@ -13,7 +13,7 @@ function initials(name: string) {
 /** The avatar/name button + dropdown (Edit Profile, Change Password,
  * Sign Out) shared by every page that shows a logged-in student -
  * both inside the portal (via TopBar) and on public pages like the
- * homepage and About Me, so signing out (and editing your profile) is
+ * homepage and About Us, so signing out (and editing your profile) is
  * always reachable no matter where you are on the site. */
 export default function AccountMenu({
   studentName,

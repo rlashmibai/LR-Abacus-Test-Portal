@@ -8,7 +8,7 @@ import AccountMenu from "@/components/AccountMenu";
 import { getSessionStudent } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: `About Me | ${BRAND_NAME}`,
+  title: `About Us | ${BRAND_NAME}`,
 };
 
 export default async function AboutPage() {
@@ -85,6 +85,11 @@ export default async function AboutPage() {
             &ldquo;I actually made this!&rdquo;
           </p>
           <p>That experience made me want to share it.</p>
+          <p>
+            A big credit to my son too - he tested every version and never
+            held back when something felt off with the UI or UX. Thanks to
+            his honest (and sometimes brutal) feedback 😊
+          </p>
           <p>
             Abacus learning takes patience, repetition, and regular
             practice, and I know how much encouragement goes into that from
