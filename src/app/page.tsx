@@ -11,6 +11,7 @@ import {
   Zap,
   ArrowRight,
   Sparkles,
+  Rows3,
 } from "lucide-react";
 import { getSessionStudent } from "@/lib/auth";
 import { pickQuote } from "@/lib/quotes";
@@ -68,6 +69,12 @@ const FEATURES = [
     title: "No Sign-Up Needed",
     text: "Jump straight into a test as a guest, or register to save your progress.",
   },
+  {
+    icon: Rows3,
+    color: "bg-teal-100 text-teal-600",
+    title: "Choose Your Row Count",
+    text: "Pick 2, 3, or 4 rows per question for addition & subtraction.",
+  },
 ];
 
 const STEPS = [
@@ -124,7 +131,7 @@ export default async function Home() {
               href="/about"
               className="rounded-xl bg-paper px-4 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
             >
-              About Me
+              About Us
             </Link>
             {student ? (
               <>
@@ -171,8 +178,12 @@ export default async function Home() {
             Where fast fingers grow into faster minds
           </h1>
           <p className="mt-5 max-w-lg text-lg text-ink-soft">
-            {BRAND_NAME} - a free, simple practice tool I built for my son
-            to sharpen his abacus speed and accuracy, one test at a time.
+            {BRAND_NAME} - a free, simple practice tool built by a mother
+            for her son, helping him practise abacus speed and accuracy,
+            one test at a time.
+          </p>
+          <p className="mt-3 max-w-lg font-display text-base italic text-ink-soft">
+            Dedicated to all the lovely abacus students fingering every day.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             {student ? (
@@ -302,8 +313,8 @@ export default async function Home() {
           <p className="mt-4 text-base text-ink-soft">
             I built this site just for my son&apos;s abacus practice -
             not as a business. It&apos;s my first application built using
-            Claude Code, and it&apos;s free for anyone to use, always will
-            be, no strings attached.
+            Mr. Claude Code, and it&apos;s free for anyone to use, always
+            will be, no strings attached.
           </p>
         </div>
       </section>
