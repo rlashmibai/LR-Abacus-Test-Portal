@@ -31,8 +31,10 @@ interface GenerateParams {
   rows?: number;
 }
 
-function digitRange(digits: 2 | 3): [number, number] {
-  return digits === 3 ? [100, 999] : [10, 99];
+function digitRange(digits: 1 | 2 | 3): [number, number] {
+  if (digits === 3) return [100, 999];
+  if (digits === 2) return [10, 99];
+  return [1, 9];
 }
 
 type Row = { values: number[]; signs: number[]; answer: number };
@@ -43,7 +45,7 @@ type Row = { values: number[]; signs: number[]; answer: number };
  * it keeps the running total strictly positive - so a student's abacus
  * never has to represent a negative number at any step, not just in the
  * final answer. */
-function generateAddSubRow(rand: () => number, digits: 2 | 3, rows: number): Row {
+function generateAddSubRow(rand: () => number, digits: 1 | 2 | 3, rows: number): Row {
   const [min, max] = digitRange(digits);
   const values: number[] = [];
   const signs: number[] = [];
@@ -64,19 +66,23 @@ function generateAddSubRow(rand: () => number, digits: 2 | 3, rows: number): Row
   return { values, signs, answer: running };
 }
 
-function generateMultiplicationRow(rand: () => number, digits: 2 | 3): Row {
+function generateMultiplicationRow(rand: () => number, digits: 1 | 2 | 3): Row {
   const [min, max] = digitRange(digits);
   const a = min + Math.floor(rand() * (max - min + 1));
   const b = 2 + Math.floor(rand() * 8); // 2-9, avoids trivial x0/x1
   return { values: [a, b], signs: [1, 1], answer: a * b };
 }
 
-/** A dividend (2 or 3 digits) that divides evenly by a single-digit
- * divisor (2-9), so the answer is always a whole number. */
-function generateDivisionRow(rand: () => number, digits: 2 | 3): Row {
+/** A dividend that divides evenly by a single-digit divisor (2-9), so the
+ * answer is always a whole number. For 1-digit, a minimum quotient of 2
+ * would leave almost no valid combinations (e.g. divisor 9 can never
+ * reach a 1-digit dividend at quotient >= 2), so 1-digit allows a
+ * quotient of 1 - every divisor 2-9 still has at least one valid
+ * dividend that way. */
+function generateDivisionRow(rand: () => number, digits: 1 | 2 | 3): Row {
   const [min, max] = digitRange(digits);
   const divisor = 2 + Math.floor(rand() * 8); // 2-9
-  const minQuotient = Math.max(2, Math.ceil(min / divisor));
+  const minQuotient = digits === 1 ? 1 : Math.max(2, Math.ceil(min / divisor));
   const maxQuotient = Math.floor(max / divisor);
   const quotient =
     minQuotient + Math.floor(rand() * (maxQuotient - minQuotient + 1));
@@ -101,10 +107,12 @@ export function generateQuestions({
 
   for (let qNo = 1; qNo <= totalQuestions; qNo++) {
     if (operation === "multiplication") {
-      const row = generateMultiplicationRow(rand, variant === "3x1" ? 3 : 2);
+      const digits = variant === "3x1" ? 3 : variant === "1x1" ? 1 : 2;
+      const row = generateMultiplicationRow(rand, digits);
       questions.push({ qNo, ...row });
     } else if (operation === "division") {
-      const row = generateDivisionRow(rand, variant === "3x1" ? 3 : 2);
+      const digits = variant === "3x1" ? 3 : variant === "1x1" ? 1 : 2;
+      const row = generateDivisionRow(rand, digits);
       questions.push({ qNo, ...row });
     } else if (operation === "mixed") {
       const digits = variant === "3-digit" ? 3 : 2;
@@ -121,7 +129,8 @@ export function generateQuestions({
       // addition_subtraction: a running total across the chosen row count
       // (2, 3, or 4 operands), defaulting to 3 if not specified.
       const rows = rowsInput === 2 || rowsInput === 4 ? rowsInput : 3;
-      const row = generateAddSubRow(rand, variant === "3-digit" ? 3 : 2, rows);
+      const digits = variant === "3-digit" ? 3 : variant === "1-digit" ? 1 : 2;
+      const row = generateAddSubRow(rand, digits, rows);
       questions.push({ qNo, ...row });
     }
   }

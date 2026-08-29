@@ -25,6 +25,7 @@ export const OPERATIONS: OperationDef[] = [
     icon: "➕",
     description: "A running total of 3 numbers, added or subtracted.",
     variants: [
+      { value: "1-digit", label: "1-Digit", example: "5 + 3 - 2" },
       { value: "2-digit", label: "2-Digit", example: "45 + 27 - 13" },
       { value: "3-digit", label: "3-Digit", example: "245 + 127 - 63" },
     ],
@@ -35,6 +36,7 @@ export const OPERATIONS: OperationDef[] = [
     icon: "✖️",
     description: "A multi-digit number times a single digit.",
     variants: [
+      { value: "1x1", label: "1 x 1", example: "7 x 5" },
       { value: "2x1", label: "2 x 1", example: "45 x 3" },
       { value: "3x1", label: "3 x 1", example: "345 x 2" },
     ],
@@ -45,6 +47,7 @@ export const OPERATIONS: OperationDef[] = [
     icon: "➗",
     description: "A multi-digit number divided evenly by a single digit.",
     variants: [
+      { value: "1x1", label: "1 x 1", example: "8 / 4" },
       { value: "2x1", label: "2 x 1", example: "84 / 4" },
       { value: "3x1", label: "3 x 1", example: "846 / 6" },
     ],
