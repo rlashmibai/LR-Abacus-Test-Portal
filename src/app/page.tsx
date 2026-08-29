@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   GraduationCap,
   Timer,
@@ -12,6 +13,7 @@ import {
   ArrowRight,
   Sparkles,
   Rows3,
+  Monitor,
 } from "lucide-react";
 import { getSessionStudent } from "@/lib/auth";
 import { pickQuote } from "@/lib/quotes";
@@ -74,6 +76,81 @@ const FEATURES = [
     color: "bg-teal-100 text-teal-600",
     title: "Choose Your Row Count",
     text: "Pick 2, 3, or 4 rows per question for addition & subtraction.",
+  },
+];
+
+const SHOWCASE = [
+  {
+    src: "/images/showcase/operations.png",
+    alt: "Screenshot of the operation picker: Addition & Subtraction, Multiplication, Division, and Mixed",
+    caption:
+      "Start by picking what to practice: addition & subtraction, multiplication, division, or a mixed test that blends them all together in one go.",
+  },
+  {
+    src: "/images/showcase/digit-size.png",
+    alt: "Screenshot of the digit size picker: 1-Digit, 2-Digit, 3-Digit",
+    caption:
+      "Then choose how big the numbers should be - simple 1-digit sums for beginners, or 2- and 3-digit numbers as your child gets faster and more confident.",
+  },
+  {
+    src: "/images/showcase/rows.png",
+    alt: "Screenshot of the rows-per-question picker: 2, 3, or 4 rows",
+    caption:
+      "For addition & subtraction, decide how many numbers to add up in each question - 2 for a quick sum, up to 4 for a longer running total.",
+  },
+  {
+    src: "/images/showcase/sample-preview.png",
+    alt: "Screenshot of a live sample question preview",
+    caption:
+      "Before the test even starts, see a real example question built from your exact choices - so there are no surprises once you begin.",
+  },
+  {
+    src: "/images/showcase/question-count.png",
+    alt: "Screenshot of the question count picker: 25, 50, or 100 questions",
+    caption:
+      "Choose how long the practice session should be: a quick 25-question warm-up, or a full 100-question session for serious practice.",
+  },
+  {
+    src: "/images/showcase/mode.png",
+    alt: "Screenshot of the Practice Mode vs Exam Mode picker",
+    caption:
+      "Pick Practice Mode to take your time and learn without pressure, or Exam Mode to race a countdown clock and build real exam speed.",
+  },
+  {
+    src: "/images/showcase/elegant-ui.png",
+    alt: "Screenshot of the clean question-answering grid during a test",
+    caption:
+      "While taking the test, every question sits in its own clean card with the numbers laid out just like on a real abacus worksheet - simple and easy to focus on.",
+  },
+  {
+    src: "/images/showcase/correction.png",
+    alt: "Screenshot of the answer review showing correct, wrong, and skipped questions",
+    caption:
+      "The moment you submit, every question is marked correct, wrong, or skipped, with the right answer shown right there - so you know exactly what to practice next.",
+  },
+  {
+    src: "/images/showcase/scorecard.png",
+    alt: "Screenshot of the results scorecard: total questions, answered, correct, time taken",
+    caption:
+      "A clear scorecard sums up how you did - how many questions you answered, how many you got right, and how long the whole test took.",
+  },
+  {
+    src: "/images/showcase/results-summary.png",
+    alt: "Screenshot of the results history table listing every past test",
+    caption:
+      "Every test is saved automatically, so you can look back anytime and see how you've been doing across every attempt.",
+  },
+  {
+    src: "/images/showcase/weekly-streak.png",
+    alt: "Screenshot of the weekly practice streak indicator",
+    caption:
+      "A simple weekly streak tracker shows which days you practiced, encouraging kids to come back and keep the habit going.",
+  },
+  {
+    src: "/images/showcase/dashboard.png",
+    alt: "Screenshot of the personalized sidebar greeting and navigation",
+    caption:
+      "Log in and you're greeted by name, with your Dashboard, Progress, Achievements, and Results all just one click away.",
   },
 ];
 
@@ -250,6 +327,39 @@ export default async function Home() {
               <p className="mt-1.5 text-sm text-ink-soft">{text}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* What You See Is What You Get */}
+      <section className="mx-auto max-w-6xl px-4 py-16 md:px-8">
+        <div className="overflow-hidden rounded-3xl bg-surface shadow-sm ring-1 ring-line">
+          <div className="flex items-center justify-center gap-2.5 bg-brand px-6 py-5 text-white">
+            <Monitor size={20} />
+            <h2 className="font-display text-xl font-semibold sm:text-2xl">
+              What You See Is What You Get
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 md:p-10">
+            {SHOWCASE.map(({ src, alt, caption }) => (
+              <div
+                key={src}
+                className="flex flex-col rounded-2xl bg-paper p-4 ring-1 ring-line"
+              >
+                <div className="overflow-hidden rounded-xl bg-brand-soft ring-1 ring-line">
+                  <Image
+                    src={src}
+                    alt={alt}
+                    width={1200}
+                    height={750}
+                    className="h-auto w-full"
+                  />
+                </div>
+                <p className="mt-4 text-center text-sm font-semibold text-ink">
+                  {caption}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
