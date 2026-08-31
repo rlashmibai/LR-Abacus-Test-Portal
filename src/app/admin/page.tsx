@@ -8,6 +8,7 @@ import {
   TrendingUp,
   Clock,
   Trophy,
+  Eye,
 } from "lucide-react";
 import { getStudents, getResults, getCounterValue } from "@/lib/store";
 import { computeAdminStats } from "@/lib/adminStats";
@@ -50,10 +51,11 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  const [students, results, guestSessionCount, { page }] = await Promise.all([
+  const [students, results, guestSessionCount, homepageViews, { page }] = await Promise.all([
     getStudents(),
     getResults(),
     getCounterValue("guest"),
+    getCounterValue("homepage_views"),
     searchParams,
   ]);
   const stats = computeAdminStats(students, results, guestSessionCount);
@@ -80,13 +82,17 @@ export default async function AdminPage({
       </div>
 
       {/* Top KPI row */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <StatCard icon={<Eye size={18} />} label="Homepage Views" value={String(homepageViews)} />
         <StatCard icon={<Users size={18} />} label="Total Students" value={String(stats.totalStudents)} />
         <StatCard icon={<UserPlus size={18} />} label="Guest Sessions" value={String(stats.totalGuestSessions)} />
         <StatCard icon={<ListChecks size={18} />} label="Tests Taken" value={String(stats.totalTests)} />
         <StatCard icon={<TrendingUp size={18} />} label="Avg Score" value={`${stats.avgScorePercent}%`} />
         <StatCard icon={<Clock size={18} />} label="Avg Time Taken" value={formatClock(stats.avgTimeTakenSeconds)} />
       </section>
+      <p className="-mt-2 text-xs text-ink-faint">
+        Homepage Views is a raw page-load count (includes repeat visits and any bot/crawler traffic) - not a unique-visitor count.
+      </p>
 
       {/* Breakdown row */}
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">

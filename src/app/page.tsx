@@ -16,6 +16,7 @@ import {
   Monitor,
 } from "lucide-react";
 import { getSessionStudent } from "@/lib/auth";
+import { nextCounterValue } from "@/lib/store";
 import { pickQuote } from "@/lib/quotes";
 import { BRAND_NAME, BRAND_SHORT } from "@/lib/brand";
 import AbacusIllustration from "@/components/AbacusIllustration";
@@ -202,6 +203,14 @@ const BADGES = [
 export default async function Home() {
   const student = await getSessionStudent();
   const quote = pickQuote();
+
+  // A simple same-site page-load counter for the admin dashboard - no
+  // cookies, no third-party script, nothing about the visitor recorded.
+  // Awaited (rather than fire-and-forget) since a serverless function can
+  // be frozen right after the response is sent, which would silently
+  // drop an un-awaited write; errors are swallowed so this never breaks
+  // the homepage itself.
+  await nextCounterValue("homepage_views").catch(() => {});
 
   return (
     <div className="min-h-screen bg-paper">
