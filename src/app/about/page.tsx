@@ -5,6 +5,7 @@ import { GraduationCap, Heart, ExternalLink, ArrowLeft } from "lucide-react";
 import { BRAND_SHORT, BRAND_NAME } from "@/lib/brand";
 import AbacusIllustration from "@/components/AbacusIllustration";
 import AccountMenu from "@/components/AccountMenu";
+import Footer from "@/components/Footer";
 import { getSessionStudent } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -135,8 +136,16 @@ export default async function AboutPage() {
               <ExternalLink size={16} />
             </a>
           </div>
+          <Link
+            href="/contact"
+            className="mt-1 text-sm font-semibold text-brand hover:underline"
+          >
+            Spotted a bug or have feedback? Get in touch
+          </Link>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

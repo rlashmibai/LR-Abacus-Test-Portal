@@ -1,4 +1,4 @@
-import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
+import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getStudent } from "./store";
@@ -27,13 +27,41 @@ type SessionPayload =
   | { kind: "student"; studentId: string }
   | { kind: "guest"; student: Student };
 
+/** The session cookie is signed with this so a client can't hand-craft
+ * `{"kind":"student","studentId":"STUD_002"}` and log in as someone else -
+ * it must be set in every environment (see .env.local / Netlify env vars). */
+function getSessionSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error(
+      "SESSION_SECRET is not set - sessions cannot be signed without it."
+    );
+  }
+  return secret;
+}
+
+function sign(data: string): string {
+  return createHmac("sha256", getSessionSecret()).update(data).digest("base64url");
+}
+
 export function encodeSession(payload: SessionPayload): string {
-  return Buffer.from(JSON.stringify(payload), "utf-8").toString("base64url");
+  const data = Buffer.from(JSON.stringify(payload), "utf-8").toString("base64url");
+  return `${data}.${sign(data)}`;
 }
 
 function decodeSession(raw: string): SessionPayload | null {
+  const dot = raw.lastIndexOf(".");
+  if (dot === -1) return null;
+  const data = raw.slice(0, dot);
+  const signature = raw.slice(dot + 1);
+
+  const expected = sign(data);
+  const a = Buffer.from(signature);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+
   try {
-    return JSON.parse(Buffer.from(raw, "base64url").toString("utf-8"));
+    return JSON.parse(Buffer.from(data, "base64url").toString("utf-8"));
   } catch {
     return null;
   }

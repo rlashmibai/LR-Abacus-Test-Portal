@@ -21,6 +21,7 @@ import { BRAND_NAME, BRAND_SHORT } from "@/lib/brand";
 import AbacusIllustration from "@/components/AbacusIllustration";
 import GuestCtaButton from "@/components/GuestCtaButton";
 import AccountMenu from "@/components/AccountMenu";
+import Footer from "@/components/Footer";
 
 const FEATURES = [
   {
@@ -141,6 +142,18 @@ const SHOWCASE = [
       "Every test is saved automatically, so you can look back anytime and see how you've been doing across every attempt.",
   },
   {
+    src: "/images/showcase/score-trend.png",
+    alt: "Screenshot of the score progress chart plotted across every test taken",
+    caption:
+      "A score trend chart plots every test's percentage over time, so you can watch accuracy climb test after test.",
+  },
+  {
+    src: "/images/showcase/speed-trend.png",
+    alt: "Screenshot of the speed progress chart plotted across every test taken",
+    caption:
+      "A matching speed trend chart tracks how long each test takes, so getting faster is just as visible as getting more accurate.",
+  },
+  {
     src: "/images/showcase/weekly-streak.png",
     alt: "Screenshot of the weekly practice streak indicator",
     caption:
@@ -209,6 +222,12 @@ export default async function Home() {
               className="rounded-xl bg-paper px-4 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
             >
               About Us
+            </Link>
+            <Link
+              href="/contact"
+              className="rounded-xl bg-paper px-4 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
+            >
+              Contact Us
             </Link>
             {student ? (
               <>
@@ -426,6 +445,12 @@ export default async function Home() {
             Mr. Claude Code, and it&apos;s free for anyone to use, always
             will be, no strings attached.
           </p>
+          <Link
+            href="/contact"
+            className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:underline"
+          >
+            Found a bug or have feedback? Get in touch
+          </Link>
         </div>
       </section>
 
@@ -464,6 +489,7 @@ export default async function Home() {
         </div>
       </section>
 
+      <Footer />
     </div>
   );
 }
