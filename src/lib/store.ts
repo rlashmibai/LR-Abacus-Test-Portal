@@ -12,6 +12,7 @@ import {
   dbGetResult,
   dbSaveResult,
   dbNextCounter,
+  dbGetCounter,
 } from "./db";
 
 // Local JSON files are used when no database is configured (e.g. local
@@ -96,6 +97,12 @@ async function fileNextCounter(name: string): Promise<number> {
   return next;
 }
 
+async function fileGetCounter(name: string): Promise<number> {
+  await ensureDirs();
+  const counters = await readJson<Record<string, number>>(COUNTERS_FILE, {});
+  return counters[name] ?? 0;
+}
+
 export async function getStudents(): Promise<Student[]> {
   return isDbConfigured() ? dbGetStudents() : fileGetStudents();
 }
@@ -134,6 +141,12 @@ export async function saveResult(result: TestResult): Promise<void> {
  * collide on the same number. */
 export async function nextCounterValue(name: string): Promise<number> {
   return isDbConfigured() ? dbNextCounter(name) : fileNextCounter(name);
+}
+
+/** Read a counter's current value without incrementing it - for display
+ * purposes (e.g. an admin dashboard), unlike nextCounterValue above. */
+export async function getCounterValue(name: string): Promise<number> {
+  return isDbConfigured() ? dbGetCounter(name) : fileGetCounter(name);
 }
 
 /** The next sequential "STUD_001", "STUD_002", ... id for a newly

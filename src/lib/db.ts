@@ -195,6 +195,18 @@ export async function dbNextCounter(name: string): Promise<number> {
   return rows[0].value;
 }
 
+/** Read-only lookup of a counter's current value - unlike dbNextCounter,
+ * this never increments it. Used to display a total without consuming
+ * one of the sequential IDs it hands out. */
+export async function dbGetCounter(name: string): Promise<number> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`
+    SELECT value FROM counters WHERE name = ${name} LIMIT 1
+  `) as unknown as { value: number }[];
+  return rows[0]?.value ?? 0;
+}
+
 export async function dbSaveResult(result: TestResult): Promise<void> {
   await ensureSchema();
   const sql = getSql();
