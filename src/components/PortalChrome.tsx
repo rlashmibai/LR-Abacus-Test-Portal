@@ -8,12 +8,14 @@ export default function PortalChrome({
   studentName,
   userId,
   isGuest,
+  isAdmin,
   quote,
   children,
 }: {
   studentName: string;
   userId: string;
   isGuest: boolean;
+  isAdmin?: boolean;
   quote: string;
   children: ReactNode;
 }) {
@@ -24,6 +26,7 @@ export default function PortalChrome({
       <Sidebar
         studentName={studentName}
         quote={quote}
+        isAdmin={isAdmin}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />

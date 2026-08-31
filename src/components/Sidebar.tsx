@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, HelpCircle, X, TrendingUp, Award, Info } from "lucide-react";
+import { LayoutDashboard, FileText, HelpCircle, X, TrendingUp, Award, Info, ShieldCheck } from "lucide-react";
 import AbacusIllustration from "./AbacusIllustration";
 import { BRAND_SHORT } from "@/lib/brand";
 
@@ -20,11 +20,13 @@ function initials(name: string) {
 export default function Sidebar({
   studentName,
   quote,
+  isAdmin,
   open,
   onClose,
 }: {
   studentName: string;
   quote: string;
+  isAdmin?: boolean;
   open: boolean;
   onClose: () => void;
 }) {
@@ -32,6 +34,10 @@ export default function Sidebar({
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
+
+  const nav = isAdmin
+    ? [...NAV, { href: "/admin", label: "Admin", icon: ShieldCheck }]
+    : NAV;
 
   const content = (
     <div className="flex h-full flex-col bg-surface">
@@ -68,7 +74,7 @@ export default function Sidebar({
           STUDENTS PROFILE
         </p>
         <ul className="mt-2 space-y-1">
-          {NAV.map(({ href, label, icon: Icon }) => (
+          {nav.map(({ href, label, icon: Icon }) => (
             <li key={href}>
               <Link
                 href={href}
