@@ -28,15 +28,26 @@ const OPERATION_LABELS: Record<string, string> = {
 
 const PAGE_SIZE = 20;
 
+// This page renders on the server, which defaults to UTC regardless of
+// who's viewing it - pin every date/time shown here to IST explicitly
+// so it always reflects the site owner's timezone.
+const IST = "Asia/Kolkata";
+
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  return (
+    new Date(iso).toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: IST,
+    }) + " IST"
+  );
 }
 
 function formatDateOnly(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, { dateStyle: "medium" });
+  return new Date(iso).toLocaleDateString(undefined, {
+    dateStyle: "medium",
+    timeZone: IST,
+  });
 }
 
 function formatClock(totalSeconds: number) {
