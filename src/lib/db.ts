@@ -85,6 +85,12 @@ function ensureSchema(): Promise<void> {
           value INTEGER NOT NULL DEFAULT 0
         )
       `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS page_views (
+          id TEXT PRIMARY KEY,
+          viewed_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `;
 
       await sql`
         INSERT INTO students (id, user_id, name, center_name, level, password_hash)
@@ -215,6 +221,23 @@ export async function dbGetCounter(name: string): Promise<number> {
     SELECT value FROM counters WHERE name = ${name} LIMIT 1
   `) as unknown as { value: number }[];
   return rows[0]?.value ?? 0;
+}
+
+/** Logs one homepage load with its own timestamp (not just a running
+ * total) so the admin dashboard can show a real date/time per visit. */
+export async function dbLogPageView(id: string): Promise<void> {
+  await ensureSchema();
+  const sql = getSql();
+  await sql`INSERT INTO page_views (id) VALUES (${id})`;
+}
+
+export async function dbGetPageViews(): Promise<{ id: string; viewedAt: string }[]> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`
+    SELECT id, viewed_at FROM page_views ORDER BY viewed_at DESC
+  `) as unknown as { id: string; viewed_at: string }[];
+  return rows.map((r) => ({ id: r.id, viewedAt: r.viewed_at }));
 }
 
 export async function dbSaveResult(result: TestResult): Promise<void> {

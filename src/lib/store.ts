@@ -13,7 +13,14 @@ import {
   dbSaveResult,
   dbNextCounter,
   dbGetCounter,
+  dbLogPageView,
+  dbGetPageViews,
 } from "./db";
+
+export interface PageView {
+  id: string;
+  viewedAt: string;
+}
 
 // Local JSON files are used when no database is configured (e.g. local
 // dev). On a deployment like Vercel, DATABASE_URL is set and everything
@@ -25,6 +32,7 @@ const SESSIONS_DIR = path.join(DATA_DIR, "sessions");
 const STUDENTS_FILE = path.join(DATA_DIR, "students.json");
 const RESULTS_FILE = path.join(DATA_DIR, "results.json");
 const COUNTERS_FILE = path.join(DATA_DIR, "counters.json");
+const PAGE_VIEWS_FILE = path.join(DATA_DIR, "pageViews.json");
 
 async function ensureDirs() {
   await fs.mkdir(SESSIONS_DIR, { recursive: true });
@@ -103,6 +111,18 @@ async function fileGetCounter(name: string): Promise<number> {
   return counters[name] ?? 0;
 }
 
+async function fileLogPageView(id: string): Promise<void> {
+  await ensureDirs();
+  const views = await readJson<PageView[]>(PAGE_VIEWS_FILE, []);
+  views.unshift({ id, viewedAt: new Date().toISOString() });
+  await writeJson(PAGE_VIEWS_FILE, views);
+}
+
+async function fileGetPageViews(): Promise<PageView[]> {
+  await ensureDirs();
+  return readJson<PageView[]>(PAGE_VIEWS_FILE, []);
+}
+
 export async function getStudents(): Promise<Student[]> {
   return isDbConfigured() ? dbGetStudents() : fileGetStudents();
 }
@@ -147,6 +167,18 @@ export async function nextCounterValue(name: string): Promise<number> {
  * purposes (e.g. an admin dashboard), unlike nextCounterValue above. */
 export async function getCounterValue(name: string): Promise<number> {
   return isDbConfigured() ? dbGetCounter(name) : fileGetCounter(name);
+}
+
+/** Logs one homepage view with its own timestamp, so the admin
+ * dashboard can list individual visits with a real date/time - not
+ * just a running total. */
+export async function logPageView(): Promise<void> {
+  const id = newId("view_");
+  return isDbConfigured() ? dbLogPageView(id) : fileLogPageView(id);
+}
+
+export async function getPageViews(): Promise<PageView[]> {
+  return isDbConfigured() ? dbGetPageViews() : fileGetPageViews();
 }
 
 /** The next sequential "STUD_001", "STUD_002", ... id for a newly

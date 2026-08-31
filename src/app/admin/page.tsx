@@ -10,7 +10,7 @@ import {
   Trophy,
   Eye,
 } from "lucide-react";
-import { getStudents, getResults, getCounterValue } from "@/lib/store";
+import { getStudents, getResults, getCounterValue, getPageViews } from "@/lib/store";
 import { computeAdminStats } from "@/lib/adminStats";
 import { BRAND_NAME } from "@/lib/brand";
 import TrendChart from "@/components/TrendChart";
@@ -49,15 +49,16 @@ function formatClock(totalSeconds: number) {
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; viewsPage?: string }>;
 }) {
-  const [students, results, guestSessionCount, homepageViews, { page }] = await Promise.all([
-    getStudents(),
-    getResults(),
-    getCounterValue("guest"),
-    getCounterValue("homepage_views"),
-    searchParams,
-  ]);
+  const [students, results, guestSessionCount, pageViews, { page, viewsPage }] =
+    await Promise.all([
+      getStudents(),
+      getResults(),
+      getCounterValue("guest"),
+      getPageViews(),
+      searchParams,
+    ]);
   const stats = computeAdminStats(students, results, guestSessionCount);
 
   const totalPages = Math.max(1, Math.ceil(stats.allResults.length / PAGE_SIZE));
@@ -65,6 +66,13 @@ export default async function AdminPage({
   const pageResults = stats.allResults.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
+  );
+
+  const viewsTotalPages = Math.max(1, Math.ceil(pageViews.length / PAGE_SIZE));
+  const viewsCurrentPage = Math.min(viewsTotalPages, Math.max(1, Number(viewsPage) || 1));
+  const pageViewItems = pageViews.slice(
+    (viewsCurrentPage - 1) * PAGE_SIZE,
+    viewsCurrentPage * PAGE_SIZE
   );
 
   return (
@@ -83,7 +91,7 @@ export default async function AdminPage({
 
       {/* Top KPI row */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard icon={<Eye size={18} />} label="Homepage Views" value={String(homepageViews)} />
+        <StatCard icon={<Eye size={18} />} label="Homepage Views" value={String(pageViews.length)} />
         <StatCard icon={<Users size={18} />} label="Total Students" value={String(stats.totalStudents)} />
         <StatCard icon={<UserPlus size={18} />} label="Guest Sessions" value={String(stats.totalGuestSessions)} />
         <StatCard icon={<ListChecks size={18} />} label="Tests Taken" value={String(stats.totalTests)} />
@@ -191,7 +199,45 @@ export default async function AdminPage({
           </tbody>
         </table>
         {stats.allResults.length === 0 && <EmptyNote text="No tests submitted yet." />}
-        {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} />}
+        {totalPages > 1 && (
+          <Pagination
+            paramName="page"
+            currentPage={currentPage}
+            totalPages={totalPages}
+            preserve={{ viewsPage }}
+          />
+        )}
+      </TableSection>
+
+      {/* Homepage views log */}
+      <TableSection
+        icon={<Eye size={18} />}
+        title="Homepage Views"
+        description={`${pageViews.length} view${pageViews.length === 1 ? "" : "s"} logged, most recent first - a raw page-load count (includes repeat visits and any bot/crawler traffic), not unique visitors. Only views since this feature was added are logged.`}
+      >
+        <table className="w-full min-w-[280px] text-left text-sm">
+          <thead>
+            <tr className="text-xs uppercase tracking-wide text-ink-faint">
+              <th className="pb-2">Date &amp; Time</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {pageViewItems.map((v) => (
+              <tr key={v.id}>
+                <td className="py-2.5 text-ink-soft">{formatDate(v.viewedAt)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {pageViews.length === 0 && <EmptyNote text="No homepage views logged yet." />}
+        {viewsTotalPages > 1 && (
+          <Pagination
+            paramName="viewsPage"
+            currentPage={viewsCurrentPage}
+            totalPages={viewsTotalPages}
+            preserve={{ page }}
+          />
+        )}
       </TableSection>
 
       {/* Registered students roster */}
@@ -319,14 +365,32 @@ function EmptyNote({ text }: { text: string }) {
   return <p className="py-6 text-center text-sm text-ink-faint">{text}</p>;
 }
 
-function Pagination({ currentPage, totalPages }: { currentPage: number; totalPages: number }) {
+function Pagination({
+  paramName,
+  currentPage,
+  totalPages,
+  preserve,
+}: {
+  paramName: string;
+  currentPage: number;
+  totalPages: number;
+  preserve?: Record<string, string | undefined>;
+}) {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const hrefFor = (n: number) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(preserve ?? {})) {
+      if (value) params.set(key, value);
+    }
+    params.set(paramName, String(n));
+    return `/admin?${params.toString()}`;
+  };
   return (
     <nav className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
       {pages.map((n) => (
         <Link
           key={n}
-          href={`/admin?page=${n}`}
+          href={hrefFor(n)}
           className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-sm font-semibold transition-colors ${
             n === currentPage
               ? "bg-brand text-white"
