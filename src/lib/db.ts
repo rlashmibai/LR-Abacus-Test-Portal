@@ -52,8 +52,16 @@ function ensureSchema(): Promise<void> {
           name TEXT NOT NULL,
           center_name TEXT NOT NULL,
           level TEXT NOT NULL,
-          password_hash TEXT
+          password_hash TEXT,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
+      `;
+      // The table already existed without this column on earlier
+      // deployments - add it if missing so registration date is tracked
+      // going forward (pre-existing rows get "now" as a placeholder,
+      // since their real signup date was never recorded).
+      await sql`
+        ALTER TABLE students ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now()
       `;
       await sql`
         CREATE TABLE IF NOT EXISTS test_sessions (
@@ -98,6 +106,7 @@ interface StudentRow {
   center_name: string;
   level: string;
   password_hash: string | null;
+  created_at: string;
 }
 
 function rowToStudent(row: StudentRow): Student {
@@ -108,6 +117,7 @@ function rowToStudent(row: StudentRow): Student {
     centerName: row.center_name,
     level: row.level,
     passwordHash: row.password_hash ?? undefined,
+    createdAt: row.created_at,
   };
 }
 

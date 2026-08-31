@@ -8,6 +8,7 @@ export interface Student {
   level: string; // "LEVEL 3"
   passwordHash?: string; // "<salt>:<hash>", absent for guest sessions
   isGuest?: boolean;
+  createdAt?: string; // when the account was registered, ISO string
 }
 
 export interface AbacusQuestion {

@@ -24,7 +24,7 @@ export interface AdminStats {
   byStatus: Record<"Completed" | "Auto-Submitted", number>;
   testsPerDay: { label: string; value: number }[];
   avgScorePerDay: { label: string; value: number }[];
-  recentResults: TestResult[];
+  allResults: TestResult[];
   students: Student[];
   topStudents: TopStudent[];
 }
@@ -118,7 +118,7 @@ export function computeAdminStats(
     byStatus,
     testsPerDay,
     avgScorePerDay,
-    recentResults: results.slice(0, 20),
+    allResults: results,
     students: realStudents,
     topStudents,
   };

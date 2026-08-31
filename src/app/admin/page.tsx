@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   LayoutDashboard,
   Users,
@@ -24,11 +25,17 @@ const OPERATION_LABELS: Record<string, string> = {
   mixed: "Mixed",
 };
 
+const PAGE_SIZE = 20;
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+function formatDateOnly(iso: string) {
+  return new Date(iso).toLocaleDateString(undefined, { dateStyle: "medium" });
 }
 
 function formatClock(totalSeconds: number) {
@@ -38,13 +45,25 @@ function formatClock(totalSeconds: number) {
   return `${String(m).padStart(2, "0")}:${String(rem).padStart(2, "0")}`;
 }
 
-export default async function AdminPage() {
-  const [students, results, guestSessionCount] = await Promise.all([
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const [students, results, guestSessionCount, { page }] = await Promise.all([
     getStudents(),
     getResults(),
     getCounterValue("guest"),
+    searchParams,
   ]);
   const stats = computeAdminStats(students, results, guestSessionCount);
+
+  const totalPages = Math.max(1, Math.ceil(stats.allResults.length / PAGE_SIZE));
+  const currentPage = Math.min(totalPages, Math.max(1, Number(page) || 1));
+  const pageResults = stats.allResults.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-10 md:px-8">
@@ -134,8 +153,8 @@ export default async function AdminPage() {
       {/* Recent submissions */}
       <TableSection
         icon={<ListChecks size={18} />}
-        title="Recent Submissions"
-        description="The 20 most recently submitted tests, site-wide."
+        title="All Submissions"
+        description={`${stats.allResults.length} test${stats.allResults.length === 1 ? "" : "s"} submitted, site-wide - most recent first.`}
       >
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
@@ -150,7 +169,7 @@ export default async function AdminPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {stats.recentResults.map((r) => (
+            {pageResults.map((r) => (
               <tr key={r.id}>
                 <td className="py-2.5 pr-4 font-medium text-ink">{r.studentName}</td>
                 <td className="py-2.5 pr-4 text-ink-soft">{r.userId}</td>
@@ -165,21 +184,23 @@ export default async function AdminPage() {
             ))}
           </tbody>
         </table>
-        {stats.recentResults.length === 0 && <EmptyNote text="No tests submitted yet." />}
+        {stats.allResults.length === 0 && <EmptyNote text="No tests submitted yet." />}
+        {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} />}
       </TableSection>
 
       {/* Registered students roster */}
       <TableSection
         icon={<Users size={18} />}
         title="Registered Students"
-        description="Signup order/date isn't tracked in the current schema, so this list isn't sortable by when someone joined."
+        description="Existing accounts show the date this column was added, not their true original signup date - only accounts registered from now on will have an accurate one."
       >
-        <table className="w-full min-w-[480px] text-left text-sm">
+        <table className="w-full min-w-[560px] text-left text-sm">
           <thead>
             <tr className="text-xs uppercase tracking-wide text-ink-faint">
               <th className="pb-2 pr-4">Name</th>
               <th className="pb-2 pr-4">User ID</th>
-              <th className="pb-2">Level</th>
+              <th className="pb-2 pr-4">Level</th>
+              <th className="pb-2">Registered</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -187,7 +208,10 @@ export default async function AdminPage() {
               <tr key={s.id}>
                 <td className="py-2.5 pr-4 font-medium text-ink">{s.name}</td>
                 <td className="py-2.5 pr-4 text-ink-soft">{s.userId}</td>
-                <td className="py-2.5 text-ink-soft">{s.level}</td>
+                <td className="py-2.5 pr-4 text-ink-soft">{s.level}</td>
+                <td className="py-2.5 text-ink-soft">
+                  {s.createdAt ? formatDateOnly(s.createdAt) : "—"}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -287,4 +311,25 @@ function TableSection({
 
 function EmptyNote({ text }: { text: string }) {
   return <p className="py-6 text-center text-sm text-ink-faint">{text}</p>;
+}
+
+function Pagination({ currentPage, totalPages }: { currentPage: number; totalPages: number }) {
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  return (
+    <nav className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+      {pages.map((n) => (
+        <Link
+          key={n}
+          href={`/admin?page=${n}`}
+          className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-sm font-semibold transition-colors ${
+            n === currentPage
+              ? "bg-brand text-white"
+              : "text-ink-soft hover:bg-paper"
+          }`}
+        >
+          {n}
+        </Link>
+      ))}
+    </nav>
+  );
 }
