@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { GraduationCap, Heart, ExternalLink, ArrowLeft, BookOpen } from "lucide-react";
+import { GraduationCap, Heart, ExternalLink, ArrowLeft } from "lucide-react";
 import { BRAND_SHORT, BRAND_NAME } from "@/lib/brand";
 import AbacusIllustration from "@/components/AbacusIllustration";
 import AccountMenu from "@/components/AccountMenu";
@@ -111,30 +111,6 @@ export default async function AboutPage() {
           </p>
         </div>
 
-        <div className="mt-10 rounded-3xl bg-brand-soft p-8 text-center md:p-10">
-          <BookOpen className="mx-auto text-brand" size={28} />
-          <h2 className="mt-3 font-display text-xl font-semibold text-ink">
-            Read the Full Story
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-ink-soft">
-            I wrote a longer blog post about where the idea for this site
-            came from, and what it was actually like building it
-            side-by-side with Mr. Claude Code - the breakthroughs, the
-            head-scratching moments, and everything in between. If
-            you&apos;re curious what that journey really looked like, give
-            it a read.
-          </p>
-          <a
-            href="https://lrvirtualclassroom.co.in/idea-and-mr-claude/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-          >
-            Read the Blog Post
-            <ExternalLink size={16} />
-          </a>
-        </div>
-
         <div className="mt-10 flex flex-col items-center gap-3 text-center">
           <AbacusIllustration className="h-20 w-20" />
           <p className="text-sm text-ink-soft">
@@ -142,19 +118,10 @@ export default async function AboutPage() {
           </p>
           <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
             <a
-              href="https://lrvirtualclassroom.co.in/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-            >
-              Visit My Portfolio
-              <ExternalLink size={16} />
-            </a>
-            <a
               href="https://www.linkedin.com/in/lashmibairavindrapandian/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-6 py-3.5 text-sm font-semibold text-ink-soft transition hover:bg-paper hover:text-brand"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
             >
               Connect on LinkedIn
               <ExternalLink size={16} />
