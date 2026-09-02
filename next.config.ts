@@ -2,8 +2,12 @@ import type { NextConfig } from "next";
 
 // Everything the site loads (fonts, images, scripts, styles) is served
 // from its own origin - next/font self-hosts Google Fonts at build time,
-// there are no third-party trackers, and all API calls are same-origin -
-// so the CSP below can stay tight without an allowlist of external hosts.
+// there are no third-party trackers, and all API calls are same-origin,
+// so the CSP below stays tight - connect-src has exactly one exception,
+// formsubmit.co, since the contact form's fetch() goes straight there
+// (see src/components/ContactForm.tsx). Without this the browser
+// silently blocks the request client-side - curl/server-side testing
+// won't catch it, since CSP is enforced only in the browser.
 // React's dev-mode debugging tools (component stack reconstruction) use
 // eval() and are only ever active in development - never in a production
 // build - so only relax the CSP for it locally, not on the deployed site.
@@ -23,7 +27,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self'",
-      "connect-src 'self'",
+      "connect-src 'self' https://formsubmit.co",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

@@ -9,7 +9,14 @@ const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/rlashmibai@gmail.com";
  * form-relay service, no backend of our own involved. It emails the
  * submission to the address in the URL above. The first submission to
  * a given address needs a one-time confirmation click from that inbox
- * before FormSubmit starts forwarding messages. */
+ * before FormSubmit starts forwarding messages.
+ *
+ * Sent as application/x-www-form-urlencoded (not JSON) deliberately -
+ * that's a CORS "simple request", so the browser sends it directly with
+ * no preflight OPTIONS round-trip first. A JSON body forces a preflight,
+ * and if FormSubmit's preflight handling ever hiccups the whole
+ * submission silently never leaves the browser, even though a plain
+ * server-to-server request (curl, no preflight involved) looks fine. */
 export default function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
@@ -29,24 +36,27 @@ export default function ContactForm() {
     const email = data.get("email")?.toString() ?? "";
     const message = data.get("message")?.toString() ?? "";
 
+    const params = new URLSearchParams({
+      name,
+      email,
+      message,
+      _subject: `LR Abacus Practice Test: feedback from ${name}`,
+    });
+
     try {
       const res = await fetch(FORMSUBMIT_ENDPOINT, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
           Accept: "application/json",
         },
-        body: JSON.stringify({
-          name,
-          email,
-          message,
-          _subject: `LR Abacus Practice Test: feedback from ${name}`,
-        }),
+        body: params.toString(),
       });
       if (!res.ok) throw new Error("submit failed");
       setStatus("success");
       form.reset();
-    } catch {
+    } catch (err) {
+      console.error("Contact form submission failed:", err);
       setStatus("error");
     }
   }
@@ -77,8 +87,9 @@ export default function ContactForm() {
             className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
           />
         </Field>
-        <Field label="Your Email (optional)">
+        <Field label="Your Email">
           <input
+            required
             type="email"
             name="email"
             placeholder="you@example.com"

@@ -45,6 +45,7 @@ next-env.d.ts
 /data/results.json
 !/data/results.json.example
 /data/counters.json
+/data/pageViews.json
 
 .vercel
 .env*
