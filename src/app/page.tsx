@@ -358,6 +358,28 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* How it works */}
+      <section className="bg-brand-soft py-16">
+        <div className="mx-auto max-w-6xl px-4 md:px-8">
+          <h2 className="text-center font-display text-3xl font-semibold text-ink">
+            How it works
+          </h2>
+          <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+            {STEPS.map((step, i) => (
+              <div key={step.title} className="text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand font-display text-lg font-semibold text-white">
+                  {i + 1}
+                </div>
+                <h3 className="mt-4 font-display text-lg font-semibold text-ink">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-sm text-ink-soft">{step.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* What You See Is What You Get */}
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-8">
         <div className="overflow-hidden rounded-3xl bg-surface shadow-sm ring-1 ring-line">
@@ -391,30 +413,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="bg-brand-soft py-16">
-        <div className="mx-auto max-w-6xl px-4 md:px-8">
-          <h2 className="text-center font-display text-3xl font-semibold text-ink">
-            How it works
-          </h2>
-          <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
-            {STEPS.map((step, i) => (
-              <div key={step.title} className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand font-display text-lg font-semibold text-white">
-                  {i + 1}
-                </div>
-                <h3 className="mt-4 font-display text-lg font-semibold text-ink">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm text-ink-soft">{step.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Badges - gold band, distinct from the lavender "How it works"
-          section above and the solid brand CTA below. */}
+      {/* Badges - gold band, distinct from the white "What You See Is
+          What You Get" section above and the solid brand CTA below. */}
       <section className="bg-gold-soft py-16">
         <div className="mx-auto max-w-6xl px-4 md:px-8">
           <div className="text-center">
