@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import {
   LayoutDashboard,
   Users,
@@ -13,7 +12,13 @@ import {
 import { getStudents, getResults, getCounterValue, getPageViews } from "@/lib/store";
 import { computeAdminStats } from "@/lib/adminStats";
 import { BRAND_NAME } from "@/lib/brand";
-import TrendChart from "@/components/TrendChart";
+import StatCard from "@/components/dashboard/StatCard";
+import BreakdownCard from "@/components/dashboard/BreakdownCard";
+import Row from "@/components/dashboard/Row";
+import ChartSection from "@/components/dashboard/ChartSection";
+import TableSection from "@/components/dashboard/TableSection";
+import Pagination from "@/components/dashboard/Pagination";
+import EmptyNote from "@/components/dashboard/EmptyNote";
 
 export const metadata: Metadata = {
   title: `Admin | ${BRAND_NAME}`,
@@ -212,6 +217,7 @@ export default async function AdminPage({
         {stats.allResults.length === 0 && <EmptyNote text="No tests submitted yet." />}
         {totalPages > 1 && (
           <Pagination
+            basePath="/admin"
             paramName="page"
             currentPage={currentPage}
             totalPages={totalPages}
@@ -243,6 +249,7 @@ export default async function AdminPage({
         {pageViews.length === 0 && <EmptyNote text="No homepage views logged yet." />}
         {viewsTotalPages > 1 && (
           <Pagination
+            basePath="/admin"
             paramName="viewsPage"
             currentPage={viewsCurrentPage}
             totalPages={viewsTotalPages}
@@ -285,132 +292,3 @@ export default async function AdminPage({
   );
 }
 
-function StatCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-2xl bg-surface p-5 shadow-sm ring-1 ring-line">
-      <div className="rounded-xl bg-brand-soft p-2.5 text-brand">{icon}</div>
-      <div>
-        <p className="text-xs text-ink-soft">{label}</p>
-        <p className="text-base font-bold text-ink">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function BreakdownCard({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line">
-      <h3 className="font-display text-base font-semibold text-ink">{title}</h3>
-      <dl className="mt-2 divide-y divide-line">{children}</dl>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between py-3 text-sm">
-      <dt className="text-ink-soft">{label}</dt>
-      <dd className="font-semibold text-ink">{value}</dd>
-    </div>
-  );
-}
-
-function ChartSection({
-  title,
-  description,
-  data,
-  color,
-  valueFormat,
-}: {
-  title: string;
-  description: string;
-  data: { label: string; value: number }[];
-  color: string;
-  valueFormat: (v: number) => string;
-}) {
-  return (
-    <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
-      <h3 className="font-display text-lg font-semibold text-ink">{title}</h3>
-      <p className="mb-4 text-sm text-ink-soft">{description}</p>
-      {data.length > 0 ? (
-        <TrendChart data={data} color={color} valueFormat={valueFormat} />
-      ) : (
-        <EmptyNote text="No data yet." />
-      )}
-    </section>
-  );
-}
-
-function TableSection({
-  icon,
-  title,
-  description,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
-      <div className="mb-1 flex items-center gap-2.5">
-        <div className="rounded-xl bg-brand-soft p-2 text-brand">{icon}</div>
-        <h3 className="font-display text-lg font-semibold text-ink">{title}</h3>
-      </div>
-      <p className="mb-4 text-sm text-ink-soft">{description}</p>
-      <div className="overflow-x-auto">{children}</div>
-    </section>
-  );
-}
-
-function EmptyNote({ text }: { text: string }) {
-  return <p className="py-6 text-center text-sm text-ink-faint">{text}</p>;
-}
-
-function Pagination({
-  paramName,
-  currentPage,
-  totalPages,
-  preserve,
-}: {
-  paramName: string;
-  currentPage: number;
-  totalPages: number;
-  preserve?: Record<string, string | undefined>;
-}) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-  const hrefFor = (n: number) => {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(preserve ?? {})) {
-      if (value) params.set(key, value);
-    }
-    params.set(paramName, String(n));
-    return `/admin?${params.toString()}`;
-  };
-  return (
-    <nav className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
-      {pages.map((n) => (
-        <Link
-          key={n}
-          href={hrefFor(n)}
-          className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-sm font-semibold transition-colors ${
-            n === currentPage
-              ? "bg-brand text-white"
-              : "text-ink-soft hover:bg-paper"
-          }`}
-        >
-          {n}
-        </Link>
-      ))}
-    </nav>
-  );
-}
