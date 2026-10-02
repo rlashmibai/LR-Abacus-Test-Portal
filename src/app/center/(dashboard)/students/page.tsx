@@ -30,7 +30,6 @@ export default async function CenterStudentsPage() {
               <tr className="text-xs uppercase tracking-wide text-ink-faint">
                 <th className="pb-2 pr-4">Name</th>
                 <th className="pb-2 pr-4">User ID</th>
-                <th className="pb-2 pr-4">Level</th>
                 <th className="pb-2" />
               </tr>
             </thead>
@@ -39,7 +38,6 @@ export default async function CenterStudentsPage() {
                 <tr key={s.id}>
                   <td className="py-2.5 pr-4 font-medium text-ink">{s.name}</td>
                   <td className="py-2.5 pr-4 text-ink-soft">{s.userId}</td>
-                  <td className="py-2.5 pr-4 text-ink-soft">{s.level}</td>
                   <td className="py-2.5 text-right">
                     <ResetPasswordButton studentId={s.id} />
                   </td>

@@ -8,14 +8,11 @@ import {
 } from "@/lib/auth";
 import type { Student } from "@/lib/types";
 
-const VALID_LEVELS = ["LEVEL 1", "LEVEL 2", "LEVEL 3", "LEVEL 4", "LEVEL 5"];
-
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const userId: string = (body.userId ?? "").trim();
   const name: string = (body.name ?? "").trim();
   const centerName: string = (body.centerName ?? "").trim() || "Demo Center";
-  const level: string = VALID_LEVELS.includes(body.level) ? body.level : "LEVEL 3";
   const password: string = body.password ?? "";
 
   if (!userId || !name || !password) {
@@ -43,7 +40,7 @@ export async function POST(req: NextRequest) {
     userId,
     name,
     centerName,
-    level,
+    level: "LEVEL 3", // not shown or used anywhere - tests are picked by operation/difficulty, not level
     passwordHash: hashPassword(password),
   };
 

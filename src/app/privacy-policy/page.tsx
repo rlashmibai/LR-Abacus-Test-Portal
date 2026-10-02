@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
                 </h2>
                 <p className="mt-2">
                   If you register, I ask only for a User ID you choose, your
-                  name, a practice level, and a password. Your password is
+                  name, and a password. Your password is
                   never stored as plain text - it&apos;s protected before it
                   ever reaches the database. If you use the site as a guest,
                   nothing about you is saved at all beyond your current

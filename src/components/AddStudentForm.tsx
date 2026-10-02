@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, UserPlus } from "lucide-react";
 
-const LEVELS = ["LEVEL 1", "LEVEL 2", "LEVEL 3", "LEVEL 4", "LEVEL 5"];
-
 export default function AddStudentForm() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -13,7 +11,6 @@ export default function AddStudentForm() {
     userId: "",
     name: "",
     password: "",
-    level: "LEVEL 3",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +35,7 @@ export default function AddStudentForm() {
         setLoading(false);
         return;
       }
-      setForm({ userId: "", name: "", password: "", level: "LEVEL 3" });
+      setForm({ userId: "", name: "", password: "" });
       setOpen(false);
       setLoading(false);
       router.refresh();
@@ -96,19 +93,6 @@ export default function AddStudentForm() {
             placeholder="At least 4 characters"
             className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
           />
-        </Field>
-        <Field label="Level">
-          <select
-            value={form.level}
-            onChange={(e) => update("level", e.target.value)}
-            className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
-          >
-            {LEVELS.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
         </Field>
       </div>
 

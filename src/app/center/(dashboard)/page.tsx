@@ -18,6 +18,7 @@ import ChartSection from "@/components/dashboard/ChartSection";
 import TableSection from "@/components/dashboard/TableSection";
 import Pagination from "@/components/dashboard/Pagination";
 import EmptyNote from "@/components/dashboard/EmptyNote";
+import StudentFilter from "@/components/StudentFilter";
 
 const OPERATION_LABELS: Record<string, string> = {
   addition_subtraction: "Addition & Subtraction",
@@ -52,19 +53,24 @@ function formatClock(totalSeconds: number) {
 export default async function CenterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; student?: string }>;
 }) {
   const center = await requireCenterSessionOrRedirect();
-  const { page } = await searchParams;
+  const { page, student } = await searchParams;
 
   const roster = await getStudentsByCenterId(center.id);
-  const rosterIds = new Set(roster.map((s) => s.id));
+  // Only a student from this centre's own roster can be selected - any
+  // other value in the URL just shows everyone.
+  const selected = roster.find((s) => s.id === student);
+  const scopeStudents = selected ? [selected] : roster;
+  const scopeIds = new Set(scopeStudents.map((s) => s.id));
   const allResults = await getResults();
-  const scopedResults = allResults.filter((r) => rosterIds.has(r.studentId));
+  const scopedResults = allResults.filter((r) => scopeIds.has(r.studentId));
+  const scopeLabel = selected ? selected.name : "your students";
 
   // A center has no guest-session concept of its own, unlike the
   // site-wide /admin dashboard - pass 0.
-  const stats = computeAdminStats(roster, scopedResults, 0);
+  const stats = computeAdminStats(scopeStudents, scopedResults, 0);
 
   const totalPages = Math.max(1, Math.ceil(stats.allResults.length / PAGE_SIZE));
   const currentPage = Math.min(totalPages, Math.max(1, Number(page) || 1));
@@ -83,7 +89,9 @@ export default async function CenterPage({
           </h1>
         </div>
         <p className="p-6 text-center text-sm text-ink-soft md:px-10">
-          Usage across your own registered students.
+          {selected
+            ? `Showing results for ${selected.name} (${selected.userId}) only.`
+            : "Usage across your own registered students."}
         </p>
       </div>
 
@@ -109,9 +117,18 @@ export default async function CenterPage({
         </Link>
       ) : (
         <>
+          <StudentFilter
+            students={roster.map((s) => ({ id: s.id, name: s.name, userId: s.userId }))}
+            selectedId={selected?.id ?? ""}
+          />
+
           {/* Top KPI row */}
           <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard icon={<Users size={18} />} label="Total Students" value={String(stats.totalStudents)} />
+            {selected ? (
+              <StatCard icon={<Users size={18} />} label="Student" value={selected.name} />
+            ) : (
+              <StatCard icon={<Users size={18} />} label="Total Students" value={String(stats.totalStudents)} />
+            )}
             <StatCard icon={<ListChecks size={18} />} label="Tests Taken" value={String(stats.totalTests)} />
             <StatCard icon={<TrendingUp size={18} />} label="Avg Score" value={`${stats.avgScorePercent}%`} />
             <StatCard icon={<Clock size={18} />} label="Avg Time Taken" value={formatClock(stats.avgTimeTakenSeconds)} />
@@ -137,7 +154,7 @@ export default async function CenterPage({
           {/* Trend charts */}
           <ChartSection
             title="Tests Per Day"
-            description="Number of tests submitted each day, across your students."
+            description={`Number of tests submitted each day by ${scopeLabel}.`}
             data={stats.testsPerDay}
             color="var(--brand)"
             valueFormat={(v) => String(v)}
@@ -150,7 +167,9 @@ export default async function CenterPage({
             valueFormat={(v) => `${v}%`}
           />
 
-          {/* Leaderboard */}
+          {/* Leaderboard - a ranking of one student is meaningless, so it
+              only appears when looking at everyone. */}
+          {!selected && (
           <TableSection
             icon={<Trophy size={18} />}
             title="Top Students"
@@ -178,12 +197,13 @@ export default async function CenterPage({
             </table>
             {stats.topStudents.length === 0 && <EmptyNote text="No tests submitted yet." />}
           </TableSection>
+          )}
 
           {/* Submissions */}
           <TableSection
             icon={<ListChecks size={18} />}
             title="All Submissions"
-            description={`${stats.allResults.length} test${stats.allResults.length === 1 ? "" : "s"} submitted by your students - most recent first.`}
+            description={`${stats.allResults.length} test${stats.allResults.length === 1 ? "" : "s"} submitted by ${scopeLabel} - most recent first.`}
           >
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead>
@@ -220,6 +240,7 @@ export default async function CenterPage({
                 paramName="page"
                 currentPage={currentPage}
                 totalPages={totalPages}
+                preserve={{ student: selected?.id }}
               />
             )}
           </TableSection>
