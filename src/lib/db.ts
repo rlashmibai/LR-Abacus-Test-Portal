@@ -1,5 +1,5 @@
 import { neon } from "@neondatabase/serverless";
-import type { Student, TestSession, TestResult } from "./types";
+import type { Student, TestSession, TestResult, Center } from "./types";
 
 // The demo account, seeded once so a fresh deployment has something to
 // sign in with immediately. Same account/password as local dev.
@@ -91,6 +91,21 @@ function ensureSchema(): Promise<void> {
           viewed_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS centers (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          user_id TEXT UNIQUE NOT NULL,
+          password_hash TEXT NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `;
+      // Links a student to the center/teacher who created their profile -
+      // NULL means an independent, self-registered student (unchanged
+      // behavior for every account that existed before this feature).
+      await sql`
+        ALTER TABLE students ADD COLUMN IF NOT EXISTS center_id TEXT REFERENCES centers(id)
+      `;
 
       await sql`
         INSERT INTO students (id, user_id, name, center_name, level, password_hash)
@@ -113,6 +128,7 @@ interface StudentRow {
   level: string;
   password_hash: string | null;
   created_at: string;
+  center_id: string | null;
 }
 
 function rowToStudent(row: StudentRow): Student {
@@ -124,6 +140,7 @@ function rowToStudent(row: StudentRow): Student {
     level: row.level,
     passwordHash: row.password_hash ?? undefined,
     createdAt: row.created_at,
+    centerId: row.center_id ?? undefined,
   };
 }
 
@@ -148,16 +165,69 @@ export async function dbSaveStudents(students: Student[]): Promise<void> {
   const sql = getSql();
   for (const s of students) {
     await sql`
-      INSERT INTO students (id, user_id, name, center_name, level, password_hash)
-      VALUES (${s.id}, ${s.userId}, ${s.name}, ${s.centerName}, ${s.level}, ${s.passwordHash ?? null})
+      INSERT INTO students (id, user_id, name, center_name, level, password_hash, center_id)
+      VALUES (${s.id}, ${s.userId}, ${s.name}, ${s.centerName}, ${s.level}, ${s.passwordHash ?? null}, ${s.centerId ?? null})
       ON CONFLICT (id) DO UPDATE SET
         user_id = EXCLUDED.user_id,
         name = EXCLUDED.name,
         center_name = EXCLUDED.center_name,
         level = EXCLUDED.level,
-        password_hash = EXCLUDED.password_hash
+        password_hash = EXCLUDED.password_hash,
+        center_id = EXCLUDED.center_id
     `;
   }
+}
+
+interface CenterRow {
+  id: string;
+  name: string;
+  user_id: string;
+  password_hash: string;
+  created_at: string;
+}
+
+function rowToCenter(row: CenterRow): Center {
+  return {
+    id: row.id,
+    name: row.name,
+    userId: row.user_id,
+    passwordHash: row.password_hash,
+    createdAt: row.created_at,
+  };
+}
+
+export async function dbCreateCenter(center: Center): Promise<void> {
+  await ensureSchema();
+  const sql = getSql();
+  await sql`
+    INSERT INTO centers (id, name, user_id, password_hash)
+    VALUES (${center.id}, ${center.name}, ${center.userId}, ${center.passwordHash})
+  `;
+}
+
+export async function dbGetCenter(idOrUserId: string): Promise<Center | undefined> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`
+    SELECT * FROM centers WHERE id = ${idOrUserId} OR lower(user_id) = lower(${idOrUserId}) LIMIT 1
+  `) as unknown as CenterRow[];
+  return rows[0] ? rowToCenter(rows[0]) : undefined;
+}
+
+export async function dbGetCenters(): Promise<Center[]> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`SELECT * FROM centers`) as unknown as CenterRow[];
+  return rows.map(rowToCenter);
+}
+
+export async function dbGetStudentsByCenterId(centerId: string): Promise<Student[]> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`
+    SELECT * FROM students WHERE center_id = ${centerId}
+  `) as unknown as StudentRow[];
+  return rows.map(rowToStudent);
 }
 
 export async function dbSaveSession(session: TestSession): Promise<void> {

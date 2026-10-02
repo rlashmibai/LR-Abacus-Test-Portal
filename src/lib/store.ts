@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import type { Student, TestSession, TestResult } from "./types";
+import type { Student, TestSession, TestResult, Center } from "./types";
 import {
   isDbConfigured,
   dbGetStudents,
@@ -15,6 +15,10 @@ import {
   dbGetCounter,
   dbLogPageView,
   dbGetPageViews,
+  dbCreateCenter,
+  dbGetCenter,
+  dbGetCenters,
+  dbGetStudentsByCenterId,
 } from "./db";
 
 export interface PageView {
@@ -33,6 +37,7 @@ const STUDENTS_FILE = path.join(DATA_DIR, "students.json");
 const RESULTS_FILE = path.join(DATA_DIR, "results.json");
 const COUNTERS_FILE = path.join(DATA_DIR, "counters.json");
 const PAGE_VIEWS_FILE = path.join(DATA_DIR, "pageViews.json");
+const CENTERS_FILE = path.join(DATA_DIR, "centers.json");
 
 async function ensureDirs() {
   await fs.mkdir(SESSIONS_DIR, { recursive: true });
@@ -123,6 +128,27 @@ async function fileGetPageViews(): Promise<PageView[]> {
   return readJson<PageView[]>(PAGE_VIEWS_FILE, []);
 }
 
+async function fileGetCenters(): Promise<Center[]> {
+  return readJson<Center[]>(CENTERS_FILE, []);
+}
+
+async function fileGetCenter(idOrUserId: string): Promise<Center | undefined> {
+  const centers = await fileGetCenters();
+  const needle = idOrUserId.toLowerCase();
+  return centers.find((c) => c.id === idOrUserId || c.userId.toLowerCase() === needle);
+}
+
+async function fileCreateCenter(center: Center): Promise<void> {
+  const centers = await fileGetCenters();
+  centers.push(center);
+  await writeJson(CENTERS_FILE, centers);
+}
+
+async function fileGetStudentsByCenterId(centerId: string): Promise<Student[]> {
+  const students = await fileGetStudents();
+  return students.filter((s) => s.centerId === centerId);
+}
+
 export async function getStudents(): Promise<Student[]> {
   return isDbConfigured() ? dbGetStudents() : fileGetStudents();
 }
@@ -179,6 +205,31 @@ export async function logPageView(): Promise<void> {
 
 export async function getPageViews(): Promise<PageView[]> {
   return isDbConfigured() ? dbGetPageViews() : fileGetPageViews();
+}
+
+export async function createCenter(center: Center): Promise<void> {
+  return isDbConfigured() ? dbCreateCenter(center) : fileCreateCenter(center);
+}
+
+export async function getCenter(idOrUserId: string): Promise<Center | undefined> {
+  return isDbConfigured() ? dbGetCenter(idOrUserId) : fileGetCenter(idOrUserId);
+}
+
+export async function getCenters(): Promise<Center[]> {
+  return isDbConfigured() ? dbGetCenters() : fileGetCenters();
+}
+
+export async function getStudentsByCenterId(centerId: string): Promise<Student[]> {
+  return isDbConfigured()
+    ? dbGetStudentsByCenterId(centerId)
+    : fileGetStudentsByCenterId(centerId);
+}
+
+/** The next sequential "CTR_001", "CTR_002", ... id for a newly
+ * registered center. */
+export async function nextCenterId(): Promise<string> {
+  const n = await nextCounterValue("center");
+  return `CTR_${String(n).padStart(3, "0")}`;
 }
 
 /** The next sequential "STUD_001", "STUD_002", ... id for a newly

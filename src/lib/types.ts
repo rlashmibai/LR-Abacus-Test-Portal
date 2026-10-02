@@ -9,6 +9,20 @@ export interface Student {
   passwordHash?: string; // "<salt>:<hash>", absent for guest sessions
   isGuest?: boolean;
   createdAt?: string; // when the account was registered, ISO string
+  centerId?: string; // set when a Center's teacher created this profile -
+  // absent for independent, self-registered students (unchanged behavior)
+}
+
+/** A school/coaching-center account. A separate identity from Student,
+ * not a role on it - a center never takes a test itself, it only
+ * creates and manages student profiles underneath it. See
+ * src/lib/auth.ts's SessionPayload for how a center logs in. */
+export interface Center {
+  id: string; // e.g. "CTR_001"
+  name: string; // the school/center's display name
+  userId: string; // login id, unique across centers (separate namespace from student userIds)
+  passwordHash: string;
+  createdAt?: string;
 }
 
 export interface AbacusQuestion {

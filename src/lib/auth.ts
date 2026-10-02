@@ -1,8 +1,8 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { getStudent } from "./store";
-import type { Student } from "./types";
+import { getStudent, getCenter } from "./store";
+import type { Student, Center } from "./types";
 
 export const SESSION_COOKIE = "abacus_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
@@ -23,9 +23,10 @@ export function verifyPassword(password: string, stored: string | undefined): bo
   return timingSafeEqual(candidate, expected);
 }
 
-type SessionPayload =
+export type SessionPayload =
   | { kind: "student"; studentId: string }
-  | { kind: "guest"; student: Student };
+  | { kind: "guest"; student: Student }
+  | { kind: "center"; centerId: string };
 
 /** The session cookie is signed with this so a client can't hand-craft
  * `{"kind":"student","studentId":"STUD_002"}` and log in as someone else -
@@ -83,7 +84,8 @@ export async function getSessionStudent(): Promise<Student | null> {
   if (!payload) return null;
 
   if (payload.kind === "guest") return payload.student;
-  return (await getStudent(payload.studentId)) ?? null;
+  if (payload.kind === "student") return (await getStudent(payload.studentId)) ?? null;
+  return null; // a center session is a different identity, not a Student
 }
 
 /** For server components/pages: redirects to /login when there's no session. */
@@ -91,4 +93,26 @@ export async function requireSessionOrRedirect(): Promise<Student> {
   const student = await getSessionStudent();
   if (!student) redirect("/login");
   return student;
+}
+
+/** Center accounts are a separate identity from Student (a center never
+ * takes a test itself) - see the Center type and getSessionStudent above,
+ * which deliberately returns null for a "center"-kind session. */
+export async function getSessionCenter(): Promise<Center | null> {
+  const store = await cookies();
+  const raw = store.get(SESSION_COOKIE)?.value;
+  if (!raw) return null;
+
+  const payload = decodeSession(raw);
+  if (!payload || payload.kind !== "center") return null;
+
+  return (await getCenter(payload.centerId)) ?? null;
+}
+
+/** For server components/pages: redirects to /center/login when there's
+ * no center session. */
+export async function requireCenterSessionOrRedirect(): Promise<Center> {
+  const center = await getSessionCenter();
+  if (!center) redirect("/center/login");
+  return center;
 }
