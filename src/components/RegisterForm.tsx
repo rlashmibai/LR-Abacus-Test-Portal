@@ -3,11 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, User, Building2 } from "lucide-react";
 import AuthShell from "./AuthShell";
 
-export default function RegisterForm({ quote }: { quote: string }) {
+type AccountType = "student" | "centre";
+
+export default function RegisterForm({
+  quote,
+  initialType = "student",
+}: {
+  quote: string;
+  initialType?: AccountType;
+}) {
   const router = useRouter();
+  const [accountType, setAccountType] = useState<AccountType>(initialType);
   const [form, setForm] = useState({
     userId: "",
     name: "",
@@ -16,6 +25,8 @@ export default function RegisterForm({ quote }: { quote: string }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isCentre = accountType === "centre";
 
   function update<K extends keyof typeof form>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -32,7 +43,7 @@ export default function RegisterForm({ quote }: { quote: string }) {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(isCentre ? "/api/center/register" : "/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -43,7 +54,7 @@ export default function RegisterForm({ quote }: { quote: string }) {
         setLoading(false);
         return;
       }
-      router.push("/dashboard");
+      router.push(isCentre ? "/center" : "/dashboard");
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -55,10 +66,43 @@ export default function RegisterForm({ quote }: { quote: string }) {
     <AuthShell quote={quote}>
       <h1 className="font-display text-2xl font-semibold text-ink">Create your account</h1>
       <p className="mt-2 text-sm text-ink-soft">
-        Register to save your progress and results across tests.
+        {isCentre
+          ? "Register your school or coaching centre, then add each student's own login underneath it and track their scores."
+          : "Register to save your progress and results across tests."}
       </p>
 
+      <div
+        role="tablist"
+        aria-label="Account type"
+        className="mt-5 grid grid-cols-2 gap-1 rounded-xl bg-paper p-1"
+      >
+        <TypeTab
+          active={!isCentre}
+          onClick={() => setAccountType("student")}
+          icon={<User size={15} />}
+          label="Student"
+        />
+        <TypeTab
+          active={isCentre}
+          onClick={() => setAccountType("centre")}
+          icon={<Building2 size={15} />}
+          label="Centre"
+        />
+      </div>
+
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        {isCentre ? (
+          <Field label="Centre Name">
+            <input
+              required
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+              placeholder="e.g. Sunrise Abacus Academy"
+              className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
+            />
+          </Field>
+        ) : null}
+
         <Field label="User ID">
           <input
             required
@@ -69,15 +113,17 @@ export default function RegisterForm({ quote }: { quote: string }) {
           />
         </Field>
 
-        <Field label="Full Name">
-          <input
-            required
-            value={form.name}
-            onChange={(e) => update("name", e.target.value)}
-            placeholder="Your name"
-            className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
-          />
-        </Field>
+        {!isCentre ? (
+          <Field label="Full Name">
+            <input
+              required
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+              placeholder="Your name"
+              className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
+            />
+          </Field>
+        ) : null}
 
         <Field label="Password">
           <input
@@ -118,6 +164,8 @@ export default function RegisterForm({ quote }: { quote: string }) {
               <Loader2 size={16} className="animate-spin" />
               Creating account...
             </>
+          ) : isCentre ? (
+            "Register Centre"
           ) : (
             "Register"
           )}
@@ -131,6 +179,35 @@ export default function RegisterForm({ quote }: { quote: string }) {
         </Link>
       </p>
     </AuthShell>
+  );
+}
+
+function TypeTab({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      className={`flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+        active
+          ? "bg-surface text-brand shadow-sm ring-1 ring-line"
+          : "text-ink-soft hover:text-brand"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }
 

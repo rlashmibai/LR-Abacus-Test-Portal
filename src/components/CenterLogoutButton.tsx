@@ -11,7 +11,7 @@ export default function CenterLogoutButton() {
   async function handleSignOut() {
     setLoading(true);
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/center/login");
+    router.push("/login");
     router.refresh();
   }
 

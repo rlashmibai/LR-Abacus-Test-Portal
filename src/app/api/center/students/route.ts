@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getStudent,
+  isUserIdTaken,
   getStudents,
   saveStudents,
   getStudentsByCenterId,
@@ -49,12 +49,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Student User IDs are unique site-wide, not just within one center -
-  // a collision with another school's student is possible and expected.
-  const existing = await getStudent(userId);
-  if (existing) {
+  // User IDs are unique site-wide (students and centres share one
+  // sign-in page), not just within one centre.
+  if (await isUserIdTaken(userId)) {
     return NextResponse.json(
-      { error: "That User ID is already taken - IDs must be unique across every school and center on the site, not just yours." },
+      { error: "That User ID is already taken - IDs must be unique across every school and centre on the site, not just yours." },
       { status: 409 }
     );
   }

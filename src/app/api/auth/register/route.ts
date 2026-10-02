@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStudent, getStudents, saveStudents, nextStudentId } from "@/lib/store";
+import { isUserIdTaken, getStudents, saveStudents, nextStudentId } from "@/lib/store";
 import {
   encodeSession,
   hashPassword,
@@ -31,8 +31,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const existing = await getStudent(userId);
-  if (existing) {
+  if (await isUserIdTaken(userId)) {
     return NextResponse.json(
       { error: "That User ID is already registered." },
       { status: 409 }

@@ -1,6 +1,7 @@
 import { requireCenterSessionOrRedirect } from "@/lib/auth";
 import { getStudentsByCenterId } from "@/lib/store";
 import AddStudentForm from "@/components/AddStudentForm";
+import BulkUploadStudents from "@/components/BulkUploadStudents";
 import ResetPasswordButton from "@/components/ResetPasswordButton";
 
 export default async function CenterStudentsPage() {
@@ -17,7 +18,10 @@ export default async function CenterStudentsPage() {
         </p>
       </div>
 
-      <AddStudentForm />
+      <div className="space-y-3">
+        <AddStudentForm />
+        <BulkUploadStudents />
+      </div>
 
       <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line">
         <div className="overflow-x-auto">

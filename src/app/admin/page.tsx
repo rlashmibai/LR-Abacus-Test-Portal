@@ -269,8 +269,8 @@ export default async function AdminPage({
       {/* Registered centers */}
       <TableSection
         icon={<Building2 size={18} />}
-        title="Registered Centers"
-        description="Schools/coaching centers that have self-registered, each with their own teacher-managed student roster."
+        title="Registered Centres"
+        description="Schools/coaching centres that have self-registered, each with their own teacher-managed student roster."
       >
         <table className="w-full min-w-[480px] text-left text-sm">
           <thead>
@@ -296,7 +296,7 @@ export default async function AdminPage({
             ))}
           </tbody>
         </table>
-        {centers.length === 0 && <EmptyNote text="No centers registered yet." />}
+        {centers.length === 0 && <EmptyNote text="No centres registered yet." />}
       </TableSection>
 
       {/* Registered students roster */}

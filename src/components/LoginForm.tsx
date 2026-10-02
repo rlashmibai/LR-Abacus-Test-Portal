@@ -31,7 +31,7 @@ export default function LoginForm({ quote }: { quote: string }) {
         setLoading(false);
         return;
       }
-      router.push("/dashboard");
+      router.push(data.role === "center" ? "/center" : "/dashboard");
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -57,7 +57,7 @@ export default function LoginForm({ quote }: { quote: string }) {
     <AuthShell quote={quote}>
       <h1 className="font-display text-3xl font-semibold text-ink">Welcome back</h1>
       <p className="mt-2 text-sm text-ink-soft">
-        Sign in to continue sharpening your speed and accuracy.
+        Students and centres sign in here - sharpen your speed and accuracy.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-7 space-y-4">
@@ -156,13 +156,6 @@ export default function LoginForm({ quote }: { quote: string }) {
       </button>
       <p className="mt-2 text-center text-xs text-ink-faint">
         No sign-up needed - jump straight into a practice test.
-      </p>
-
-      <p className="mt-5 text-center text-sm text-ink-soft">
-        Running a school or coaching center?{" "}
-        <Link href="/center/register" className="font-medium text-brand hover:underline">
-          Register here
-        </Link>
       </p>
     </AuthShell>
   );

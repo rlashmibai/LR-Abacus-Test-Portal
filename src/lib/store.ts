@@ -19,6 +19,8 @@ import {
   dbGetCenter,
   dbGetCenters,
   dbGetStudentsByCenterId,
+  dbInsertStudents,
+  dbReserveCounterRange,
 } from "./db";
 
 export interface PageView {
@@ -114,6 +116,29 @@ async function fileGetCounter(name: string): Promise<number> {
   await ensureDirs();
   const counters = await readJson<Record<string, number>>(COUNTERS_FILE, {});
   return counters[name] ?? 0;
+}
+
+async function fileReserveCounterRange(name: string, count: number): Promise<number> {
+  await ensureDirs();
+  const counters = await readJson<Record<string, number>>(COUNTERS_FILE, {});
+  const first = (counters[name] ?? 0) + 1;
+  counters[name] = (counters[name] ?? 0) + count;
+  await writeJson(COUNTERS_FILE, counters);
+  return first;
+}
+
+async function fileInsertStudents(newStudents: Student[]): Promise<number> {
+  const students = await fileGetStudents();
+  const taken = new Set(students.map((s) => s.userId.toLowerCase()));
+  let inserted = 0;
+  for (const s of newStudents) {
+    if (taken.has(s.userId.toLowerCase())) continue;
+    students.push(s);
+    taken.add(s.userId.toLowerCase());
+    inserted++;
+  }
+  await fileSaveStudents(students);
+  return inserted;
 }
 
 async function fileLogPageView(id: string): Promise<void> {
@@ -225,8 +250,31 @@ export async function getStudentsByCenterId(centerId: string): Promise<Student[]
     : fileGetStudentsByCenterId(centerId);
 }
 
+/** Student and centre sign-in IDs share one namespace, since a single
+ * sign-in page serves both - so a new ID must be free in both tables. */
+export async function isUserIdTaken(userId: string): Promise<boolean> {
+  const [student, center] = await Promise.all([getStudent(userId), getCenter(userId)]);
+  return Boolean(student || center);
+}
+
+/** Reserves `count` sequential student ids ("STUD_007", "STUD_008", ...) in
+ * one step - the bulk-upload counterpart of nextStudentId(). */
+export async function nextStudentIds(count: number): Promise<string[]> {
+  if (count <= 0) return [];
+  const first = isDbConfigured()
+    ? await dbReserveCounterRange("student", count)
+    : await fileReserveCounterRange("student", count);
+  return Array.from({ length: count }, (_, i) => `STUD_${String(first + i).padStart(3, "0")}`);
+}
+
+/** Adds new students without re-saving everyone who already exists
+ * (unlike saveStudents). Returns how many were actually inserted. */
+export async function addStudents(students: Student[]): Promise<number> {
+  return isDbConfigured() ? dbInsertStudents(students) : fileInsertStudents(students);
+}
+
 /** The next sequential "CTR_001", "CTR_002", ... id for a newly
- * registered center. */
+ * registered centre. */
 export async function nextCenterId(): Promise<string> {
   const n = await nextCounterValue("center");
   return `CTR_${String(n).padStart(3, "0")}`;

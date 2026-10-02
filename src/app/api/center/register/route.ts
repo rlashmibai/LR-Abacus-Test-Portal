@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCenter, createCenter, nextCenterId } from "@/lib/store";
+import { isUserIdTaken, createCenter, nextCenterId } from "@/lib/store";
 import {
   encodeSession,
   hashPassword,
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   if (!name || !userId || !password) {
     return NextResponse.json(
-      { error: "Center name, User ID, and password are required." },
+      { error: "Centre name, User ID, and password are required." },
       { status: 400 }
     );
   }
@@ -34,11 +34,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Centers and students are different tables/entities, but a center's
-  // userId still needs to not collide with another center's - students
-  // have their own separate uniqueness check and namespace.
-  const existing = await getCenter(userId);
-  if (existing) {
+  // One shared sign-in page serves students and centres, so a User ID
+  // must be free across both.
+  if (await isUserIdTaken(userId)) {
     return NextResponse.json(
       { error: "That User ID is already registered." },
       { status: 409 }

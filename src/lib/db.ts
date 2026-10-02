@@ -230,6 +230,44 @@ export async function dbGetStudentsByCenterId(centerId: string): Promise<Student
   return rows.map(rowToStudent);
 }
 
+/** Inserts many new students in a single query (a bulk upload would
+ * otherwise mean one round-trip per student). Rows whose user_id already
+ * exists are skipped rather than failing the whole batch; returns how many
+ * were actually inserted. */
+export async function dbInsertStudents(students: Student[]): Promise<number> {
+  if (students.length === 0) return 0;
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`
+    INSERT INTO students (id, user_id, name, center_name, level, password_hash, center_id)
+    SELECT * FROM unnest(
+      ${students.map((s) => s.id)}::text[],
+      ${students.map((s) => s.userId)}::text[],
+      ${students.map((s) => s.name)}::text[],
+      ${students.map((s) => s.centerName)}::text[],
+      ${students.map((s) => s.level)}::text[],
+      ${students.map((s) => s.passwordHash ?? null)}::text[],
+      ${students.map((s) => s.centerId ?? null)}::text[]
+    )
+    ON CONFLICT (user_id) DO NOTHING
+    RETURNING id
+  `) as unknown as { id: string }[];
+  return rows.length;
+}
+
+/** Atomically reserves `count` consecutive numbers from a named counter and
+ * returns the first one - a bulk version of dbNextCounter. */
+export async function dbReserveCounterRange(name: string, count: number): Promise<number> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`
+    INSERT INTO counters (name, value) VALUES (${name}, ${count})
+    ON CONFLICT (name) DO UPDATE SET value = counters.value + ${count}
+    RETURNING value
+  `) as unknown as { value: number }[];
+  return rows[0].value - count + 1;
+}
+
 export async function dbSaveSession(session: TestSession): Promise<void> {
   await ensureSchema();
   const sql = getSql();

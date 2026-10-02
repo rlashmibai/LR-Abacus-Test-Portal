@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "crypto";
+import { createHmac, randomBytes, scrypt, scryptSync, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getStudent, getCenter } from "./store";
@@ -11,6 +11,16 @@ export function hashPassword(password: string): string {
   const salt = randomBytes(16).toString("hex");
   const hash = scryptSync(password, salt, 64).toString("hex");
   return `${salt}:${hash}`;
+}
+
+/** Same hash format as hashPassword, but computed off the main thread so a
+ * bulk upload can hash many passwords in parallel instead of one by one. */
+export async function hashPasswordAsync(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const hash = await new Promise<Buffer>((resolve, reject) =>
+    scrypt(password, salt, 64, (err, key) => (err ? reject(err) : resolve(key)))
+  );
+  return `${salt}:${hash.toString("hex")}`;
 }
 
 export function verifyPassword(password: string, stored: string | undefined): boolean {
@@ -109,10 +119,10 @@ export async function getSessionCenter(): Promise<Center | null> {
   return (await getCenter(payload.centerId)) ?? null;
 }
 
-/** For server components/pages: redirects to /center/login when there's
- * no center session. */
+/** For server components/pages: redirects to the shared /login page when
+ * there's no centre session. */
 export async function requireCenterSessionOrRedirect(): Promise<Center> {
   const center = await getSessionCenter();
-  if (!center) redirect("/center/login");
+  if (!center) redirect("/login");
   return center;
 }

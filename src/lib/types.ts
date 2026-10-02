@@ -20,7 +20,7 @@ export interface Student {
 export interface Center {
   id: string; // e.g. "CTR_001"
   name: string; // the school/center's display name
-  userId: string; // login id, unique across centers (separate namespace from student userIds)
+  userId: string; // login id - shares one namespace with student userIds, since one sign-in page serves both
   passwordHash: string;
   createdAt?: string;
 }

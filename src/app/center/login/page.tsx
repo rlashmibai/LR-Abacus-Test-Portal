@@ -1,11 +1,7 @@
 import { redirect } from "next/navigation";
-import { getSessionCenter } from "@/lib/auth";
-import { pickQuote } from "@/lib/quotes";
-import CenterLoginForm from "@/components/CenterLoginForm";
 
-export default async function CenterLoginPage() {
-  const center = await getSessionCenter();
-  if (center) redirect("/center");
-
-  return <CenterLoginForm quote={pickQuote()} />;
+// Centres now sign in on the shared page - this address just forwards
+// there so any old links or bookmarks keep working.
+export default function CenterLoginPage() {
+  redirect("/login");
 }

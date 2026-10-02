@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStudent } from "@/lib/store";
+import { getStudent, getCenter } from "@/lib/store";
 import {
   encodeSession,
   verifyPassword,
@@ -7,6 +7,9 @@ import {
   SESSION_COOKIE_OPTIONS,
 } from "@/lib/auth";
 
+// One sign-in serves both account types: students and centres share a
+// single User ID namespace (enforced at registration), so at most one of
+// the two lookups below can match.
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const userId: string = (body.userId ?? "").trim();
@@ -19,19 +22,30 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const student = await getStudent(userId);
-  if (!student || !verifyPassword(password, student.passwordHash)) {
-    return NextResponse.json(
-      { error: "Incorrect User ID or password." },
-      { status: 401 }
+  const [student, center] = await Promise.all([getStudent(userId), getCenter(userId)]);
+
+  if (student && verifyPassword(password, student.passwordHash)) {
+    const res = NextResponse.json({ ok: true, role: "student" });
+    res.cookies.set(
+      SESSION_COOKIE,
+      encodeSession({ kind: "student", studentId: student.id }),
+      SESSION_COOKIE_OPTIONS
     );
+    return res;
   }
 
-  const res = NextResponse.json({ ok: true });
-  res.cookies.set(
-    SESSION_COOKIE,
-    encodeSession({ kind: "student", studentId: student.id }),
-    SESSION_COOKIE_OPTIONS
+  if (center && verifyPassword(password, center.passwordHash)) {
+    const res = NextResponse.json({ ok: true, role: "center" });
+    res.cookies.set(
+      SESSION_COOKIE,
+      encodeSession({ kind: "center", centerId: center.id }),
+      SESSION_COOKIE_OPTIONS
+    );
+    return res;
+  }
+
+  return NextResponse.json(
+    { error: "Incorrect User ID or password." },
+    { status: 401 }
   );
-  return res;
 }

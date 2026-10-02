@@ -113,8 +113,8 @@ export default function AddStudentForm() {
       </div>
 
       <p className="text-xs text-ink-faint">
-        Share this User ID and password with the student - they&apos;ll sign
-        in at the normal login page, not here.
+        Share this User ID and password with the student - they sign in at
+        the normal sign-in page and see only their own results.
       </p>
 
       {error && (
