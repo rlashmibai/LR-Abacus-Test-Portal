@@ -157,6 +157,13 @@ export default function LoginForm({ quote }: { quote: string }) {
       <p className="mt-2 text-center text-xs text-ink-faint">
         No sign-up needed - jump straight into a practice test.
       </p>
+
+      <p className="mt-5 text-center text-sm text-ink-soft">
+        Running a school or coaching center?{" "}
+        <Link href="/center/register" className="font-medium text-brand hover:underline">
+          Register here
+        </Link>
+      </p>
     </AuthShell>
   );
 }

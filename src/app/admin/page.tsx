@@ -8,8 +8,9 @@ import {
   Clock,
   Trophy,
   Eye,
+  Building2,
 } from "lucide-react";
-import { getStudents, getResults, getCounterValue, getPageViews } from "@/lib/store";
+import { getStudents, getResults, getCounterValue, getPageViews, getCenters } from "@/lib/store";
 import { computeAdminStats } from "@/lib/adminStats";
 import { BRAND_NAME } from "@/lib/brand";
 import StatCard from "@/components/dashboard/StatCard";
@@ -67,15 +68,22 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<{ page?: string; viewsPage?: string }>;
 }) {
-  const [students, results, guestSessionCount, pageViews, { page, viewsPage }] =
+  const [students, results, guestSessionCount, pageViews, centers, { page, viewsPage }] =
     await Promise.all([
       getStudents(),
       getResults(),
       getCounterValue("guest"),
       getPageViews(),
+      getCenters(),
       searchParams,
     ]);
   const stats = computeAdminStats(students, results, guestSessionCount);
+
+  const studentCountByCenter = new Map<string, number>();
+  for (const s of students) {
+    if (!s.centerId) continue;
+    studentCountByCenter.set(s.centerId, (studentCountByCenter.get(s.centerId) ?? 0) + 1);
+  }
 
   const totalPages = Math.max(1, Math.ceil(stats.allResults.length / PAGE_SIZE));
   const currentPage = Math.min(totalPages, Math.max(1, Number(page) || 1));
@@ -256,6 +264,39 @@ export default async function AdminPage({
             preserve={{ page }}
           />
         )}
+      </TableSection>
+
+      {/* Registered centers */}
+      <TableSection
+        icon={<Building2 size={18} />}
+        title="Registered Centers"
+        description="Schools/coaching centers that have self-registered, each with their own teacher-managed student roster."
+      >
+        <table className="w-full min-w-[480px] text-left text-sm">
+          <thead>
+            <tr className="text-xs uppercase tracking-wide text-ink-faint">
+              <th className="pb-2 pr-4">Name</th>
+              <th className="pb-2 pr-4">User ID</th>
+              <th className="pb-2 pr-4">Students</th>
+              <th className="pb-2">Registered</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {centers.map((c) => (
+              <tr key={c.id}>
+                <td className="py-2.5 pr-4 font-medium text-ink">{c.name}</td>
+                <td className="py-2.5 pr-4 text-ink-soft">{c.userId}</td>
+                <td className="py-2.5 pr-4 text-ink-soft">
+                  {studentCountByCenter.get(c.id) ?? 0}
+                </td>
+                <td className="py-2.5 text-ink-soft">
+                  {c.createdAt ? formatDateOnly(c.createdAt) : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {centers.length === 0 && <EmptyNote text="No centers registered yet." />}
       </TableSection>
 
       {/* Registered students roster */}
