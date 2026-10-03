@@ -1,8 +1,10 @@
 import { requireCenterSessionOrRedirect } from "@/lib/auth";
 import { getStudentsByCenterId } from "@/lib/store";
+import { levelFromStored } from "@/lib/levels";
 import AddStudentForm from "@/components/AddStudentForm";
 import BulkUploadStudents from "@/components/BulkUploadStudents";
 import ResetPasswordButton from "@/components/ResetPasswordButton";
+import LevelSelect from "@/components/LevelSelect";
 
 export default async function CenterStudentsPage() {
   const center = await requireCenterSessionOrRedirect();
@@ -14,7 +16,7 @@ export default async function CenterStudentsPage() {
         <h1 className="font-display text-2xl font-semibold text-ink">Students</h1>
         <p className="mt-1 text-ink-soft">
           {roster.length} student{roster.length === 1 ? "" : "s"} registered
-          under {center.name}.
+          under {center.name}. Levels are for you only - students never see them.
         </p>
       </div>
 
@@ -25,11 +27,12 @@ export default async function CenterStudentsPage() {
 
       <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[480px] text-left text-sm">
+          <table className="w-full min-w-[560px] text-left text-sm">
             <thead>
               <tr className="text-xs uppercase tracking-wide text-ink-faint">
                 <th className="pb-2 pr-4">Name</th>
                 <th className="pb-2 pr-4">User ID</th>
+                <th className="pb-2 pr-4">Level</th>
                 <th className="pb-2" />
               </tr>
             </thead>
@@ -38,6 +41,9 @@ export default async function CenterStudentsPage() {
                 <tr key={s.id}>
                   <td className="py-2.5 pr-4 font-medium text-ink">{s.name}</td>
                   <td className="py-2.5 pr-4 text-ink-soft">{s.userId}</td>
+                  <td className="py-2.5 pr-4">
+                    <LevelSelect studentId={s.id} level={levelFromStored(s.level)} />
+                  </td>
                   <td className="py-2.5 text-right">
                     <ResetPasswordButton studentId={s.id} />
                   </td>

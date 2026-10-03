@@ -7,6 +7,7 @@ import {
   nextStudentId,
 } from "@/lib/store";
 import { getSessionCenter, hashPassword } from "@/lib/auth";
+import { DEFAULT_LEVEL, parseLevelInput, levelToStored } from "@/lib/levels";
 import type { Student } from "@/lib/types";
 
 export async function GET() {
@@ -32,7 +33,14 @@ export async function POST(req: NextRequest) {
   const userId: string = (body.userId ?? "").trim();
   const name: string = (body.name ?? "").trim();
   const password: string = body.password ?? "";
+  // Optional: a missing level means Level 1, but a level that's present and
+  // not one of the six is an error rather than silently becoming Level 1.
+  const level =
+    body.level === undefined || body.level === "" ? DEFAULT_LEVEL : parseLevelInput(body.level);
 
+  if (level === undefined) {
+    return NextResponse.json({ error: "Choose a level from 1 to 6." }, { status: 400 });
+  }
   if (!userId || !name || !password) {
     return NextResponse.json(
       { error: "User ID, name, and password are required." },
@@ -61,7 +69,7 @@ export async function POST(req: NextRequest) {
     name,
     centerName: center.name,
     centerId: center.id,
-    level: "LEVEL 3", // not shown or used anywhere - tests are picked by operation/difficulty, not level
+    level: levelToStored(level),
     passwordHash: hashPassword(password),
   };
 

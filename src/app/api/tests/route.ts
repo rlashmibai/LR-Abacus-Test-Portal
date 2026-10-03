@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionStudent } from "@/lib/auth";
-import { saveSession, newId } from "@/lib/store";
-import { generateQuestions } from "@/lib/questions";
+import { saveSession, newId, getTestLink } from "@/lib/store";
+import { generateQuestions, generateLevelQuestions } from "@/lib/questions";
+import { getLevel, levelToStored, hideCentreFields } from "@/lib/levels";
 import {
   DEFAULT_OPERATION,
   DEFAULT_VARIANT,
@@ -20,7 +21,7 @@ import type { TestSession, PublicTestSession } from "@/lib/types";
 
 function toPublic(session: TestSession): PublicTestSession {
   return {
-    ...session,
+    ...hideCentreFields(session),
     questions: session.questions.map(({ qNo, values, signs, opKind }) => ({
       qNo,
       values,
@@ -37,6 +38,51 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
+
+  // A centre's test link fixes the whole test (level recipe, mode, length),
+  // so nothing else in the body is read for it.
+  if (typeof body.linkCode === "string" && body.linkCode) {
+    const link = await getTestLink(body.linkCode);
+    if (!link) {
+      return NextResponse.json({ error: "This test link doesn't exist any more." }, { status: 404 });
+    }
+    if (!student.centerId || student.centerId !== link.centerId) {
+      return NextResponse.json(
+        { error: "This test link is for another school's students." },
+        { status: 403 }
+      );
+    }
+
+    const level = getLevel(link.level);
+    const testId = newId();
+    const session: TestSession = {
+      id: testId,
+      studentId: student.id,
+      studentName: student.name,
+      userId: student.userId,
+      studentIdNumber: student.id,
+      centerName: student.centerName,
+      level: levelToStored(level.level),
+      operation: level.operation,
+      operationLabel: level.testLabel,
+      variant: level.variant,
+      mode: link.mode,
+      durationMinutes: durationForQuestionCount(link.questionCount),
+      totalQuestions: link.questionCount,
+      totalMarks: link.questionCount,
+      createdAt: new Date().toISOString(),
+      questions: generateLevelQuestions({
+        testId,
+        level: level.level,
+        totalQuestions: link.questionCount,
+      }),
+      testLevel: level.level,
+      linkId: link.code,
+    };
+    await saveSession(session);
+    return NextResponse.json(toPublic(session));
+  }
+
   const operation = isValidOperation(body.operation) ? body.operation : DEFAULT_OPERATION;
   const variant = isValidVariant(operation, body.variant) ? body.variant : DEFAULT_VARIANT;
   const mode = isValidMode(body.mode) ? body.mode : DEFAULT_MODE;

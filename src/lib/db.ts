@@ -1,5 +1,5 @@
 import { neon } from "@neondatabase/serverless";
-import type { Student, TestSession, TestResult, Center } from "./types";
+import type { Student, TestSession, TestResult, Center, TestLink } from "./types";
 
 // The demo account, seeded once so a fresh deployment has something to
 // sign in with immediately. Same account/password as local dev.
@@ -108,6 +108,17 @@ function ensureSchema(): Promise<void> {
       `;
 
       await sql`
+        CREATE TABLE IF NOT EXISTS test_links (
+          code TEXT PRIMARY KEY,
+          center_id TEXT NOT NULL REFERENCES centers(id),
+          level INTEGER NOT NULL,
+          mode TEXT NOT NULL,
+          question_count INTEGER NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `;
+
+      await sql`
         INSERT INTO students (id, user_id, name, center_name, level, password_hash)
         VALUES (
           ${DEMO_STUDENT.id}, ${DEMO_STUDENT.userId}, ${DEMO_STUDENT.name},
@@ -178,6 +189,12 @@ export async function dbSaveStudents(students: Student[]): Promise<void> {
   }
 }
 
+export async function dbSetStudentLevel(studentId: string, level: string): Promise<void> {
+  await ensureSchema();
+  const sql = getSql();
+  await sql`UPDATE students SET level = ${level} WHERE id = ${studentId}`;
+}
+
 interface CenterRow {
   id: string;
   name: string;
@@ -219,6 +236,59 @@ export async function dbGetCenters(): Promise<Center[]> {
   const sql = getSql();
   const rows = (await sql`SELECT * FROM centers`) as unknown as CenterRow[];
   return rows.map(rowToCenter);
+}
+
+interface TestLinkRow {
+  code: string;
+  center_id: string;
+  level: number;
+  mode: string;
+  question_count: number;
+  created_at: string;
+}
+
+function rowToTestLink(row: TestLinkRow): TestLink {
+  return {
+    code: row.code,
+    centerId: row.center_id,
+    level: row.level,
+    mode: row.mode === "practice" ? "practice" : "exam",
+    questionCount: row.question_count,
+    createdAt: row.created_at,
+  };
+}
+
+export async function dbCreateTestLink(link: TestLink): Promise<void> {
+  await ensureSchema();
+  const sql = getSql();
+  await sql`
+    INSERT INTO test_links (code, center_id, level, mode, question_count)
+    VALUES (${link.code}, ${link.centerId}, ${link.level}, ${link.mode}, ${link.questionCount})
+  `;
+}
+
+export async function dbGetTestLink(code: string): Promise<TestLink | undefined> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`
+    SELECT * FROM test_links WHERE code = ${code} LIMIT 1
+  `) as unknown as TestLinkRow[];
+  return rows[0] ? rowToTestLink(rows[0]) : undefined;
+}
+
+export async function dbGetTestLinksByCenterId(centerId: string): Promise<TestLink[]> {
+  await ensureSchema();
+  const sql = getSql();
+  const rows = (await sql`
+    SELECT * FROM test_links WHERE center_id = ${centerId} ORDER BY level, created_at
+  `) as unknown as TestLinkRow[];
+  return rows.map(rowToTestLink);
+}
+
+export async function dbDeleteTestLink(code: string): Promise<void> {
+  await ensureSchema();
+  const sql = getSql();
+  await sql`DELETE FROM test_links WHERE code = ${code}`;
 }
 
 export async function dbGetStudentsByCenterId(centerId: string): Promise<Student[]> {

@@ -10,12 +10,14 @@ export default function ProceedButton({
   mode,
   questionCount,
   rows,
+  linkCode,
 }: {
   operation: string;
   variant: string;
   mode: string;
   questionCount: number;
   rows?: number;
+  linkCode?: string; // set when the test comes from a centre's test link
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,9 @@ export default function ProceedButton({
       const res = await fetch("/api/tests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ operation, variant, mode, questionCount, rows }),
+        body: JSON.stringify(
+          linkCode ? { linkCode } : { operation, variant, mode, questionCount, rows }
+        ),
       });
       if (!res.ok) throw new Error("Could not start the test");
       const session = await res.json();

@@ -9,6 +9,7 @@ interface ParsedRow {
   name: string;
   userId: string;
   password: string;
+  level: string; // optional in the file - blank means Level 1, checked by the server
 }
 
 interface UploadResult {
@@ -25,6 +26,7 @@ const HEADINGS = {
   name: ["studentname", "name", "fullname"],
   userId: ["userid", "username", "loginid"],
   password: ["password", "pass"],
+  level: ["level", "studentlevel"],
 };
 
 function normalise(value: unknown): string {
@@ -102,6 +104,7 @@ function toStudentRows(rows: unknown[][]): ParsedRow[] {
   const nameCol = find(HEADINGS.name);
   const userIdCol = find(HEADINGS.userId);
   const passwordCol = find(HEADINGS.password);
+  const levelCol = find(HEADINGS.level); // optional - -1 when the file has no Level column
 
   if (nameCol === -1 || userIdCol === -1 || passwordCol === -1) {
     throw new Error(
@@ -114,8 +117,9 @@ function toStudentRows(rows: unknown[][]): ParsedRow[] {
     const name = cellText(r[nameCol]);
     const userId = cellText(r[userIdCol]);
     const password = cellText(r[passwordCol]);
+    const level = levelCol === -1 ? "" : cellText(r[levelCol]);
     if (!name && !userId && !password) return; // blank row
-    parsed.push({ row: i + 2, name, userId, password });
+    parsed.push({ row: i + 2, name, userId, password, level });
   });
 
   if (parsed.length === 0) throw new Error("No student rows found under the headings.");
@@ -130,9 +134,10 @@ async function downloadTemplate() {
         { value: "Student Name", fontWeight: "bold" },
         { value: "User ID", fontWeight: "bold" },
         { value: "Password", fontWeight: "bold" },
+        { value: "Level", fontWeight: "bold" },
       ],
     ],
-    { columns: [{ width: 28 }, { width: 22 }, { width: 22 }] }
+    { columns: [{ width: 28 }, { width: 22 }, { width: 22 }, { width: 12 }] }
   ).toBlob();
 
   const url = URL.createObjectURL(blob);
@@ -236,7 +241,8 @@ export default function BulkUploadStudents() {
           <span className="font-semibold text-ink">1.</span> Download the template and fill
           in a row per student - <span className="font-medium">Student Name</span>,{" "}
           <span className="font-medium">User ID</span>, <span className="font-medium">Password</span>{" "}
-          (at least 4 characters).
+          (at least 4 characters) and, if you like, <span className="font-medium">Level</span>{" "}
+          (a number from 1 to 6 - leave it blank for Level 1).
         </li>
         <li>
           <span className="font-semibold text-ink">2.</span> Choose your finished file below

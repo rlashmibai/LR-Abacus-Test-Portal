@@ -67,6 +67,8 @@ export async function POST(
     status: autoSubmitted ? "Auto-Submitted" : "Completed",
     submittedAt: new Date().toISOString(),
     breakdown,
+    testLevel: session.testLevel,
+    linkId: session.linkId,
   };
 
   await saveResult(result);

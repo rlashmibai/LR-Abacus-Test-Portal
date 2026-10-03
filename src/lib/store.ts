@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
-import type { Student, TestSession, TestResult, Center } from "./types";
+import { randomBytes } from "crypto";
+import type { Student, TestSession, TestResult, Center, TestLink } from "./types";
 import {
   isDbConfigured,
   dbGetStudents,
@@ -21,6 +22,11 @@ import {
   dbGetStudentsByCenterId,
   dbInsertStudents,
   dbReserveCounterRange,
+  dbCreateTestLink,
+  dbGetTestLink,
+  dbGetTestLinksByCenterId,
+  dbDeleteTestLink,
+  dbSetStudentLevel,
 } from "./db";
 
 export interface PageView {
@@ -40,6 +46,7 @@ const RESULTS_FILE = path.join(DATA_DIR, "results.json");
 const COUNTERS_FILE = path.join(DATA_DIR, "counters.json");
 const PAGE_VIEWS_FILE = path.join(DATA_DIR, "pageViews.json");
 const CENTERS_FILE = path.join(DATA_DIR, "centers.json");
+const TEST_LINKS_FILE = path.join(DATA_DIR, "testLinks.json");
 
 async function ensureDirs() {
   await fs.mkdir(SESSIONS_DIR, { recursive: true });
@@ -174,6 +181,10 @@ async function fileGetStudentsByCenterId(centerId: string): Promise<Student[]> {
   return students.filter((s) => s.centerId === centerId);
 }
 
+async function fileGetTestLinks(): Promise<TestLink[]> {
+  return readJson<TestLink[]>(TEST_LINKS_FILE, []);
+}
+
 export async function getStudents(): Promise<Student[]> {
   return isDbConfigured() ? dbGetStudents() : fileGetStudents();
 }
@@ -250,6 +261,46 @@ export async function getStudentsByCenterId(centerId: string): Promise<Student[]
     : fileGetStudentsByCenterId(centerId);
 }
 
+// Letters and digits that can't be mistaken for each other when a link is
+// read aloud or typed from a printout (no 0/o, 1/l/i).
+const LINK_CODE_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";
+
+/** A fresh, unguessable code for a test link's URL. */
+export function newTestLinkCode(): string {
+  const bytes = randomBytes(10);
+  return Array.from(bytes, (b) => LINK_CODE_ALPHABET[b % LINK_CODE_ALPHABET.length]).join("");
+}
+
+export async function createTestLink(link: TestLink): Promise<void> {
+  if (isDbConfigured()) return dbCreateTestLink(link);
+  const links = await fileGetTestLinks();
+  links.push({ ...link, createdAt: link.createdAt ?? new Date().toISOString() });
+  await ensureDirs();
+  await writeJson(TEST_LINKS_FILE, links);
+}
+
+export async function getTestLink(code: string): Promise<TestLink | undefined> {
+  if (isDbConfigured()) return dbGetTestLink(code);
+  return (await fileGetTestLinks()).find((l) => l.code === code);
+}
+
+export async function getTestLinksByCenterId(centerId: string): Promise<TestLink[]> {
+  if (isDbConfigured()) return dbGetTestLinksByCenterId(centerId);
+  return (await fileGetTestLinks())
+    .filter((l) => l.centerId === centerId)
+    .sort((a, b) => a.level - b.level);
+}
+
+export async function deleteTestLink(code: string): Promise<void> {
+  if (isDbConfigured()) return dbDeleteTestLink(code);
+  const links = await fileGetTestLinks();
+  await ensureDirs();
+  await writeJson(
+    TEST_LINKS_FILE,
+    links.filter((l) => l.code !== code)
+  );
+}
+
 /** Student and centre sign-in IDs share one namespace, since a single
  * sign-in page serves both - so a new ID must be free in both tables. */
 export async function isUserIdTaken(userId: string): Promise<boolean> {
@@ -265,6 +316,14 @@ export async function nextStudentIds(count: number): Promise<string[]> {
     ? await dbReserveCounterRange("student", count)
     : await fileReserveCounterRange("student", count);
   return Array.from({ length: count }, (_, i) => `STUD_${String(first + i).padStart(3, "0")}`);
+}
+
+/** Changes one student's stored level ("LEVEL 4") without touching anyone
+ * else's record. */
+export async function setStudentLevel(studentId: string, level: string): Promise<void> {
+  if (isDbConfigured()) return dbSetStudentLevel(studentId, level);
+  const students = await fileGetStudents();
+  await fileSaveStudents(students.map((s) => (s.id === studentId ? { ...s, level } : s)));
 }
 
 /** Adds new students without re-saving everyone who already exists

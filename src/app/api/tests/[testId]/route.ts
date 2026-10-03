@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/store";
 import { getSessionStudent } from "@/lib/auth";
+import { hideCentreFields } from "@/lib/levels";
 import type { PublicTestSession } from "@/lib/types";
 
 export async function GET(
@@ -19,7 +20,7 @@ export async function GET(
   }
 
   const publicSession: PublicTestSession = {
-    ...session,
+    ...hideCentreFields(session),
     questions: session.questions.map(({ qNo, values, signs, opKind }) => ({
       qNo,
       values,

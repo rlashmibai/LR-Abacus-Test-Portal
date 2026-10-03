@@ -15,6 +15,8 @@ export default function robots(): MetadataRoute.Robots {
         "/test-setup",
         "/instructions",
         "/test/",
+        "/t/",
+        "/center",
         "/results",
         "/achievements",
         "/certificate",

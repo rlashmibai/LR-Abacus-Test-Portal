@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GraduationCap, LayoutDashboard, Users } from "lucide-react";
+import { GraduationCap, LayoutDashboard, Users, Link2 } from "lucide-react";
 import { BRAND_SHORT } from "@/lib/brand";
 import { requireCenterSessionOrRedirect } from "@/lib/auth";
 import CenterLogoutButton from "@/components/CenterLogoutButton";
@@ -43,6 +43,13 @@ export default async function CenterDashboardLayout({
             >
               <Users size={15} />
               <span className="hidden sm:inline">Students</span>
+            </Link>
+            <Link
+              href="/center/tests"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface hover:text-brand"
+            >
+              <Link2 size={15} />
+              <span className="hidden sm:inline">Tests</span>
             </Link>
           </nav>
 

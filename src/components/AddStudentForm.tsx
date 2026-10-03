@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, UserPlus } from "lucide-react";
+import { LEVELS, DEFAULT_LEVEL, levelTitle } from "@/lib/levels";
 
 export default function AddStudentForm() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function AddStudentForm() {
     userId: "",
     name: "",
     password: "",
+    level: String(DEFAULT_LEVEL),
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +37,7 @@ export default function AddStudentForm() {
         setLoading(false);
         return;
       }
-      setForm({ userId: "", name: "", password: "" });
+      setForm({ userId: "", name: "", password: "", level: String(DEFAULT_LEVEL) });
       setOpen(false);
       setLoading(false);
       router.refresh();
@@ -94,11 +96,25 @@ export default function AddStudentForm() {
             className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
           />
         </Field>
+        <Field label="Level">
+          <select
+            value={form.level}
+            onChange={(e) => update("level", e.target.value)}
+            className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
+          >
+            {LEVELS.map((l) => (
+              <option key={l.level} value={l.level}>
+                {levelTitle(l.level)}
+              </option>
+            ))}
+          </select>
+        </Field>
       </div>
 
       <p className="text-xs text-ink-faint">
         Share this User ID and password with the student - they sign in at
-        the normal sign-in page and see only their own results.
+        the normal sign-in page and see only their own results. The level is
+        for your records only - students never see it.
       </p>
 
       {error && (

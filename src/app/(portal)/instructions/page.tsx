@@ -1,5 +1,9 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Clock, ListChecks, Award, Calculator, Timer, BookOpen } from "lucide-react";
 import { requireSessionOrRedirect } from "@/lib/auth";
+import { getTestLink } from "@/lib/store";
+import { getLevel } from "@/lib/levels";
 import {
   isValidOperation,
   isValidVariant,
@@ -14,6 +18,7 @@ import {
   operationLabel,
   durationForQuestionCount,
 } from "@/lib/testTypes";
+import type { TestMode } from "@/lib/testTypes";
 import { pickQuote, todaySeed } from "@/lib/quotes";
 import ProceedButton from "@/components/ProceedButton";
 
@@ -26,18 +31,38 @@ export default async function InstructionsPage({
     mode?: string;
     questionCount?: string;
     rows?: string;
+    link?: string;
   }>;
 }) {
-  await requireSessionOrRedirect();
+  const student = await requireSessionOrRedirect();
   const params = await searchParams;
-  const operation = isValidOperation(params.operation) ? params.operation : DEFAULT_OPERATION;
-  const variant = isValidVariant(operation, params.variant) ? params.variant! : DEFAULT_VARIANT;
-  const mode = isValidMode(params.mode) ? params.mode : DEFAULT_MODE;
-  const questionCount = isValidQuestionCount(Number(params.questionCount))
+
+  let operation = isValidOperation(params.operation) ? params.operation : DEFAULT_OPERATION;
+  let variant = isValidVariant(operation, params.variant) ? params.variant! : DEFAULT_VARIANT;
+  let mode: TestMode = isValidMode(params.mode) ? params.mode : DEFAULT_MODE;
+  let questionCount = isValidQuestionCount(Number(params.questionCount))
     ? Number(params.questionCount)
     : DEFAULT_QUESTION_COUNT;
   const rows = isValidRowCount(Number(params.rows)) ? Number(params.rows) : DEFAULT_ROW_COUNT;
-  const typeLabel = operationLabel(operation, variant);
+  let typeLabel = operationLabel(operation, variant);
+
+  // A centre's test link decides everything about the test; the student
+  // only ever sees what it contains, never a level.
+  const linkCode = params.link;
+  if (linkCode) {
+    const link = await getTestLink(linkCode);
+    if (!link) notFound();
+    if (!student.centerId || student.centerId !== link.centerId) {
+      return <WrongAccountNotice />;
+    }
+    const level = getLevel(link.level);
+    operation = level.operation;
+    variant = level.variant;
+    mode = link.mode;
+    questionCount = link.questionCount;
+    typeLabel = level.testLabel;
+  }
+
   const isExam = mode === "exam";
   const durationMinutes = durationForQuestionCount(questionCount);
 
@@ -119,8 +144,33 @@ export default async function InstructionsPage({
           mode={mode}
           questionCount={questionCount}
           rows={operation === "addition_subtraction" ? rows : undefined}
+          linkCode={linkCode}
         />
       </div>
+    </div>
+  );
+}
+
+/** Shown when someone opens a centre's test link while signed in as a
+ * student from somewhere else - the link only works for that centre's own
+ * students. */
+function WrongAccountNotice() {
+  return (
+    <div className="mx-auto max-w-xl rounded-2xl bg-surface p-8 text-center shadow-sm ring-1 ring-line">
+      <h2 className="font-display text-xl font-semibold text-ink">
+        This test link is for another school&apos;s students
+      </h2>
+      <p className="mt-3 text-sm text-ink-soft">
+        You&apos;re signed in with an account that isn&apos;t part of the school
+        or centre that shared this link. Sign out from the menu at the top, then
+        sign in again with the User ID and password your teacher gave you.
+      </p>
+      <Link
+        href="/dashboard"
+        className="mt-5 inline-block text-sm font-semibold text-brand hover:underline"
+      >
+        Back to my dashboard
+      </Link>
     </div>
   );
 }

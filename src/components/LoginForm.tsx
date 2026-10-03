@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { User, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import AuthShell from "./AuthShell";
 
-export default function LoginForm({ quote }: { quote: string }) {
+export default function LoginForm({ quote, next }: { quote: string; next?: string }) {
   const router = useRouter();
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +31,7 @@ export default function LoginForm({ quote }: { quote: string }) {
         setLoading(false);
         return;
       }
-      router.push(data.role === "center" ? "/center" : "/dashboard");
+      router.push(data.role === "center" ? "/center" : (next ?? "/dashboard"));
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");

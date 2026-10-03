@@ -5,7 +5,7 @@ export interface Student {
   userId: string; // login id, e.g. "XGDEMOL3001"
   name: string; // display name, e.g. "XGDEMOL3"
   centerName: string;
-  level: string; // "LEVEL 3"
+  level: string; // "LEVEL 1" - "LEVEL 6"; set by the centre, never shown to students
   passwordHash?: string; // "<salt>:<hash>", absent for guest sessions
   isGuest?: boolean;
   createdAt?: string; // when the account was registered, ISO string
@@ -25,15 +25,30 @@ export interface Center {
   createdAt?: string;
 }
 
+/** What a single question asks. A "mixed" test (or a level test) carries one
+ * of these per question; other tests infer it from the test-level operation. */
+export type QuestionKind = "addition_subtraction" | "multiplication" | "division";
+
+/** A shareable test a centre created for one of its levels (see
+ * src/lib/levels.ts). Students of that centre open /t/<code> to take it. */
+export interface TestLink {
+  code: string; // unguessable id used in the URL
+  centerId: string;
+  level: number; // 1-6
+  mode: TestMode;
+  questionCount: number;
+  createdAt?: string;
+}
+
 export interface AbacusQuestion {
   qNo: number;
   values: number[]; // operands, e.g. [58, 27, 16] for add/sub, [45, 3] for x or /
   signs: number[]; // 1 | -1 per value; only meaningful for addition_subtraction
   // Which kind of question this row actually is. Only set (and needed) for
-  // a "mixed" test, where different questions in the same test can be
-  // add/sub or multiplication; everything else infers its rendering from
-  // the test-level `operation` instead.
-  opKind?: "addition_subtraction" | "multiplication";
+  // a "mixed" or level test, where different questions in the same test can
+  // be different kinds; everything else infers its rendering from the
+  // test-level `operation` instead.
+  opKind?: QuestionKind;
 }
 
 export interface AbacusQuestionWithAnswer extends AbacusQuestion {
@@ -57,6 +72,10 @@ export interface TestSession {
   totalMarks: number;
   createdAt: string;
   questions: AbacusQuestionWithAnswer[];
+  // Only set when the test came from a centre's test link - centre-only
+  // information, stripped from anything sent to the student's browser.
+  testLevel?: number;
+  linkId?: string;
 }
 
 export type PublicQuestion = AbacusQuestion;
@@ -88,7 +107,7 @@ export interface QuestionBreakdown {
   qNo: number;
   values: number[];
   signs: number[];
-  opKind?: "addition_subtraction" | "multiplication";
+  opKind?: QuestionKind;
   correctAnswer: number;
   givenAnswer: number | null;
   isCorrect: boolean;
@@ -118,4 +137,6 @@ export interface TestResult {
   status: "Completed" | "Auto-Submitted";
   submittedAt: string;
   breakdown: QuestionBreakdown[];
+  testLevel?: number; // centre-only, like TestSession.testLevel
+  linkId?: string;
 }

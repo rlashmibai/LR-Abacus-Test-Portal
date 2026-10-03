@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getResult } from "@/lib/store";
 import { getSessionStudent } from "@/lib/auth";
+import { hideCentreFields } from "@/lib/levels";
 
 export async function GET(
   _req: NextRequest,
@@ -16,5 +17,5 @@ export async function GET(
   if (!result || result.studentId !== student.id) {
     return NextResponse.json({ error: "Result not found" }, { status: 404 });
   }
-  return NextResponse.json(result);
+  return NextResponse.json(hideCentreFields(result));
 }

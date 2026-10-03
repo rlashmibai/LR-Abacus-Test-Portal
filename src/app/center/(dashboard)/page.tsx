@@ -205,12 +205,13 @@ export default async function CenterPage({
             title="All Submissions"
             description={`${stats.allResults.length} test${stats.allResults.length === 1 ? "" : "s"} submitted by ${scopeLabel} - most recent first.`}
           >
-            <table className="w-full min-w-[720px] text-left text-sm">
+            <table className="w-full min-w-[800px] text-left text-sm">
               <thead>
                 <tr className="text-xs uppercase tracking-wide text-ink-faint">
                   <th className="pb-2 pr-4">Student</th>
                   <th className="pb-2 pr-4">User ID</th>
                   <th className="pb-2 pr-4">Operation</th>
+                  <th className="pb-2 pr-4">Level</th>
                   <th className="pb-2 pr-4">Mode</th>
                   <th className="pb-2 pr-4">Score</th>
                   <th className="pb-2 pr-4">Time</th>
@@ -224,6 +225,9 @@ export default async function CenterPage({
                     <td className="py-2.5 pr-4 text-ink-soft">{r.userId}</td>
                     <td className="py-2.5 pr-4 text-ink-soft">
                       {OPERATION_LABELS[r.operation] ?? r.operation}
+                    </td>
+                    <td className="py-2.5 pr-4 text-ink-soft">
+                      {r.testLevel ? `Level ${r.testLevel}` : "-"}
                     </td>
                     <td className="py-2.5 pr-4 text-ink-soft capitalize">{r.mode}</td>
                     <td className="py-2.5 pr-4 font-semibold text-ink">{r.scorePercent}%</td>

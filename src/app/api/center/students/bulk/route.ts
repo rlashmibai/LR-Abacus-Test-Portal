@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStudents, getCenters, addStudents, nextStudentIds } from "@/lib/store";
 import { getSessionCenter, hashPasswordAsync } from "@/lib/auth";
+import { DEFAULT_LEVEL, parseLevelInput, levelToStored } from "@/lib/levels";
 import type { Student } from "@/lib/types";
 
 // Each upload hashes every password (deliberately slow, scrypt), so cap
@@ -13,6 +14,7 @@ interface IncomingRow {
   name?: unknown;
   userId?: unknown;
   password?: unknown;
+  level?: unknown; // optional - blank means Level 1
 }
 
 interface SkippedRow {
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest) {
   }
 
   const skipped: SkippedRow[] = [];
-  const valid: { row: number; name: string; userId: string; password: string }[] = [];
+  const valid: { row: number; name: string; userId: string; password: string; level: number }[] = [];
   const seenInFile = new Map<string, number>();
 
   incoming.forEach((r, i) => {
@@ -70,13 +72,17 @@ export async function POST(req: NextRequest) {
     if (name.length > 100 || userId.length > 100) return fail("Name or User ID is too long");
     if (password.length < 4) return fail("Password must be at least 4 characters");
 
+    const levelText = String(r.level ?? "").trim();
+    const level = levelText === "" ? DEFAULT_LEVEL : parseLevelInput(levelText);
+    if (level === undefined) return fail("Level must be a number from 1 to 6 (or left blank)");
+
     const key = userId.toLowerCase();
     if (taken.has(key)) return fail("User ID is already in use");
     const firstRow = seenInFile.get(key);
     if (firstRow !== undefined) return fail(`Same User ID already used on row ${firstRow} of this file`);
 
     seenInFile.set(key, row);
-    valid.push({ row, name, userId, password });
+    valid.push({ row, name, userId, password, level });
   });
 
   let created = 0;
@@ -91,7 +97,7 @@ export async function POST(req: NextRequest) {
       name: v.name,
       centerName: center.name,
       centerId: center.id,
-      level: "LEVEL 3",
+      level: levelToStored(v.level),
       passwordHash: hashes[i],
     }));
 

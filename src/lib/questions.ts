@@ -1,5 +1,6 @@
 import type { AbacusQuestionWithAnswer } from "./types";
 import type { OperationType } from "./testTypes";
+import { getLevel } from "./levels";
 
 // Simple deterministic PRNG (mulberry32) so a given testId always
 // regenerates the same question set (survives a page refresh).
@@ -94,6 +95,43 @@ function generateDivisionRow(rand: () => number, digits: 1 | 2 | 3): Row {
 // running totals (a varying 2-4 rows each, for a more realistic paper feel
 // instead of always the same shape), and the rest are multiplication.
 const MIXED_ADD_SUB_SHARE = 0.6;
+
+/** A test built from a level's recipe (see levels.ts): the questions come in
+ * consecutive blocks - add/subtract first, then multiplication, then
+ * division - each block sized by its section's percentage. Block edges are
+ * rounded cumulatively, so the sizes always add up to exactly
+ * `totalQuestions`. */
+export function generateLevelQuestions({
+  testId,
+  level,
+  totalQuestions,
+}: {
+  testId: string;
+  level: number;
+  totalQuestions: number;
+}): AbacusQuestionWithAnswer[] {
+  const rand = mulberry32(hashSeed(testId));
+  const questions: AbacusQuestionWithAnswer[] = [];
+  const { sections } = getLevel(level);
+
+  let cumulativePercent = 0;
+  let qNo = 1;
+  for (const section of sections) {
+    cumulativePercent += section.percent;
+    const end = Math.round((totalQuestions * cumulativePercent) / 100);
+    for (; qNo <= end; qNo++) {
+      const row =
+        section.kind === "multiplication"
+          ? generateMultiplicationRow(rand, section.digits)
+          : section.kind === "division"
+            ? generateDivisionRow(rand, section.digits)
+            : generateAddSubRow(rand, section.digits, section.rows ?? 3);
+      questions.push({ qNo, ...row, opKind: section.kind });
+    }
+  }
+
+  return questions;
+}
 
 export function generateQuestions({
   testId,
