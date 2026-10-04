@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
+import { useOrigin } from "@/lib/useOrigin";
 import { useRouter } from "next/navigation";
-import { Link2, Copy, Check, Trash2, Loader2, Timer, BookOpen } from "lucide-react";
+import { Link2, Copy, Check, Trash2, Loader2, Timer, BookOpen, RefreshCw } from "lucide-react";
 import { LEVELS, DEFAULT_LEVEL, levelTitle } from "@/lib/levels";
 import { QUESTION_COUNTS, durationForQuestionCount } from "@/lib/testTypes";
 import type { TestMode } from "@/lib/testTypes";
@@ -28,13 +29,7 @@ export default function TestLinkManager({ links }: { links: TestLinkItem[] }) {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  // The site's address is only known in the browser (empty while rendering
-  // on the server), so the full link appears right after the page loads.
-  const origin = useSyncExternalStore(
-    () => () => {},
-    () => window.location.origin,
-    () => ""
-  );
+  const origin = useOrigin();
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -194,7 +189,32 @@ function LinkRow({ link, origin }: { link: TestLinkItem; origin: string }) {
   const [copied, setCopied] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmingNew, setConfirmingNew] = useState(false);
+  const [renewing, setRenewing] = useState(false);
   const url = `${origin}/t/${link.code}`;
+
+  // Replaces this link with a brand-new address for the same level and style.
+  async function renew() {
+    setRenewing(true);
+    try {
+      const res = await fetch("/api/center/test-links", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          level: link.level,
+          mode: link.mode,
+          questionCount: link.questionCount,
+          regenerate: true,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      router.refresh();
+    } catch {
+      // Leave the current link as it was.
+    }
+    setRenewing(false);
+    setConfirmingNew(false);
+  }
 
   async function copy() {
     try {
@@ -246,6 +266,36 @@ function LinkRow({ link, origin }: { link: TestLinkItem; origin: string }) {
           {copied ? <Check size={14} /> : <Copy size={14} />}
           {copied ? "Copied" : "Copy"}
         </button>
+        {confirmingNew ? (
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <span className="text-ink-soft">Old link stops working.</span>
+            <button
+              type="button"
+              onClick={renew}
+              disabled={renewing}
+              className="font-semibold text-brand hover:underline disabled:opacity-60"
+            >
+              {renewing ? "Generating..." : "Generate new"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmingNew(false)}
+              disabled={renewing}
+              className="font-semibold text-ink-soft hover:text-ink"
+            >
+              Keep
+            </button>
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirmingNew(true)}
+            className="flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 text-sm font-semibold text-ink-soft transition hover:text-brand"
+          >
+            <RefreshCw size={14} />
+            New link
+          </button>
+        )}
         {confirming ? (
           <span className="flex items-center gap-2 text-sm">
             <button

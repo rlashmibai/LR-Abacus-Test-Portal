@@ -40,7 +40,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  students[idx] = { ...student, passwordHash: hashPassword(newPassword) };
+  // The student chose their own password, so any recoverable copy a centre
+  // kept for its credentials sheet is now wrong - drop it.
+  students[idx] = { ...student, passwordHash: hashPassword(newPassword), passwordEnc: undefined };
   await saveStudents(students);
 
   return NextResponse.json({ ok: true });

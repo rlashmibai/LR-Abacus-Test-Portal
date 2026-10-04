@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStudent, getStudents, saveStudents } from "@/lib/store";
-import { getSessionCenter, hashPassword } from "@/lib/auth";
+import { getSessionCenter, hashPassword, encryptPassword } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
@@ -34,7 +34,11 @@ export async function POST(
   if (idx === -1) {
     return NextResponse.json({ error: "Student not found" }, { status: 404 });
   }
-  students[idx] = { ...students[idx], passwordHash: hashPassword(password) };
+  students[idx] = {
+    ...students[idx],
+    passwordHash: hashPassword(password),
+    passwordEnc: encryptPassword(password), // so the credentials sheet shows the new one
+  };
   await saveStudents(students);
 
   return NextResponse.json({ ok: true });

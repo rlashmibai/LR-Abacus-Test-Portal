@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { getResults } from "@/lib/store";
 import { requireSessionOrRedirect } from "@/lib/auth";
 import AbacusIllustration from "@/components/AbacusIllustration";
+import { stackedLg } from "@/components/dashboard/stackedTable";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -41,8 +42,10 @@ export default async function ResultsPage() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl bg-surface shadow-sm ring-1 ring-line">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-paper text-xs uppercase tracking-wide text-ink-faint">
+          {/* Below 1024px (phones, and tablets beside the sidebar) each row
+              becomes a labelled card, so Status and View are never cut off. */}
+          <table className={`w-full text-left text-sm ${stackedLg.table}`}>
+            <thead className={`bg-paper text-xs uppercase tracking-wide text-ink-faint ${stackedLg.head}`}>
               <tr>
                 <th className="px-5 py-3 font-semibold">Submitted</th>
                 <th className="px-5 py-3 font-semibold">Type</th>
@@ -51,26 +54,40 @@ export default async function ResultsPage() {
                 <th className="px-5 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-line">
+            <tbody className={`divide-y divide-line max-lg:p-3 ${stackedLg.body}`}>
               {results.map((r) => (
-                <tr key={r.id} className="hover:bg-paper">
-                  <td className="px-5 py-4 font-semibold text-ink">
+                <tr key={r.id} className={`hover:bg-paper ${stackedLg.row}`}>
+                  <td
+                    data-label="Submitted"
+                    className={`px-5 py-4 font-semibold text-ink max-lg:px-0 max-lg:py-1 ${stackedLg.cell}`}
+                  >
                     {formatDate(r.submittedAt)}
                   </td>
-                  <td className="px-5 py-4 text-ink-soft">
+                  <td
+                    data-label="Type"
+                    className={`px-5 py-4 text-ink-soft max-lg:px-0 max-lg:py-1 ${stackedLg.cell}`}
+                  >
                     {r.operationLabel ?? r.level}
                   </td>
-                  <td className="px-5 py-4">
-                    <span className="font-bold text-brand">
-                      {r.score}/{r.totalMarks}
-                    </span>
-                    <span className="ml-1 text-xs text-ink-faint">
-                      ({r.scorePercent}%)
+                  <td
+                    data-label="Score"
+                    className={`px-5 py-4 max-lg:px-0 max-lg:py-1 ${stackedLg.cell}`}
+                  >
+                    <span>
+                      <span className="font-bold text-brand">
+                        {r.score}/{r.totalMarks}
+                      </span>
+                      <span className="ml-1 text-xs text-ink-faint">
+                        ({r.scorePercent}%)
+                      </span>
                     </span>
                   </td>
-                  <td className="px-5 py-4">
+                  <td
+                    data-label="Status"
+                    className={`px-5 py-4 max-lg:px-0 max-lg:py-1 ${stackedLg.cell}`}
+                  >
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${
                         r.status === "Completed"
                           ? "bg-good-soft text-good"
                           : "bg-gold-soft text-ink"
@@ -79,10 +96,12 @@ export default async function ResultsPage() {
                       {r.status}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-right">
+                  <td
+                    className={`px-5 py-4 text-right max-lg:px-0 max-lg:pb-0 max-lg:pt-2 ${stackedLg.cell} max-lg:justify-end max-lg:before:hidden`}
+                  >
                     <Link
                       href={`/results/${r.id}`}
-                      className="inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline"
+                      className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-brand hover:underline max-lg:rounded-lg max-lg:bg-brand max-lg:px-4 max-lg:py-2 max-lg:text-white max-lg:no-underline"
                     >
                       View
                       <ArrowRight size={14} />

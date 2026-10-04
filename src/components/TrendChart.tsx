@@ -44,10 +44,18 @@ export default function TrendChart({
   // Show at most 6 x-axis labels so dense histories don't collide.
   const labelStep = Math.max(1, Math.ceil(points.length / 6));
 
+  // On a phone the drawing is shown at roughly half size, so the text is made
+  // twice as big there and only the labelled points keep their value (plus the
+  // last one, when there's room) - otherwise they'd run into each other.
+  const lastIndex = points.length - 1;
+  const lastLabelled = Math.floor(lastIndex / labelStep) * labelStep;
+  const showValueOnPhone = (i: number) =>
+    i % labelStep === 0 || (i === lastIndex && lastIndex - lastLabelled >= 2);
+
   return (
     <svg
       viewBox={`0 0 ${width} ${height + 24}`}
-      className="w-full"
+      className="w-full max-sm:overflow-visible"
       role="img"
       aria-label="Trend chart"
     >
@@ -76,6 +84,7 @@ export default function TrendChart({
             fontSize="11"
             fontWeight="600"
             fill="var(--ink)"
+            className={`text-[22px] sm:text-[11px] ${showValueOnPhone(i) ? "" : "max-sm:hidden"}`}
           >
             {valueFormat(p.value)}
           </text>
@@ -86,6 +95,7 @@ export default function TrendChart({
               textAnchor="middle"
               fontSize="10"
               fill="var(--ink-faint)"
+              className="text-[20px] sm:text-[10px]"
             >
               {p.label}
             </text>

@@ -239,8 +239,8 @@ export default function TestRunner({ testId }: { testId: string }) {
 
   return (
     <div className="min-h-screen bg-paper">
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-surface/90 px-4 py-3 backdrop-blur md:px-8">
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b border-line bg-surface/90 px-4 py-3 backdrop-blur sm:gap-3 md:px-8">
+        <div className="flex min-w-0 items-center gap-1 sm:gap-3">
           <button
             onClick={() => router.push("/dashboard")}
             className="rounded-lg bg-paper p-2 text-ink-soft hover:bg-brand-soft"
@@ -256,20 +256,20 @@ export default function TestRunner({ testId }: { testId: string }) {
           >
             <Home size={18} />
           </button>
-          <h1 className="font-display text-lg font-semibold text-brand">
+          <h1 className="whitespace-nowrap font-display text-base font-semibold text-brand sm:text-lg">
             {isPractice ? "Practice Test" : "Online Test"}
           </h1>
         </div>
 
         <div
-          className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold text-white transition-transform ${
+          className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-bold text-white transition-transform sm:gap-2 sm:px-4 ${
             isPractice ? "bg-brand" : isUrgent ? "bg-bad animate-pulse" : "bg-good"
           } ${pulseTimer ? "scale-110" : "scale-100"}`}
         >
           {isPractice ? <BookOpen size={14} /> : "🕐"} {formatClock(timerDisplay)}
         </div>
 
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">
           {session.studentName.slice(0, 1).toUpperCase()}
         </div>
       </header>
@@ -282,30 +282,33 @@ export default function TestRunner({ testId }: { testId: string }) {
               {answeredCount} of {totalQuestions} answered
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
             {isPractice ? (
               <span className="flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand">
-                <BookOpen size={14} />
+                <BookOpen size={14} className="shrink-0" />
                 Practice mode - no time limit
               </span>
             ) : (
               <span className="flex items-center gap-1.5 rounded-full bg-bad-soft px-3 py-1.5 text-xs font-semibold text-bad">
-                <AlertTriangle size={14} />
+                <AlertTriangle size={14} className="shrink-0" />
                 Do not refresh this page
               </span>
             )}
-            <button
-              onClick={() => setShowCancelConfirm(true)}
-              className="rounded-xl border border-line bg-surface px-5 py-2.5 text-sm font-bold text-ink-soft hover:bg-paper"
-            >
-              Cancel Test
-            </button>
-            <button
-              onClick={() => setShowConfirm(true)}
-              className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-dark"
-            >
-              Submit
-            </button>
+            {/* On a phone the two buttons share one full-width row. */}
+            <div className="flex w-full items-center gap-3 sm:w-auto">
+              <button
+                onClick={() => setShowCancelConfirm(true)}
+                className="flex-1 whitespace-nowrap rounded-xl border border-line bg-surface px-5 py-2.5 text-sm font-bold text-ink-soft hover:bg-paper sm:flex-none"
+              >
+                Cancel Test
+              </button>
+              <button
+                onClick={() => setShowConfirm(true)}
+                className="flex-1 whitespace-nowrap rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-dark sm:flex-none"
+              >
+                Submit
+              </button>
+            </div>
           </div>
         </div>
 
@@ -355,16 +358,16 @@ export default function TestRunner({ testId }: { testId: string }) {
           <p className="text-sm text-ink-soft">
             {answeredCount} of {totalQuestions} answered
           </p>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex w-full items-center gap-3 sm:w-auto">
             <button
               onClick={() => setShowCancelConfirm(true)}
-              className="rounded-xl border border-line bg-surface px-5 py-2.5 text-sm font-bold text-ink-soft hover:bg-paper"
+              className="flex-1 whitespace-nowrap rounded-xl border border-line bg-surface px-5 py-2.5 text-sm font-bold text-ink-soft hover:bg-paper sm:flex-none"
             >
               Cancel Test
             </button>
             <button
               onClick={() => setShowConfirm(true)}
-              className="rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-dark"
+              className="flex-1 whitespace-nowrap rounded-xl bg-brand px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-dark sm:flex-none"
             >
               Submit
             </button>
@@ -422,18 +425,18 @@ function SubmitConfirmModal({
             ⚠ {unanswered} questions left unanswered
           </p>
         )}
-        <div className="mt-5 flex gap-3">
+        <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row">
           <button
             onClick={onCancel}
             disabled={submitting}
-            className="flex-1 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink-soft hover:bg-paper"
+            className="sm:flex-1 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink-soft hover:bg-paper"
           >
             Back To Exam
           </button>
           <button
             onClick={onConfirm}
             disabled={submitting}
-            className="flex-1 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-70"
+            className="sm:flex-1 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-70"
           >
             {submitting ? "Submitting…" : "Yes, Submit ✓"}
           </button>
@@ -461,16 +464,16 @@ function CancelConfirmModal({
           Your answers won&apos;t be saved and no result will be recorded. This
           can&apos;t be undone.
         </p>
-        <div className="mt-5 flex gap-3">
+        <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row">
           <button
             onClick={onBack}
-            className="flex-1 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink-soft hover:bg-paper"
+            className="sm:flex-1 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink-soft hover:bg-paper"
           >
             Keep Testing
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 rounded-xl bg-bad px-4 py-2.5 text-sm font-semibold text-white hover:bg-bad/90"
+            className="sm:flex-1 rounded-xl bg-bad px-4 py-2.5 text-sm font-semibold text-white hover:bg-bad/90"
           >
             Yes, Cancel Test
           </button>

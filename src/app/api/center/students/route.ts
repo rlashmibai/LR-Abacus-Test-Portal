@@ -5,9 +5,16 @@ import {
   saveStudents,
   getStudentsByCenterId,
   nextStudentId,
+  ensureTestLink,
 } from "@/lib/store";
-import { getSessionCenter, hashPassword } from "@/lib/auth";
-import { DEFAULT_LEVEL, parseLevelInput, levelToStored } from "@/lib/levels";
+import { getSessionCenter, hashPassword, encryptPassword, generatePassword } from "@/lib/auth";
+import {
+  DEFAULT_LEVEL,
+  DEFAULT_LINK_MODE,
+  DEFAULT_LINK_QUESTIONS,
+  parseLevelInput,
+  levelToStored,
+} from "@/lib/levels";
 import type { Student } from "@/lib/types";
 
 export async function GET() {
@@ -17,9 +24,11 @@ export async function GET() {
   }
 
   const roster = await getStudentsByCenterId(center.id);
-  // Never send password hashes to the browser, even though they're
-  // salted - there's no reason this response needs them.
-  const safeRoster = roster.map(({ passwordHash: _passwordHash, ...rest }) => rest);
+  // Never send password hashes (or the encrypted copies) to the browser,
+  // even though they're protected - there's no reason this response needs them.
+  const safeRoster = roster.map(
+    ({ passwordHash: _passwordHash, passwordEnc: _passwordEnc, ...rest }) => rest
+  );
   return NextResponse.json(safeRoster);
 }
 
@@ -32,7 +41,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const userId: string = (body.userId ?? "").trim();
   const name: string = (body.name ?? "").trim();
-  const password: string = body.password ?? "";
+  // Optional: leave it blank and one is generated (and returned once, below).
+  const typedPassword: string = typeof body.password === "string" ? body.password : "";
+  const generated = typedPassword === "";
+  const password = generated ? generatePassword() : typedPassword;
   // Optional: a missing level means Level 1, but a level that's present and
   // not one of the six is an error rather than silently becoming Level 1.
   const level =
@@ -41,13 +53,13 @@ export async function POST(req: NextRequest) {
   if (level === undefined) {
     return NextResponse.json({ error: "Choose a level from 1 to 6." }, { status: 400 });
   }
-  if (!userId || !name || !password) {
+  if (!userId || !name) {
     return NextResponse.json(
-      { error: "User ID, name, and password are required." },
+      { error: "User ID and name are required." },
       { status: 400 }
     );
   }
-  if (password.length < 4) {
+  if (!generated && password.length < 4) {
     return NextResponse.json(
       { error: "Password must be at least 4 characters." },
       { status: 400 }
@@ -71,13 +83,22 @@ export async function POST(req: NextRequest) {
     centerId: center.id,
     level: levelToStored(level),
     passwordHash: hashPassword(password),
+    passwordEnc: encryptPassword(password),
   };
 
   const students = await getStudents();
   students.push(student);
   await saveStudents(students);
 
+  // Every level the centre uses gets its test link automatically.
+  await ensureTestLink(center.id, level, DEFAULT_LINK_MODE, DEFAULT_LINK_QUESTIONS);
+
   // Deliberately no session cookie change here - the teacher stays
   // logged in as the center, not auto-switched to the new student.
-  return NextResponse.json({ ok: true, studentId: student.id });
+  return NextResponse.json({
+    ok: true,
+    studentId: student.id,
+    // Only sent back when we made it up - otherwise the centre typed it.
+    password: generated ? password : undefined,
+  });
 }

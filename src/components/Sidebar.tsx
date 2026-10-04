@@ -48,13 +48,13 @@ export default function Sidebar({
       >
         {BRAND_SHORT}
       </Link>
-      <div className="flex items-center justify-between gap-3 px-5 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-lg font-semibold text-white">
+      <div className="flex items-center justify-between gap-2 px-4 py-4 md:gap-3 md:px-5">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-lg font-semibold text-white">
             {initials(studentName)}
           </div>
-          <div>
-            <p className="text-sm font-semibold text-ink">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-ink max-md:truncate">
               Hi, {studentName}!
             </p>
             <p className="text-xs text-ink-soft">Let&apos;s play with numbers! 🎯</p>

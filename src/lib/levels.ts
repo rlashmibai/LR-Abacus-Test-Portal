@@ -11,7 +11,7 @@
 //   5  + 3 x 1 multiplication
 //   6  + 3 x 1 division - every operation at full size
 
-import type { OperationType } from "./testTypes";
+import type { OperationType, TestMode } from "./testTypes";
 import type { QuestionKind } from "./types";
 
 export interface LevelSection {
@@ -111,6 +111,10 @@ export const LEVELS: LevelDef[] = [
 ];
 
 export const DEFAULT_LEVEL = 1;
+
+// The test every level's automatic link gives: a full-length timed exam.
+export const DEFAULT_LINK_MODE: TestMode = "exam";
+export const DEFAULT_LINK_QUESTIONS = 100;
 
 export function isValidLevel(n: unknown): n is number {
   return typeof n === "number" && Number.isInteger(n) && n >= 1 && n <= LEVELS.length;

@@ -19,8 +19,11 @@ export default async function CenterDashboardLayout({
   return (
     <div className="flex min-h-screen flex-col bg-paper">
       <header className="sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 md:px-8">
-          <Link href="/" className="flex items-center gap-2.5">
+        {/* On a phone: logo and Log Out on the first row, and the three pages
+            on a row of their own beneath, each with its name showing. From
+            `sm` up it's the single row it always was. */}
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-4 md:px-8">
+          <Link href="/" className="order-1 flex items-center gap-2.5">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
               <GraduationCap size={18} />
             </div>
@@ -29,31 +32,31 @@ export default async function CenterDashboardLayout({
             </span>
           </Link>
 
-          <nav className="flex items-center gap-1 rounded-xl bg-paper p-1">
+          <nav className="order-3 flex w-full items-center gap-1 rounded-xl bg-paper p-1 sm:order-2 sm:w-auto">
             <Link
               href="/center"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface hover:text-brand"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface hover:text-brand sm:flex-none"
             >
               <LayoutDashboard size={15} />
-              <span className="hidden sm:inline">Dashboard</span>
+              <span>Dashboard</span>
             </Link>
             <Link
               href="/center/students"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface hover:text-brand"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface hover:text-brand sm:flex-none"
             >
               <Users size={15} />
-              <span className="hidden sm:inline">Students</span>
+              <span>Students</span>
             </Link>
             <Link
               href="/center/tests"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface hover:text-brand"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface hover:text-brand sm:flex-none"
             >
               <Link2 size={15} />
-              <span className="hidden sm:inline">Tests</span>
+              <span>Tests</span>
             </Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="order-2 flex items-center gap-3 sm:order-3">
             <span className="hidden text-sm font-medium text-ink-soft sm:inline">
               {center.name}
             </span>

@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCenter } from "@/lib/auth";
-import { createTestLink, getTestLinksByCenterId, newTestLinkCode } from "@/lib/store";
+import { ensureTestLink } from "@/lib/store";
 import { isValidLevel } from "@/lib/levels";
 import { isValidMode, isValidQuestionCount } from "@/lib/testTypes";
-import type { TestLink } from "@/lib/types";
-
-const MAX_LINKS_PER_CENTER = 50;
 
 export async function POST(req: NextRequest) {
   const center = await getSessionCenter();
@@ -27,31 +24,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Choose 25, 50 or 100 questions." }, { status: 400 });
   }
 
-  // The same level/mode/length always gives the same link - asking twice
-  // returns the one already made instead of cluttering the list.
-  const existing = await getTestLinksByCenterId(center.id);
-  const duplicate = existing.find(
-    (l) => l.level === level && l.mode === body.mode && l.questionCount === questionCount
-  );
-  if (duplicate) {
-    return NextResponse.json({ ok: true, code: duplicate.code, existing: true });
-  }
-  if (existing.length >= MAX_LINKS_PER_CENTER) {
+  // The same level/mode/length always gives the same link, so asking again
+  // returns the one already made. `regenerate` replaces it with a new code
+  // (the old address stops working).
+  const result = await ensureTestLink(center.id, level, body.mode, questionCount, {
+    fresh: body.regenerate === true,
+  });
+  if (!result) {
     return NextResponse.json(
-      { error: `You can have up to ${MAX_LINKS_PER_CENTER} test links - delete one you no longer need first.` },
+      { error: "You have reached the limit of 50 test links - delete one you no longer need first." },
       { status: 400 }
     );
   }
 
-  // centerId always comes from the session, never from the request body.
-  const link: TestLink = {
-    code: newTestLinkCode(),
-    centerId: center.id,
-    level,
-    mode: body.mode,
-    questionCount,
-  };
-  await createTestLink(link);
-
-  return NextResponse.json({ ok: true, code: link.code, existing: false });
+  return NextResponse.json({ ok: true, code: result.link.code, existing: result.existing });
 }

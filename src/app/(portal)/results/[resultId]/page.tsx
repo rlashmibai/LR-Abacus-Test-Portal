@@ -39,9 +39,9 @@ export default async function ResultDetailPage({
 
   return (
     <div className="w-full space-y-6">
-      <section className="relative overflow-hidden rounded-3xl bg-brand-soft p-8">
+      <section className="relative overflow-hidden rounded-3xl bg-brand-soft p-6 sm:p-8">
         <AbacusIllustration className="pointer-events-none absolute -bottom-6 -left-6 hidden h-32 w-32 opacity-40 lg:block" />
-        <div className="relative flex flex-wrap items-center justify-between gap-6">
+        <div className="relative flex flex-wrap items-center justify-between gap-6 max-sm:flex-col max-sm:text-center">
           <div>
             <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-bold tracking-wide text-brand">
               RESULT DETAILS
@@ -82,7 +82,12 @@ export default async function ResultDetailPage({
         <Stat label="Answered" value={result.answered} tone="good" />
         <Stat label="Unanswered" value={result.unanswered} tone="gold" />
         <Stat label="Correct" value={result.correct} tone="brand" />
-        <Stat label="Time Taken" value={formatClock(result.timeTakenSeconds)} tone="good" />
+        <Stat
+          label="Time Taken"
+          value={formatClock(result.timeTakenSeconds)}
+          tone="good"
+          className="max-sm:col-span-2"
+        />
       </section>
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -102,7 +107,7 @@ export default async function ResultDetailPage({
         </InfoCard>
       </section>
 
-      <section className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line md:p-8">
+      <section className="rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-line sm:p-6 md:p-8">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-display text-lg font-semibold text-ink">Questions &amp; Answers</h3>
           <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
@@ -117,7 +122,7 @@ export default async function ResultDetailPage({
             return (
               <div
                 key={b.qNo}
-                className={`flex flex-col rounded-xl border p-4 text-sm ${
+                className={`flex flex-col rounded-xl border p-3 text-sm sm:p-4 ${
                   b.isCorrect || skipped
                     ? "border-line bg-white"
                     : "border-bad bg-bad-soft"
@@ -131,7 +136,7 @@ export default async function ResultDetailPage({
                 </div>
                 <div className="mt-auto space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className={skipped ? "text-ink-faint" : b.isCorrect ? "text-ink-soft" : "text-bad"}>
+                    <span className={`whitespace-nowrap ${skipped ? "text-ink-faint" : b.isCorrect ? "text-ink-soft" : "text-bad"}`}>
                       {!skipped && !b.isCorrect ? "✗ You" : "You"}
                     </span>
                     <span
@@ -147,7 +152,7 @@ export default async function ResultDetailPage({
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className={skipped ? "text-ink-faint" : b.isCorrect ? "text-good" : "text-ink-soft"}>
+                    <span className={`whitespace-nowrap ${skipped ? "text-ink-faint" : b.isCorrect ? "text-good" : "text-ink-soft"}`}>
                       {skipped ? "— Skipped" : b.isCorrect ? "✓ Correct" : "Correct"}
                     </span>
                     <span className="rounded-md bg-good-soft px-2 py-1 font-bold text-good">
@@ -183,13 +188,15 @@ function Stat({
   label,
   value,
   tone,
+  className = "",
 }: {
   label: string;
   value: string | number;
   tone: keyof typeof TONES;
+  className?: string;
 }) {
   return (
-    <div className={`rounded-2xl p-4 text-center shadow-sm ring-1 ring-line ${TONES[tone]}`}>
+    <div className={`rounded-2xl p-4 text-center shadow-sm ring-1 ring-line ${TONES[tone]} ${className}`}>
       <p className="text-[11px] font-semibold uppercase tracking-wide opacity-70">
         {label}
       </p>
@@ -208,7 +215,7 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line">
+    <div className="rounded-2xl bg-surface p-5 shadow-sm ring-1 ring-line sm:p-6">
       <div className="mb-4 flex items-center gap-3">
         <div className="rounded-xl bg-brand-soft p-2 text-brand">{icon}</div>
         <h3 className="font-display text-base font-semibold text-ink">{title}</h3>
@@ -220,9 +227,9 @@ function InfoCard({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-3 text-sm">
-      <dt className="text-ink-soft">{label}</dt>
-      <dd className="font-semibold text-ink">{value}</dd>
+    <div className="flex items-center justify-between gap-4 py-3 text-sm">
+      <dt className="shrink-0 text-ink-soft">{label}</dt>
+      <dd className="text-right font-semibold text-ink">{value}</dd>
     </div>
   );
 }

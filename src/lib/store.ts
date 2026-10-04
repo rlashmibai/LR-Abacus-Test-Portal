@@ -27,6 +27,7 @@ import {
   dbGetTestLinksByCenterId,
   dbDeleteTestLink,
   dbSetStudentLevel,
+  dbSetStudentCredentials,
 } from "./db";
 
 export interface PageView {
@@ -291,6 +292,40 @@ export async function getTestLinksByCenterId(centerId: string): Promise<TestLink
     .sort((a, b) => a.level - b.level);
 }
 
+const MAX_LINKS_PER_CENTER = 50;
+
+/** The centre's link for a level + mode + length, creating it if it doesn't
+ * exist yet - so every level has a link without anyone having to make one.
+ * The link for a given combination stays the same each time it's asked for.
+ *
+ * With `fresh`, any existing link for that combination is deleted (it stops
+ * working) and a brand-new code is made. Returns null only when the centre is
+ * already at its link limit. */
+export async function ensureTestLink(
+  centerId: string,
+  level: number,
+  mode: TestLink["mode"],
+  questionCount: number,
+  { fresh = false }: { fresh?: boolean } = {}
+): Promise<{ link: TestLink; existing: boolean } | null> {
+  const links = await getTestLinksByCenterId(centerId);
+  const matches = links.filter(
+    (l) => l.level === level && l.mode === mode && l.questionCount === questionCount
+  );
+
+  if (!fresh && matches[0]) return { link: matches[0], existing: true };
+
+  const remaining = links.length - (fresh ? matches.length : 0);
+  if (remaining >= MAX_LINKS_PER_CENTER) return null;
+
+  if (fresh) await Promise.all(matches.map((l) => deleteTestLink(l.code)));
+
+  // centerId is always supplied by the caller from the session, never the client.
+  const link: TestLink = { code: newTestLinkCode(), centerId, level, mode, questionCount };
+  await createTestLink(link);
+  return { link, existing: false };
+}
+
 export async function deleteTestLink(code: string): Promise<void> {
   if (isDbConfigured()) return dbDeleteTestLink(code);
   const links = await fileGetTestLinks();
@@ -316,6 +351,25 @@ export async function nextStudentIds(count: number): Promise<string[]> {
     ? await dbReserveCounterRange("student", count)
     : await fileReserveCounterRange("student", count);
   return Array.from({ length: count }, (_, i) => `STUD_${String(first + i).padStart(3, "0")}`);
+}
+
+/** Sets the password (and its recoverable copy) for several of a centre's
+ * students at once; students that belong to a different centre are ignored. */
+export async function setStudentCredentials(
+  centerId: string,
+  updates: { id: string; passwordHash: string; passwordEnc: string }[]
+): Promise<void> {
+  if (isDbConfigured()) return dbSetStudentCredentials(centerId, updates);
+  const byId = new Map(updates.map((u) => [u.id, u]));
+  const students = await fileGetStudents();
+  await fileSaveStudents(
+    students.map((s) => {
+      const u = byId.get(s.id);
+      return u && s.centerId === centerId
+        ? { ...s, passwordHash: u.passwordHash, passwordEnc: u.passwordEnc }
+        : s;
+    })
+  );
 }
 
 /** Changes one student's stored level ("LEVEL 4") without touching anyone

@@ -16,6 +16,8 @@ export default function AddStudentForm() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The student just added - kept so a generated password can be shown once.
+  const [added, setAdded] = useState<{ name: string; password?: string } | null>(null);
 
   function update<K extends keyof typeof form>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -38,6 +40,7 @@ export default function AddStudentForm() {
         return;
       }
       setForm({ userId: "", name: "", password: "", level: String(DEFAULT_LEVEL) });
+      setAdded({ name: form.name.trim(), password: data.password });
       setOpen(false);
       setLoading(false);
       router.refresh();
@@ -49,13 +52,33 @@ export default function AddStudentForm() {
 
   if (!open) {
     return (
-      <button
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-dark"
-      >
-        <UserPlus size={16} />
-        Add Student
-      </button>
+      <div className="space-y-3">
+        {added && (
+          <p className="rounded-xl bg-good-soft px-4 py-3 text-sm font-medium text-good">
+            {added.name} was added.
+            {added.password && (
+              <>
+                {" "}
+                Their password is{" "}
+                <span className="rounded bg-surface px-1.5 py-0.5 font-mono font-bold text-ink">
+                  {added.password}
+                </span>{" "}
+                - it&apos;s saved, and you can download it any time in the Excel sheet.
+              </>
+            )}
+          </p>
+        )}
+        <button
+          onClick={() => {
+            setAdded(null);
+            setOpen(true);
+          }}
+          className="flex items-center gap-2 rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-dark"
+        >
+          <UserPlus size={16} />
+          Add Student
+        </button>
+      </div>
     );
   }
 
@@ -87,12 +110,11 @@ export default function AddStudentForm() {
             className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
           />
         </Field>
-        <Field label="Password">
+        <Field label="Password (optional)">
           <input
-            required
             value={form.password}
             onChange={(e) => update("password", e.target.value)}
-            placeholder="At least 4 characters"
+            placeholder="Leave blank to set one for you"
             className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-sm text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand-soft"
           />
         </Field>
@@ -112,9 +134,10 @@ export default function AddStudentForm() {
       </div>
 
       <p className="text-xs text-ink-faint">
-        Share this User ID and password with the student - they sign in at
-        the normal sign-in page and see only their own results. The level is
-        for your records only - students never see it.
+        Share the User ID and password with the student - they sign in at
+        the normal sign-in page and see only their own results. The password
+        stays the same and is saved, so you can download it later in the
+        Excel sheet. The level is for your records only - students never see it.
       </p>
 
       {error && (

@@ -225,16 +225,19 @@ export default async function Home() {
               {BRAND_SHORT}
             </span>
           </Link>
-          <div className="flex items-center gap-3 sm:gap-5">
+          {/* On a phone the buttons sit on their own row under the logo, spread
+              across the width; each stays on one line and, if they can't all
+              fit, whole buttons wrap - never the words inside them. */}
+          <div className="flex w-full flex-wrap items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-5">
             <Link
               href="/about"
-              className="rounded-xl bg-paper px-4 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
+              className="whitespace-nowrap rounded-xl bg-paper px-3 py-2 text-[13px] font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
             >
               About Us
             </Link>
             <Link
               href="/contact"
-              className="rounded-xl bg-paper px-4 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
+              className="whitespace-nowrap rounded-xl bg-paper px-3 py-2 text-[13px] font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
             >
               Contact Us
             </Link>
@@ -242,7 +245,7 @@ export default async function Home() {
               <>
                 <Link
                   href="/dashboard"
-                  className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark sm:px-5 sm:py-3 sm:text-base"
+                  className="whitespace-nowrap rounded-xl bg-brand px-3 py-2 text-[13px] font-semibold text-white transition hover:bg-brand-dark sm:px-5 sm:py-3 sm:text-base"
                 >
                   Go to Dashboard
                 </Link>
@@ -256,13 +259,13 @@ export default async function Home() {
               <>
                 <Link
                   href="/login"
-                  className="rounded-xl bg-paper px-4 py-2.5 text-sm font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
+                  className="whitespace-nowrap rounded-xl bg-paper px-3 py-2 text-[13px] font-semibold text-ink-soft transition hover:bg-brand-soft hover:text-brand sm:px-5 sm:py-3 sm:text-base"
                 >
                   Log In
                 </Link>
                 <Link
                   href="/register"
-                  className="rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark sm:px-5 sm:py-3 sm:text-base"
+                  className="whitespace-nowrap rounded-xl bg-brand px-3 py-2 text-[13px] font-semibold text-white transition hover:bg-brand-dark sm:px-5 sm:py-3 sm:text-base"
                 >
                   Sign Up
                 </Link>
@@ -294,7 +297,7 @@ export default async function Home() {
             {student ? (
               <Link
                 href="/test-setup"
-                className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl sm:w-auto bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
               >
                 Start a Practice Test
                 <ArrowRight size={16} />
@@ -303,12 +306,12 @@ export default async function Home() {
               <>
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl sm:w-auto bg-brand px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
                 >
                   Create Free Account - Sign In To Save Your Progress
                   <ArrowRight size={16} />
                 </Link>
-                <GuestCtaButton className="inline-flex items-center gap-2 rounded-xl border border-dashed border-brand/40 bg-brand-soft px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-brand-soft/70 disabled:cursor-not-allowed disabled:opacity-70" />
+                <GuestCtaButton className="inline-flex w-full items-center justify-center gap-2 rounded-xl sm:w-auto border border-dashed border-brand/40 bg-brand-soft px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-brand-soft/70 disabled:cursor-not-allowed disabled:opacity-70" />
               </>
             )}
           </div>
@@ -319,8 +322,8 @@ export default async function Home() {
             aria-hidden
             className="pointer-events-none absolute h-80 w-80 rounded-full bg-gold/15 blur-3xl"
           />
-          <div className="relative rounded-3xl bg-brand-soft p-10">
-            <AbacusIllustration className="h-72 w-72" />
+          <div className="relative rounded-3xl bg-brand-soft p-6 sm:p-10">
+            <AbacusIllustration className="h-60 w-60 sm:h-72 sm:w-72" />
             <p className="mt-6 max-w-[260px] text-balance text-center font-display text-base italic text-brand-dark">
               &ldquo;{quote}&rdquo;
             </p>
@@ -477,7 +480,7 @@ export default async function Home() {
             {student ? (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-gold-soft"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl sm:w-auto bg-white px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-gold-soft"
               >
                 Go to Dashboard
                 <ArrowRight size={16} />
@@ -486,12 +489,12 @@ export default async function Home() {
               <>
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-gold-soft"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl sm:w-auto bg-white px-6 py-3.5 text-sm font-semibold text-brand transition hover:bg-gold-soft"
                 >
                   Create Free Account - Sign In To Save Your Progress
                   <ArrowRight size={16} />
                 </Link>
-                <GuestCtaButton className="inline-flex items-center gap-2 rounded-xl border border-dashed border-white/40 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70" />
+                <GuestCtaButton className="inline-flex w-full items-center justify-center gap-2 rounded-xl sm:w-auto border border-dashed border-white/40 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70" />
               </>
             )}
           </div>

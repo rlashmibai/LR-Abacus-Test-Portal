@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, Download, Loader2, CheckCircle2, FileSpreadsheet } from "lucide-react";
+import { downloadCredentialsSheet } from "@/lib/credentialsSheet";
+import type { SheetRow } from "@/lib/credentialsSheet";
+import { useOrigin } from "@/lib/useOrigin";
+import { stackedMd } from "@/components/dashboard/stackedTable";
 
 interface ParsedRow {
   row: number; // row number in the teacher's spreadsheet (header is row 1)
@@ -15,6 +19,7 @@ interface ParsedRow {
 interface UploadResult {
   created: number;
   skipped: { row: number; userId: string; reason: string }[];
+  students: SheetRow[]; // the students just added, with their passwords and link
 }
 
 const MAX_ROWS = 200;
@@ -150,6 +155,7 @@ async function downloadTemplate() {
 
 export default function BulkUploadStudents() {
   const router = useRouter();
+  const origin = useOrigin();
   const [open, setOpen] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [parsed, setParsed] = useState<ParsedRow[] | null>(null);
@@ -192,7 +198,7 @@ export default function BulkUploadStudents() {
         setUploading(false);
         return;
       }
-      setResult({ created: data.created, skipped: data.skipped });
+      setResult({ created: data.created, skipped: data.skipped, students: data.students ?? [] });
       setParsed(null);
       setFileName(null);
       setUploading(false);
@@ -241,8 +247,9 @@ export default function BulkUploadStudents() {
           <span className="font-semibold text-ink">1.</span> Download the template and fill
           in a row per student - <span className="font-medium">Student Name</span>,{" "}
           <span className="font-medium">User ID</span>, <span className="font-medium">Password</span>{" "}
-          (at least 4 characters) and, if you like, <span className="font-medium">Level</span>{" "}
-          (a number from 1 to 6 - leave it blank for Level 1).
+          (at least 4 characters - leave it blank and we&apos;ll set one) and, if you like,{" "}
+          <span className="font-medium">Level</span> (a number from 1 to 6 - leave it blank for
+          Level 1).
         </li>
         <li>
           <span className="font-semibold text-ink">2.</span> Choose your finished file below
@@ -330,22 +337,43 @@ export default function BulkUploadStudents() {
               </span>
             )}
           </p>
+          {result.students.length > 0 && (
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  downloadCredentialsSheet(
+                    result.students,
+                    origin,
+                    "new-students-logins-and-test-links.xlsx"
+                  )
+                }
+                className="flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+              >
+                <Download size={15} />
+                Download these students (Excel)
+              </button>
+              <p className="text-xs text-ink-soft">
+                Name, User ID, password, level and test link - ready to share.
+              </p>
+            </div>
+          )}
           {result.skipped.length > 0 && (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[420px] text-left text-sm">
-                <thead>
+              <table className={`w-full min-w-[420px] text-left text-sm ${stackedMd.table}`}>
+                <thead className={stackedMd.head}>
                   <tr className="text-xs uppercase tracking-wide text-ink-faint">
                     <th className="pb-1.5 pr-4">Row</th>
                     <th className="pb-1.5 pr-4">User ID</th>
                     <th className="pb-1.5">Why it was skipped</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-line">
+                <tbody className={`divide-y divide-line ${stackedMd.body}`}>
                   {result.skipped.map((s, i) => (
-                    <tr key={i}>
-                      <td className="py-1.5 pr-4 text-ink-soft">{s.row > 0 ? s.row : "-"}</td>
-                      <td className="py-1.5 pr-4 text-ink-soft">{s.userId || "-"}</td>
-                      <td className="py-1.5 text-ink">{s.reason}</td>
+                    <tr key={i} className={stackedMd.row}>
+                      <td data-label="Row" className={`py-1.5 pr-4 text-ink-soft ${stackedMd.cell}`}>{s.row > 0 ? s.row : "-"}</td>
+                      <td data-label="User ID" className={`py-1.5 pr-4 text-ink-soft ${stackedMd.cell}`}>{s.userId || "-"}</td>
+                      <td data-label="Why it was skipped" className={`py-1.5 text-ink ${stackedMd.cell}`}>{s.reason}</td>
                     </tr>
                   ))}
                 </tbody>

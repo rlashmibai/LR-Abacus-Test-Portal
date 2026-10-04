@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStudent, setStudentLevel } from "@/lib/store";
+import { getStudent, setStudentLevel, ensureTestLink } from "@/lib/store";
 import { getSessionCenter } from "@/lib/auth";
-import { parseLevelInput, levelToStored } from "@/lib/levels";
+import {
+  DEFAULT_LINK_MODE,
+  DEFAULT_LINK_QUESTIONS,
+  parseLevelInput,
+  levelToStored,
+} from "@/lib/levels";
 
 export async function POST(
   req: NextRequest,
@@ -26,5 +31,7 @@ export async function POST(
   }
 
   await setStudentLevel(student.id, levelToStored(level));
+  // The new level's test link exists from the moment someone is on it.
+  await ensureTestLink(center.id, level, DEFAULT_LINK_MODE, DEFAULT_LINK_QUESTIONS);
   return NextResponse.json({ ok: true, level });
 }

@@ -107,6 +107,11 @@ function ensureSchema(): Promise<void> {
         ALTER TABLE students ADD COLUMN IF NOT EXISTS center_id TEXT REFERENCES centers(id)
       `;
 
+      // Recoverable (encrypted) copy of a centre-created student's password,
+      // so the centre can download it again - see encryptPassword in auth.ts.
+      await sql`
+        ALTER TABLE students ADD COLUMN IF NOT EXISTS password_enc TEXT
+      `;
       await sql`
         CREATE TABLE IF NOT EXISTS test_links (
           code TEXT PRIMARY KEY,
@@ -138,6 +143,7 @@ interface StudentRow {
   center_name: string;
   level: string;
   password_hash: string | null;
+  password_enc: string | null;
   created_at: string;
   center_id: string | null;
 }
@@ -150,6 +156,7 @@ function rowToStudent(row: StudentRow): Student {
     centerName: row.center_name,
     level: row.level,
     passwordHash: row.password_hash ?? undefined,
+    passwordEnc: row.password_enc ?? undefined,
     createdAt: row.created_at,
     centerId: row.center_id ?? undefined,
   };
@@ -176,17 +183,39 @@ export async function dbSaveStudents(students: Student[]): Promise<void> {
   const sql = getSql();
   for (const s of students) {
     await sql`
-      INSERT INTO students (id, user_id, name, center_name, level, password_hash, center_id)
-      VALUES (${s.id}, ${s.userId}, ${s.name}, ${s.centerName}, ${s.level}, ${s.passwordHash ?? null}, ${s.centerId ?? null})
+      INSERT INTO students (id, user_id, name, center_name, level, password_hash, password_enc, center_id)
+      VALUES (${s.id}, ${s.userId}, ${s.name}, ${s.centerName}, ${s.level}, ${s.passwordHash ?? null}, ${s.passwordEnc ?? null}, ${s.centerId ?? null})
       ON CONFLICT (id) DO UPDATE SET
         user_id = EXCLUDED.user_id,
         name = EXCLUDED.name,
         center_name = EXCLUDED.center_name,
         level = EXCLUDED.level,
         password_hash = EXCLUDED.password_hash,
+        password_enc = EXCLUDED.password_enc,
         center_id = EXCLUDED.center_id
     `;
   }
+}
+
+/** Sets the sign-in password (hash) and its recoverable copy for many of one
+ * centre's students in a single query. The centre id is part of the match, so
+ * it can never touch another centre's students. */
+export async function dbSetStudentCredentials(
+  centerId: string,
+  updates: { id: string; passwordHash: string; passwordEnc: string }[]
+): Promise<void> {
+  if (updates.length === 0) return;
+  await ensureSchema();
+  const sql = getSql();
+  await sql`
+    UPDATE students SET password_hash = u.hash, password_enc = u.enc
+    FROM unnest(
+      ${updates.map((u) => u.id)}::text[],
+      ${updates.map((u) => u.passwordHash)}::text[],
+      ${updates.map((u) => u.passwordEnc)}::text[]
+    ) AS u(id, hash, enc)
+    WHERE students.id = u.id AND students.center_id = ${centerId}
+  `;
 }
 
 export async function dbSetStudentLevel(studentId: string, level: string): Promise<void> {
@@ -309,7 +338,7 @@ export async function dbInsertStudents(students: Student[]): Promise<number> {
   await ensureSchema();
   const sql = getSql();
   const rows = (await sql`
-    INSERT INTO students (id, user_id, name, center_name, level, password_hash, center_id)
+    INSERT INTO students (id, user_id, name, center_name, level, password_hash, password_enc, center_id)
     SELECT * FROM unnest(
       ${students.map((s) => s.id)}::text[],
       ${students.map((s) => s.userId)}::text[],
@@ -317,6 +346,7 @@ export async function dbInsertStudents(students: Student[]): Promise<number> {
       ${students.map((s) => s.centerName)}::text[],
       ${students.map((s) => s.level)}::text[],
       ${students.map((s) => s.passwordHash ?? null)}::text[],
+      ${students.map((s) => s.passwordEnc ?? null)}::text[],
       ${students.map((s) => s.centerId ?? null)}::text[]
     )
     ON CONFLICT (user_id) DO NOTHING

@@ -1,4 +1,14 @@
-import { createHmac, randomBytes, scrypt, scryptSync, timingSafeEqual } from "crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  createHmac,
+  randomBytes,
+  randomInt,
+  scrypt,
+  scryptSync,
+  timingSafeEqual,
+} from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getStudent, getCenter } from "./store";
@@ -21,6 +31,43 @@ export async function hashPasswordAsync(password: string): Promise<string> {
     scrypt(password, salt, 64, (err, key) => (err ? reject(err) : resolve(key)))
   );
   return `${salt}:${hash.toString("hex")}`;
+}
+
+// Passwords a centre hands out are kept in a second, *recoverable* form so the
+// centre can download them again later. They're AES-256-GCM encrypted with a
+// key derived from SESSION_SECRET, so a copy of the database alone reveals
+// nothing; sign-in itself still checks only the one-way hash above.
+function vaultKey(): Buffer {
+  return createHash("sha256").update(`abacus-password-vault:${getSessionSecret()}`).digest();
+}
+
+export function encryptPassword(plain: string): string {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", vaultKey(), iv);
+  const body = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()]);
+  return [iv, cipher.getAuthTag(), body].map((b) => b.toString("base64url")).join(".");
+}
+
+/** The original password, or null when there isn't one (never stored, or the
+ * site secret has changed since). */
+export function decryptPassword(stored: string | undefined): string | null {
+  if (!stored) return null;
+  try {
+    const [iv, tag, body] = stored.split(".").map((p) => Buffer.from(p, "base64url"));
+    const decipher = createDecipheriv("aes-256-gcm", vaultKey(), iv);
+    decipher.setAuthTag(tag);
+    return Buffer.concat([decipher.update(body), decipher.final()]).toString("utf8");
+  } catch {
+    return null;
+  }
+}
+
+// No 0/o, 1/l/i - easy for a child to read off a printout and type.
+const PASSWORD_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";
+
+/** A short random password a child can type, e.g. "k7mpx2". */
+export function generatePassword(length = 6): string {
+  return Array.from({ length }, () => PASSWORD_ALPHABET[randomInt(PASSWORD_ALPHABET.length)]).join("");
 }
 
 export function verifyPassword(password: string, stored: string | undefined): boolean {

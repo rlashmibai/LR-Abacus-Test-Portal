@@ -1,7 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStudents, getCenters, addStudents, nextStudentIds } from "@/lib/store";
-import { getSessionCenter, hashPasswordAsync } from "@/lib/auth";
-import { DEFAULT_LEVEL, parseLevelInput, levelToStored } from "@/lib/levels";
+import {
+  getStudents,
+  getCenters,
+  addStudents,
+  nextStudentIds,
+  getStudentsByCenterId,
+  ensureTestLink,
+} from "@/lib/store";
+import {
+  getSessionCenter,
+  hashPasswordAsync,
+  encryptPassword,
+  generatePassword,
+} from "@/lib/auth";
+import {
+  DEFAULT_LEVEL,
+  DEFAULT_LINK_MODE,
+  DEFAULT_LINK_QUESTIONS,
+  parseLevelInput,
+  levelToStored,
+} from "@/lib/levels";
 import type { Student } from "@/lib/types";
 
 // Each upload hashes every password (deliberately slow, scrypt), so cap
@@ -63,14 +81,18 @@ export async function POST(req: NextRequest) {
     const row = typeof r.row === "number" ? r.row : i + 2;
     const name = String(r.name ?? "").trim();
     const userId = String(r.userId ?? "").trim();
-    const password = String(r.password ?? "").trim();
+    const typedPassword = String(r.password ?? "").trim();
+    // A blank password cell means "set one for me".
+    const password = typedPassword === "" ? generatePassword() : typedPassword;
 
     const fail = (reason: string) => skipped.push({ row, userId, reason });
 
     if (!name) return fail("Student name is missing");
     if (!userId) return fail("User ID is missing");
     if (name.length > 100 || userId.length > 100) return fail("Name or User ID is too long");
-    if (password.length < 4) return fail("Password must be at least 4 characters");
+    if (typedPassword !== "" && typedPassword.length < 4) {
+      return fail("Password must be at least 4 characters (or leave it blank to have one set for you)");
+    }
 
     const levelText = String(r.level ?? "").trim();
     const level = levelText === "" ? DEFAULT_LEVEL : parseLevelInput(levelText);
@@ -86,6 +108,13 @@ export async function POST(req: NextRequest) {
   });
 
   let created = 0;
+  let createdStudents: {
+    name: string;
+    userId: string;
+    password: string;
+    level: number;
+    linkCode: string | null;
+  }[] = [];
   if (valid.length > 0) {
     const ids = await nextStudentIds(valid.length);
     // scrypt runs on worker threads, so these hash in parallel.
@@ -99,9 +128,11 @@ export async function POST(req: NextRequest) {
       centerId: center.id,
       level: levelToStored(v.level),
       passwordHash: hashes[i],
+      passwordEnc: encryptPassword(v.password),
     }));
 
     created = await addStudents(newStudents);
+    let addedIds = new Set(valid.map((v) => v.userId.toLowerCase()));
     if (created < valid.length) {
       // Only possible if someone else grabbed one of these IDs in the
       // instant between our check and the insert.
@@ -110,9 +141,30 @@ export async function POST(req: NextRequest) {
         userId: "",
         reason: `${valid.length - created} student(s) could not be added because their User ID was taken a moment ago - please re-upload those.`,
       });
+      // Only list (and hand out passwords for) the ones that really are
+      // this centre's now.
+      const roster = await getStudentsByCenterId(center.id);
+      addedIds = new Set(roster.map((s) => s.userId.toLowerCase()));
     }
+
+    // Every level used gets its test link automatically.
+    const linkCodes = new Map<number, string>();
+    for (const level of new Set(valid.map((v) => v.level))) {
+      const result = await ensureTestLink(center.id, level, DEFAULT_LINK_MODE, DEFAULT_LINK_QUESTIONS);
+      if (result) linkCodes.set(level, result.link.code);
+    }
+
+    createdStudents = valid
+      .filter((v) => addedIds.has(v.userId.toLowerCase()))
+      .map((v) => ({
+        name: v.name,
+        userId: v.userId,
+        password: v.password,
+        level: v.level,
+        linkCode: linkCodes.get(v.level) ?? null,
+      }));
   }
 
   skipped.sort((a, b) => a.row - b.row);
-  return NextResponse.json({ ok: true, created, skipped });
+  return NextResponse.json({ ok: true, created, skipped, students: createdStudents });
 }

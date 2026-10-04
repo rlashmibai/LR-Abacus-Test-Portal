@@ -7,6 +7,11 @@ export interface Student {
   centerName: string;
   level: string; // "LEVEL 1" - "LEVEL 6"; set by the centre, never shown to students
   passwordHash?: string; // "<salt>:<hash>", absent for guest sessions
+  // The password encrypted (not hashed) so the centre that created the
+  // account can put it in the credentials sheet. Only ever set for students
+  // a centre created; cleared when the student changes their own password.
+  // Server-side only - never sent to a browser.
+  passwordEnc?: string;
   isGuest?: boolean;
   createdAt?: string; // when the account was registered, ISO string
   centerId?: string; // set when a Center's teacher created this profile -

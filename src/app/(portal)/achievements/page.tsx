@@ -43,11 +43,12 @@ export default async function AchievementsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Two badges per row on a phone instead of fourteen full-width cards. */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         {achievements.map((a) => (
           <div
             key={a.id}
-            className={`rounded-2xl p-5 text-center shadow-sm ring-1 ${
+            className={`rounded-2xl p-3 text-center shadow-sm ring-1 sm:p-5 ${
               a.earned
                 ? "bg-surface ring-line [animation:badge-pop_0.5s_ease-out]"
                 : "bg-surface ring-line opacity-70"

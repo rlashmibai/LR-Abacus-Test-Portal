@@ -20,6 +20,7 @@ import ChartSection from "@/components/dashboard/ChartSection";
 import TableSection from "@/components/dashboard/TableSection";
 import Pagination from "@/components/dashboard/Pagination";
 import EmptyNote from "@/components/dashboard/EmptyNote";
+import { stackedMd, stackedLg } from "@/components/dashboard/stackedTable";
 
 export const metadata: Metadata = {
   title: `Admin | ${BRAND_NAME}`,
@@ -165,8 +166,8 @@ export default async function AdminPage({
         title="Top Students"
         description="Ranked by tests taken, then average score."
       >
-        <table className="w-full min-w-[520px] text-left text-sm">
-          <thead>
+        <table className={`w-full min-w-[520px] text-left text-sm ${stackedMd.table}`}>
+          <thead className={stackedMd.head}>
             <tr className="text-xs uppercase tracking-wide text-ink-faint">
               <th className="pb-2 pr-4">Name</th>
               <th className="pb-2 pr-4">User ID</th>
@@ -174,13 +175,13 @@ export default async function AdminPage({
               <th className="pb-2">Avg Score</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className={`divide-y divide-line ${stackedMd.body}`}>
             {stats.topStudents.map((s) => (
-              <tr key={s.studentId}>
-                <td className="py-2.5 pr-4 font-medium text-ink">{s.name}</td>
-                <td className="py-2.5 pr-4 text-ink-soft">{s.userId}</td>
-                <td className="py-2.5 pr-4 text-ink-soft">{s.testsTaken}</td>
-                <td className="py-2.5 font-semibold text-ink">{s.avgScorePercent}%</td>
+              <tr key={s.studentId} className={stackedMd.row}>
+                <td data-label="Name" className={`py-2.5 pr-4 font-medium text-ink ${stackedMd.cell}`}>{s.name}</td>
+                <td data-label="User ID" className={`py-2.5 pr-4 text-ink-soft ${stackedMd.cell}`}>{s.userId}</td>
+                <td data-label="Tests Taken" className={`py-2.5 pr-4 text-ink-soft ${stackedMd.cell}`}>{s.testsTaken}</td>
+                <td data-label="Avg Score" className={`py-2.5 font-semibold text-ink ${stackedMd.cell}`}>{s.avgScorePercent}%</td>
               </tr>
             ))}
           </tbody>
@@ -194,8 +195,8 @@ export default async function AdminPage({
         title="All Submissions"
         description={`${stats.allResults.length} test${stats.allResults.length === 1 ? "" : "s"} submitted, site-wide - most recent first.`}
       >
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead>
+        <table className={`w-full min-w-[720px] text-left text-sm ${stackedLg.table}`}>
+          <thead className={stackedLg.head}>
             <tr className="text-xs uppercase tracking-wide text-ink-faint">
               <th className="pb-2 pr-4">Student</th>
               <th className="pb-2 pr-4">User ID</th>
@@ -206,18 +207,18 @@ export default async function AdminPage({
               <th className="pb-2">Submitted</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className={`divide-y divide-line ${stackedLg.body}`}>
             {pageResults.map((r) => (
-              <tr key={r.id}>
-                <td className="py-2.5 pr-4 font-medium text-ink">{r.studentName}</td>
-                <td className="py-2.5 pr-4 text-ink-soft">{r.userId}</td>
-                <td className="py-2.5 pr-4 text-ink-soft">
+              <tr key={r.id} className={stackedLg.row}>
+                <td data-label="Student" className={`py-2.5 pr-4 font-medium text-ink ${stackedLg.cell}`}>{r.studentName}</td>
+                <td data-label="User ID" className={`py-2.5 pr-4 text-ink-soft ${stackedLg.cell}`}>{r.userId}</td>
+                <td data-label="Operation" className={`py-2.5 pr-4 text-ink-soft ${stackedLg.cell}`}>
                   {OPERATION_LABELS[r.operation] ?? r.operation}
                 </td>
-                <td className="py-2.5 pr-4 text-ink-soft capitalize">{r.mode}</td>
-                <td className="py-2.5 pr-4 font-semibold text-ink">{r.scorePercent}%</td>
-                <td className="py-2.5 pr-4 text-ink-soft">{formatClock(r.timeTakenSeconds)}</td>
-                <td className="py-2.5 text-ink-soft">{formatDate(r.submittedAt)}</td>
+                <td data-label="Mode" className={`py-2.5 pr-4 text-ink-soft capitalize ${stackedLg.cell}`}>{r.mode}</td>
+                <td data-label="Score" className={`py-2.5 pr-4 font-semibold text-ink ${stackedLg.cell}`}>{r.scorePercent}%</td>
+                <td data-label="Time" className={`py-2.5 pr-4 text-ink-soft ${stackedLg.cell}`}>{formatClock(r.timeTakenSeconds)}</td>
+                <td data-label="Submitted" className={`py-2.5 text-ink-soft ${stackedLg.cell}`}>{formatDate(r.submittedAt)}</td>
               </tr>
             ))}
           </tbody>
@@ -272,8 +273,8 @@ export default async function AdminPage({
         title="Registered Centres"
         description="Schools/coaching centres that have self-registered, each with their own teacher-managed student roster."
       >
-        <table className="w-full min-w-[480px] text-left text-sm">
-          <thead>
+        <table className={`w-full min-w-[480px] text-left text-sm ${stackedMd.table}`}>
+          <thead className={stackedMd.head}>
             <tr className="text-xs uppercase tracking-wide text-ink-faint">
               <th className="pb-2 pr-4">Name</th>
               <th className="pb-2 pr-4">User ID</th>
@@ -281,15 +282,15 @@ export default async function AdminPage({
               <th className="pb-2">Registered</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className={`divide-y divide-line ${stackedMd.body}`}>
             {centers.map((c) => (
-              <tr key={c.id}>
-                <td className="py-2.5 pr-4 font-medium text-ink">{c.name}</td>
-                <td className="py-2.5 pr-4 text-ink-soft">{c.userId}</td>
-                <td className="py-2.5 pr-4 text-ink-soft">
+              <tr key={c.id} className={stackedMd.row}>
+                <td data-label="Name" className={`py-2.5 pr-4 font-medium text-ink ${stackedMd.cell}`}>{c.name}</td>
+                <td data-label="User ID" className={`py-2.5 pr-4 text-ink-soft ${stackedMd.cell}`}>{c.userId}</td>
+                <td data-label="Students" className={`py-2.5 pr-4 text-ink-soft ${stackedMd.cell}`}>
                   {studentCountByCenter.get(c.id) ?? 0}
                 </td>
-                <td className="py-2.5 text-ink-soft">
+                <td data-label="Registered" className={`py-2.5 text-ink-soft ${stackedMd.cell}`}>
                   {c.createdAt ? formatDateOnly(c.createdAt) : "—"}
                 </td>
               </tr>
@@ -305,20 +306,20 @@ export default async function AdminPage({
         title="Registered Students"
         description="Existing accounts show the date this column was added, not their true original signup date - only accounts registered from now on will have an accurate one."
       >
-        <table className="w-full min-w-[560px] text-left text-sm">
-          <thead>
+        <table className={`w-full min-w-[560px] text-left text-sm ${stackedMd.table}`}>
+          <thead className={stackedMd.head}>
             <tr className="text-xs uppercase tracking-wide text-ink-faint">
               <th className="pb-2 pr-4">Name</th>
               <th className="pb-2 pr-4">User ID</th>
               <th className="pb-2">Registered</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className={`divide-y divide-line ${stackedMd.body}`}>
             {stats.students.map((s) => (
-              <tr key={s.id}>
-                <td className="py-2.5 pr-4 font-medium text-ink">{s.name}</td>
-                <td className="py-2.5 pr-4 text-ink-soft">{s.userId}</td>
-                <td className="py-2.5 text-ink-soft">
+              <tr key={s.id} className={stackedMd.row}>
+                <td data-label="Name" className={`py-2.5 pr-4 font-medium text-ink ${stackedMd.cell}`}>{s.name}</td>
+                <td data-label="User ID" className={`py-2.5 pr-4 text-ink-soft ${stackedMd.cell}`}>{s.userId}</td>
+                <td data-label="Registered" className={`py-2.5 text-ink-soft ${stackedMd.cell}`}>
                   {s.createdAt ? formatDateOnly(s.createdAt) : "—"}
                 </td>
               </tr>
