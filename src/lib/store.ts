@@ -33,6 +33,8 @@ import {
 export interface PageView {
   id: string;
   viewedAt: string;
+  city?: string; // approximate, from the visitor's network - never their address
+  country?: string;
 }
 
 // Local JSON files are used when no database is configured (e.g. local
@@ -149,10 +151,13 @@ async function fileInsertStudents(newStudents: Student[]): Promise<number> {
   return inserted;
 }
 
-async function fileLogPageView(id: string): Promise<void> {
+async function fileLogPageView(
+  id: string,
+  location: { city?: string; country?: string }
+): Promise<void> {
   await ensureDirs();
   const views = await readJson<PageView[]>(PAGE_VIEWS_FILE, []);
-  views.unshift({ id, viewedAt: new Date().toISOString() });
+  views.unshift({ id, viewedAt: new Date().toISOString(), ...location });
   await writeJson(PAGE_VIEWS_FILE, views);
 }
 
@@ -235,9 +240,9 @@ export async function getCounterValue(name: string): Promise<number> {
 /** Logs one homepage view with its own timestamp, so the admin
  * dashboard can list individual visits with a real date/time - not
  * just a running total. */
-export async function logPageView(): Promise<void> {
+export async function logPageView(location: { city?: string; country?: string } = {}): Promise<void> {
   const id = newId("view_");
-  return isDbConfigured() ? dbLogPageView(id) : fileLogPageView(id);
+  return isDbConfigured() ? dbLogPageView(id, location) : fileLogPageView(id, location);
 }
 
 export async function getPageViews(): Promise<PageView[]> {

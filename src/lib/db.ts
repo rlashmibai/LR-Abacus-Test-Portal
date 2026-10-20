@@ -91,6 +91,10 @@ function ensureSchema(): Promise<void> {
           viewed_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `;
+      // Approximate place of each homepage view (city/country only - never
+      // the visitor's network address). Older rows simply have none.
+      await sql`ALTER TABLE page_views ADD COLUMN IF NOT EXISTS city TEXT`;
+      await sql`ALTER TABLE page_views ADD COLUMN IF NOT EXISTS country TEXT`;
       await sql`
         CREATE TABLE IF NOT EXISTS centers (
           id TEXT PRIMARY KEY,
@@ -433,19 +437,32 @@ export async function dbGetCounter(name: string): Promise<number> {
 
 /** Logs one homepage load with its own timestamp (not just a running
  * total) so the admin dashboard can show a real date/time per visit. */
-export async function dbLogPageView(id: string): Promise<void> {
+export async function dbLogPageView(
+  id: string,
+  location: { city?: string; country?: string } = {}
+): Promise<void> {
   await ensureSchema();
   const sql = getSql();
-  await sql`INSERT INTO page_views (id) VALUES (${id})`;
+  await sql`
+    INSERT INTO page_views (id, city, country)
+    VALUES (${id}, ${location.city ?? null}, ${location.country ?? null})
+  `;
 }
 
-export async function dbGetPageViews(): Promise<{ id: string; viewedAt: string }[]> {
+export async function dbGetPageViews(): Promise<
+  { id: string; viewedAt: string; city?: string; country?: string }[]
+> {
   await ensureSchema();
   const sql = getSql();
   const rows = (await sql`
-    SELECT id, viewed_at FROM page_views ORDER BY viewed_at DESC
-  `) as unknown as { id: string; viewed_at: string }[];
-  return rows.map((r) => ({ id: r.id, viewedAt: r.viewed_at }));
+    SELECT id, viewed_at, city, country FROM page_views ORDER BY viewed_at DESC
+  `) as unknown as { id: string; viewed_at: string; city: string | null; country: string | null }[];
+  return rows.map((r) => ({
+    id: r.id,
+    viewedAt: r.viewed_at,
+    city: r.city ?? undefined,
+    country: r.country ?? undefined,
+  }));
 }
 
 export async function dbSaveResult(result: TestResult): Promise<void> {

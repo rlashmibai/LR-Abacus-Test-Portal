@@ -16,7 +16,9 @@ import {
   Monitor,
 } from "lucide-react";
 import { getSessionStudent } from "@/lib/auth";
+import { headers } from "next/headers";
 import { logPageView } from "@/lib/store";
+import { getVisitorLocation } from "@/lib/geo";
 import { pickQuote } from "@/lib/quotes";
 import { BRAND_NAME, BRAND_SHORT } from "@/lib/brand";
 import AbacusIllustration from "@/components/AbacusIllustration";
@@ -210,7 +212,7 @@ export default async function Home() {
   // serverless function can be frozen right after the response is sent,
   // which would silently drop an un-awaited write; errors are swallowed
   // so this never breaks the homepage itself.
-  await logPageView().catch(() => {});
+  await logPageView(getVisitorLocation(await headers())).catch(() => {});
 
   return (
     <div className="min-h-screen bg-paper">

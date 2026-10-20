@@ -21,6 +21,7 @@ import TableSection from "@/components/dashboard/TableSection";
 import Pagination from "@/components/dashboard/Pagination";
 import EmptyNote from "@/components/dashboard/EmptyNote";
 import { stackedMd, stackedLg } from "@/components/dashboard/stackedTable";
+import { formatLocation } from "@/lib/geo";
 
 export const metadata: Metadata = {
   title: `Admin | ${BRAND_NAME}`,
@@ -239,18 +240,27 @@ export default async function AdminPage({
       <TableSection
         icon={<Eye size={18} />}
         title="Homepage Views"
-        description={`${pageViews.length} view${pageViews.length === 1 ? "" : "s"} logged, most recent first - a raw page-load count (includes repeat visits and any bot/crawler traffic), not unique visitors. Only views since this feature was added are logged.`}
+        description={`${pageViews.length} view${pageViews.length === 1 ? "" : "s"} logged, most recent first - a raw page-load count (includes repeat visits and any bot/crawler traffic), not unique visitors. Only views since this feature was added are logged. Location is approximate (city and country worked out from the visitor's network, so VPNs, phones and school networks can show somewhere nearby or the provider's own location) and is only recorded for views since it was added.`}
       >
-        <table className="w-full min-w-[280px] text-left text-sm">
-          <thead>
+        <table className={`w-full min-w-[280px] text-left text-sm ${stackedMd.table}`}>
+          <thead className={stackedMd.head}>
             <tr className="text-xs uppercase tracking-wide text-ink-faint">
-              <th className="pb-2">Date &amp; Time</th>
+              <th className="pb-2 pr-4">Date &amp; Time</th>
+              <th className="pb-2">Location</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className={`divide-y divide-line ${stackedMd.body}`}>
             {pageViewItems.map((v) => (
-              <tr key={v.id}>
-                <td className="py-2.5 text-ink-soft">{formatDate(v.viewedAt)}</td>
+              <tr key={v.id} className={stackedMd.row}>
+                <td
+                  data-label="Date & Time"
+                  className={`py-2.5 pr-4 text-ink-soft ${stackedMd.cell}`}
+                >
+                  {formatDate(v.viewedAt)}
+                </td>
+                <td data-label="Location" className={`py-2.5 text-ink-soft ${stackedMd.cell}`}>
+                  {formatLocation(v.city, v.country) ?? "-"}
+                </td>
               </tr>
             ))}
           </tbody>
